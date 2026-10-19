@@ -29,3 +29,14 @@
 .stress-part a{color:#67d6b1;}
 .stress-part-head{color:#90aaba;font:600 10px/1.4 'IBM Plex Mono',monospace;}
 @media(max-width:730px){.stress-columns,.stress-row{grid-template-columns:minmax(115px,1.5fr) minmax(65px,1fr) minmax(70px,.8fr);gap:5px;font-size:11px;}.stress-columns>span:last-child,.stress-row>span:last-child{display:none;}.stress-summary{grid-template-columns:1fr;}.stress-part{grid-template-columns:minmax(145px,2fr) minmax(80px,1fr) minmax(72px,1fr);}.stress-part>span:last-child{display:none;}}
+
+/* v0.3 — source-auditable multidimensional vulnerability */
+.stress-columns,.stress-row{display:grid;grid-template-columns:minmax(170px,2.2fr) minmax(60px,.7fr) minmax(60px,.7fr) minmax(60px,.7fr) minmax(85px,.9fr) minmax(75px,.8fr);gap:10px;align-items:center;}
+.stress-rows{max-height:675px;}
+.stress-domain{padding:16px 0;border-top:1px solid #304653;}
+.stress-domain-head{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:12px;}
+.stress-domain-head>b{color:#ecf4f3;font-size:15px;}
+.stress-domain-head>strong{color:#f0c47d;font:700 22px/1.2 'IBM Plex Mono',monospace;}
+.stress-domain-head>small{color:#92a9b4;font-size:11px;}
+@media(max-width:950px){.stress-columns,.stress-row{grid-template-columns:minmax(125px,2fr) repeat(3,minmax(50px,.75fr));gap:7px}.stress-columns>span:nth-child(5),.stress-row>span:nth-child(5),.stress-columns>span:nth-child(6),.stress-row>span:nth-child(6){display:none}}
+@media(max-width:430px){.stress-columns,.stress-row{grid-template-columns:minmax(110px,1.5fr) repeat(3,minmax(43px,.7fr));font-size:10px}}
