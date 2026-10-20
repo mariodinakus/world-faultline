@@ -114,7 +114,7 @@
     html.push('<section class="panel" id="rd-dossier-panel"></section>');
 
     // Map + analogs
-    html.push('<div class="rd-row"><section class="panel"><div class="panel-head"><div><div class="micro-label">REGIME SPACE · LAST 24 MONTHS VS. PAST CRISES</div><h2>' + esc(L.map) + '</h2></div></div><div id="rd-map" class="rd-chart tall"></div><div class="rd-legend"><span><i style="background:#e8f0f3"></i>NOW + 24M TRAIL</span><span><i style="background:#ec817b"></i>SYSTEMIC EPISODE</span><span><i style="background:#f3b664"></i>GLOBAL RECESSION</span><span><i style="background:#75cfe7"></i>OTHER EPISODE</span></div></section>' +
+    html.push('<div class="rd-row"><section class="panel"><div class="panel-head"><div><div class="micro-label">REGIME SPACE · LAST 24 MONTHS VS. PAST CRISES</div><h2>' + esc(L.map) + '</h2></div></div><div id="rd-map" class="rd-chart tall"></div><div class="rd-legend"><span><i style="background:#e8f0f3"></i>NOW + 24M TRAIL</span><span><i style="background:#ec817b"></i>SYSTEMIC EPISODE</span><span><i style="background:#f3b664"></i>GLOBAL RECESSION</span><span><i style="background:#8fb8c9"></i>OTHER EPISODE</span></div></section>' +
       '<section class="panel"><div class="panel-head"><div><div class="micro-label">NEAREST NEIGHBOUR · P, STRESS, G20 CLI, DIFFUSION</div><h2>' + esc(L.analogs) + '</h2></div></div><div class="rd-analogs">' +
       d.analogs.map((a, i) => '<div class="rd-analog"><span class="n">0' + (i + 1) + '</span><div><b>' + esc(a.name) + (a.systemic ? '<span class="rd-tag red">SYSTEMIC</span>' : '') + (a.global ? '<span class="rd-tag amber">GLOBAL</span>' : '') + '</b><small>' + esc(a.type) + '</small><small>P ' + num(a.vec.p, 0) + '% · stress ' + num(a.vec.stress, 0) + '% · G20 ' + num(a.vec.g20, 1) + ' · diff ' + num(a.vec.diff, 0) + '%</small></div><div class="d">' + num(a.distance, 2) + '<small><br/>σ-dist</small></div></div>').join('') +
       '</div><p class="fineprint">Now: P ' + num(d.current.p, 0) + '% · stress ' + num(d.current.stress, 0) + '% · G20 ' + num(d.current.g20, 2) + ' · diffusion ' + num(d.current.diff, 0) + '%. Distance is the RMS of standardized gaps (σ of 1985–today). An analog describes resemblance, not destiny.</p></section></div>');
@@ -316,7 +316,7 @@
         tooltip: Object.assign({ trigger: 'item', formatter: p => { const x = p.data && p.data.c; if (!x) return esc(p.name) + '<br/>' + (p.data && p.data.value != null ? 'value <b>' + num(p.data.value, 1) + '</b>' : '<span style="color:#7f95a1">no source</span>') + '<br/><span style="color:#7f95a1">click → dossier</span>'; const k = x.components; return '<b>' + esc(x.name) + '</b> · score <b>' + (x.score ?? '—') + '</b> (' + x.level + ')<br/>' + (k.cli ? 'CLI ' + k.cli.value + ' (' + sgn(k.cli.ch3, 2) + ', ' + k.cli.phase + ')<br/>' : '') + (k.esi ? 'ESI ' + k.esi.value + ' (' + esc(k.esi.month) + ')<br/>' : '') + (k.gdp ? 'GDP q/q ' + k.gdp.last.map(q => sgn(q.v, 1)).join(' / ') + '<br/>' : '') + (k.ciss ? 'CISS ' + k.ciss.value + '<br/>' : '') + (k.spread ? '10Y vs Bund ' + sgn(k.spread.value, 2) + 'pp' : ''); } }, TT),
         visualMap: { min: VM.min, max: VM.max, calculable: false, orient: 'horizontal', left: 10, bottom: 6, itemWidth: 10, itemHeight: 120, inRange: { color: VM.colors }, text: VM.text || [String(VM.max), String(VM.min)], textStyle: { color: '#8aa7ad', fontSize: 10 } },
         series: [{ type: 'map', map: 'wf-radar', roam: true, zoom: eu ? 4.2 : 1.15, center: eu ? [16, 51] : undefined, scaleLimit: { min: 1, max: 14 }, data, nameProperty: 'name',
-          itemStyle: { areaColor: '#1a2a33', borderColor: '#0b1820', borderWidth: .5 }, emphasis: { label: { show: false }, itemStyle: { areaColor: '#75cfe7' } }, select: { disabled: true } }] });
+          itemStyle: { areaColor: '#1d1a14', borderColor: '#0d0b07', borderWidth: .5 }, emphasis: { label: { show: false }, itemStyle: { areaColor: '#8fb8c9' } }, select: { disabled: true } }] });
       c.on('click', p => { const i = p.data && p.data.iso; if (!i) return; S.dossier = i; renderDossier(); const pnl = $('rd-dossier-panel'); if (pnl) pnl.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
     } catch (e) { box.innerHTML = '<div class="chart-no-data">World map layer unavailable: ' + esc(e.message) + '. The country table below has the same data.</div>'; }
   }
@@ -384,7 +384,7 @@
     const v = (arr || []).filter(x => x != null && Number.isFinite(x)); if (v.length < 3) return '';
     const a = arr.map(x => (x == null ? null : x)); const mn = Math.min(...v), mx = Math.max(...v), rg = mx - mn || 1;
     const pts = a.map((x, i) => (x == null ? null : (i / (a.length - 1) * 96).toFixed(1) + ',' + (28 - (x - mn) / rg * 26).toFixed(1))).filter(Boolean).join(' ');
-    return '<svg viewBox="0 0 96 30" preserveAspectRatio="none"><polyline points="' + pts + '" fill="none" stroke="#75cfe7" stroke-width="1.4" vector-effect="non-scaling-stroke"/></svg>';
+    return '<svg viewBox="0 0 96 30" preserveAspectRatio="none"><polyline points="' + pts + '" fill="none" stroke="#8fb8c9" stroke-width="1.4" vector-effect="non-scaling-stroke"/></svg>';
   }
   function sigCard(s) {
     const st = { ok: 'OK', watch: 'WATCH', alert: 'ALERT', na: 'N/A' }[s.status] || s.status;
@@ -408,8 +408,8 @@
   }
 
   /* ---------------- charts ---------------- */
-  const AX = { axisLabel: { color: '#8298a3', fontSize: 10 }, axisLine: { lineStyle: { color: '#314451' } }, splitLine: { lineStyle: { color: '#1f2e39', type: 'dashed' } } };
-  const TT = { backgroundColor: '#11232d', borderColor: '#3b5a66', textStyle: { color: '#e4eff2', fontSize: 11 } };
+  const AX = { axisLabel: { color: '#9c917b', fontSize: 10 }, axisLine: { lineStyle: { color: '#3a3324' } }, splitLine: { lineStyle: { color: '#2a251b', type: 'dashed' } } };
+  const TT = { backgroundColor: '#14110b', borderColor: '#5a4a2a', textStyle: { color: '#f1e9d6', fontSize: 11 } };
   function chart(id) { const el = $(id); if (!el || typeof echarts === 'undefined') return null; if (S.charts[id]) S.charts[id].dispose(); const c = echarts.init(el); S.charts[id] = c; return c; }
   function recAreas(rows) { const out = []; let s = null; rows.forEach((r, i) => { if (r[2] === 1 && s == null) s = r[0]; if (r[2] !== 1 && s != null) { out.push([{ xAxis: s }, { xAxis: rows[i - 1][0] }]); s = null; } }); if (s) out.push([{ xAxis: s }, { xAxis: rows[rows.length - 1][0] }]); return out; }
   function drawCharts() {
@@ -419,38 +419,38 @@
     // US probability
     const oosStart = months.indexOf(d.us.oos.start); const oos = months.map((m, i) => (i >= oosStart && d.us.oos.series[i - oosStart] !== undefined ? d.us.oos.series[i - oosStart] : null));
     let c = chart('rd-us');
-    if (c) c.setOption({ backgroundColor: 'transparent', grid: { left: 46, right: 18, top: 30, bottom: 50 }, tooltip: Object.assign({ trigger: 'axis', valueFormatter: v => v == null ? '—' : Number(v).toFixed(1) + '%' }, TT), legend: { top: 0, textStyle: { color: '#9fb3bd', fontSize: 10 } },
-      xAxis: Object.assign({ type: 'category', data: months, boundaryGap: false }, AX), yAxis: Object.assign({ type: 'value', min: 0, max: 100, axisLabel: { color: '#8298a3', fontSize: 10, formatter: '{value}%' } }, { splitLine: AX.splitLine }),
-      dataZoom: [{ type: 'inside', start: 30 }, { type: 'slider', height: 16, bottom: 8, start: 30, borderColor: '#263340', textStyle: { color: '#7f95a1' }, fillerColor: 'rgba(92,218,182,.12)' }],
-      series: [{ name: 'Fitted probability', type: 'line', data: rows.map(r => r[1]), showSymbol: false, lineStyle: { color: '#5cdab6', width: 2 }, areaStyle: { color: 'rgba(92,218,182,.08)' }, markArea: shade, markLine: { silent: true, symbol: 'none', lineStyle: { color: '#f3b664', type: 'dashed' }, label: { color: '#f3b664', fontSize: 9, formatter: '50%' }, data: [{ yAxis: 50 }] } },
-        { name: 'Pseudo out-of-sample', type: 'line', data: oos, showSymbol: false, connectNulls: false, lineStyle: { color: '#75cfe7', width: 1.2, type: 'dashed' } }] });
+    if (c) c.setOption({ backgroundColor: 'transparent', grid: { left: 46, right: 18, top: 30, bottom: 50 }, tooltip: Object.assign({ trigger: 'axis', valueFormatter: v => v == null ? '—' : Number(v).toFixed(1) + '%' }, TT), legend: { top: 0, textStyle: { color: '#c9bfa8', fontSize: 10 } },
+      xAxis: Object.assign({ type: 'category', data: months, boundaryGap: false }, AX), yAxis: Object.assign({ type: 'value', min: 0, max: 100, axisLabel: { color: '#9c917b', fontSize: 10, formatter: '{value}%' } }, { splitLine: AX.splitLine }),
+      dataZoom: [{ type: 'inside', start: 30 }, { type: 'slider', height: 16, bottom: 8, start: 30, borderColor: '#3a3324', textStyle: { color: '#9c917b' }, fillerColor: 'rgba(212,175,106,.12)' }],
+      series: [{ name: 'Fitted probability', type: 'line', data: rows.map(r => r[1]), showSymbol: false, lineStyle: { color: '#d4af6a', width: 2 }, areaStyle: { color: 'rgba(212,175,106,.08)' }, markArea: shade, markLine: { silent: true, symbol: 'none', lineStyle: { color: '#f3b664', type: 'dashed' }, label: { color: '#f3b664', fontSize: 9, formatter: '50%' }, data: [{ yAxis: 50 }] } },
+        { name: 'Pseudo out-of-sample', type: 'line', data: oos, showSymbol: false, connectNulls: false, lineStyle: { color: '#8fb8c9', width: 1.2, type: 'dashed' } }] });
     // Stress
     c = chart('rd-stress');
-    if (c) c.setOption({ backgroundColor: 'transparent', grid: { left: 46, right: 18, top: 30, bottom: 50 }, tooltip: Object.assign({ trigger: 'axis', valueFormatter: v => v == null ? '—' : Number(v).toFixed(0) + '%' }, TT), legend: { top: 0, textStyle: { color: '#9fb3bd', fontSize: 10 } },
-      xAxis: Object.assign({ type: 'category', data: months, boundaryGap: false }, AX), yAxis: Object.assign({ type: 'value', axisLabel: { color: '#8298a3', fontSize: 10, formatter: '{value}%' } }, { splitLine: AX.splitLine }),
-      dataZoom: [{ type: 'inside', start: 45 }, { type: 'slider', height: 16, bottom: 8, start: 45, borderColor: '#263340', textStyle: { color: '#7f95a1' }, fillerColor: 'rgba(92,218,182,.12)' }],
+    if (c) c.setOption({ backgroundColor: 'transparent', grid: { left: 46, right: 18, top: 30, bottom: 50 }, tooltip: Object.assign({ trigger: 'axis', valueFormatter: v => v == null ? '—' : Number(v).toFixed(0) + '%' }, TT), legend: { top: 0, textStyle: { color: '#c9bfa8', fontSize: 10 } },
+      xAxis: Object.assign({ type: 'category', data: months, boundaryGap: false }, AX), yAxis: Object.assign({ type: 'value', axisLabel: { color: '#9c917b', fontSize: 10, formatter: '{value}%' } }, { splitLine: AX.splitLine }),
+      dataZoom: [{ type: 'inside', start: 45 }, { type: 'slider', height: 16, bottom: 8, start: 45, borderColor: '#3a3324', textStyle: { color: '#9c917b' }, fillerColor: 'rgba(212,175,106,.12)' }],
       series: [{ name: 'US (NFCI · Baa · VIX · STLFSI)', type: 'line', data: rows.map(r => r[3]), showSymbol: false, lineStyle: { color: '#f3b664', width: 1.8 }, markArea: shade, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 100, lineStyle: { color: '#ec817b', type: 'solid' }, label: { formatter: '2008 PEAK', color: '#ec817b', fontSize: 9 } }, { yAxis: 60, lineStyle: { color: '#ec817b', type: 'dashed', opacity: .6 }, label: { formatter: 'SYSTEMIC 60%', color: '#ec817b', fontSize: 9 } }, { yAxis: 35, lineStyle: { color: '#f3b664', type: 'dashed', opacity: .6 }, label: { formatter: 'WATCH 35%', color: '#f3b664', fontSize: 9 } }] } },
-        { name: 'Euro area (ECB CISS)', type: 'line', data: rows.map(r => r[4]), showSymbol: false, lineStyle: { color: '#75cfe7', width: 1.5 } }] });
+        { name: 'Euro area (ECB CISS)', type: 'line', data: rows.map(r => r[4]), showSymbol: false, lineStyle: { color: '#8fb8c9', width: 1.5 } }] });
     // Cycle
     c = chart('rd-cycle');
-    if (c) c.setOption({ backgroundColor: 'transparent', grid: { left: 46, right: 44, top: 30, bottom: 50 }, tooltip: Object.assign({ trigger: 'axis' }, TT), legend: { top: 0, textStyle: { color: '#9fb3bd', fontSize: 10 } },
+    if (c) c.setOption({ backgroundColor: 'transparent', grid: { left: 46, right: 44, top: 30, bottom: 50 }, tooltip: Object.assign({ trigger: 'axis' }, TT), legend: { top: 0, textStyle: { color: '#c9bfa8', fontSize: 10 } },
       xAxis: Object.assign({ type: 'category', data: months, boundaryGap: false }, AX),
-      yAxis: [Object.assign({ type: 'value', min: 88, max: 103, axisLabel: { color: '#8298a3', fontSize: 10 } }, { splitLine: AX.splitLine }), { type: 'value', min: 0, max: 100, position: 'right', axisLabel: { color: '#5f7683', fontSize: 9, formatter: '{value}%' }, splitLine: { show: false } }],
-      dataZoom: [{ type: 'inside', start: 40 }, { type: 'slider', height: 16, bottom: 8, start: 40, borderColor: '#263340', textStyle: { color: '#7f95a1' }, fillerColor: 'rgba(92,218,182,.12)' }],
+      yAxis: [Object.assign({ type: 'value', min: 88, max: 103, axisLabel: { color: '#9c917b', fontSize: 10 } }, { splitLine: AX.splitLine }), { type: 'value', min: 0, max: 100, position: 'right', axisLabel: { color: '#7d7462', fontSize: 9, formatter: '{value}%' }, splitLine: { show: false } }],
+      dataZoom: [{ type: 'inside', start: 40 }, { type: 'slider', height: 16, bottom: 8, start: 40, borderColor: '#3a3324', textStyle: { color: '#9c917b' }, fillerColor: 'rgba(212,175,106,.12)' }],
       series: [{ name: 'Downturn diffusion (% GDP)', type: 'line', yAxisIndex: 1, data: rows.map(r => r[6]), showSymbol: false, lineStyle: { width: 0 }, areaStyle: { color: 'rgba(236,129,123,.16)' } },
-        { name: 'G20 CLI', type: 'line', data: rows.map(r => r[5]), showSymbol: false, lineStyle: { color: '#5cdab6', width: 2 }, markArea: shade, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 100, lineStyle: { color: '#5c7380' }, label: { formatter: 'TREND', color: '#7f95a1', fontSize: 9 } }, { yAxis: 99.6, lineStyle: { color: '#f3b664', type: 'dashed' }, label: { formatter: 'SLOWDOWN', color: '#f3b664', fontSize: 9 } }, { yAxis: 98.8, lineStyle: { color: '#ec817b', type: 'dashed' }, label: { formatter: 'GLOBAL RECESSION', color: '#ec817b', fontSize: 9 } }] } }] });
+        { name: 'G20 CLI', type: 'line', data: rows.map(r => r[5]), showSymbol: false, lineStyle: { color: '#d4af6a', width: 2 }, markArea: shade, markLine: { silent: true, symbol: 'none', data: [{ yAxis: 100, lineStyle: { color: '#5c7380' }, label: { formatter: 'TREND', color: '#9c917b', fontSize: 9 } }, { yAxis: 99.6, lineStyle: { color: '#f3b664', type: 'dashed' }, label: { formatter: 'SLOWDOWN', color: '#f3b664', fontSize: 9 } }, { yAxis: 98.8, lineStyle: { color: '#ec817b', type: 'dashed' }, label: { formatter: 'GLOBAL RECESSION', color: '#ec817b', fontSize: 9 } }] } }] });
     // Crisis map
     c = chart('rd-map');
     if (c) {
       const trail = rows.slice(-24).map(r => [r[1], Math.max(r[3] ?? -999, r[4] ?? -999) === -999 ? null : Math.max(r[3] ?? -999, r[4] ?? -999), r[0]]).filter(p => p[0] != null && p[1] != null);
       const eps = d.episodes.filter(e => e.vec && e.vec.p != null && e.vec.stress != null);
-      const col = e => (e.systemic ? '#ec817b' : e.global ? '#f3b664' : '#75cfe7');
+      const col = e => (e.systemic ? '#ec817b' : e.global ? '#f3b664' : '#8fb8c9');
       c.setOption({ backgroundColor: 'transparent', grid: { left: 50, right: 22, top: 18, bottom: 42 },
         tooltip: Object.assign({ trigger: 'item', formatter: p => p.data && p.data.name ? esc(p.data.name) + '<br/>P ' + num(p.data.value[0], 0) + '% · stress ' + num(p.data.value[1], 0) + '%' : esc(p.data[2] || '') + '<br/>P ' + num(p.data[0], 0) + '% · stress ' + num(p.data[1], 0) + '%' }, TT),
-        xAxis: Object.assign({ type: 'value', min: 0, max: 100, name: 'US recession probability, 12m (%)', nameLocation: 'middle', nameGap: 26, nameTextStyle: { color: '#7f95a1', fontSize: 10 } }, AX),
-        yAxis: Object.assign({ type: 'value', min: -30, max: 130, name: 'Stress, % of 2008', nameTextStyle: { color: '#7f95a1', fontSize: 10 } }, AX),
+        xAxis: Object.assign({ type: 'value', min: 0, max: 100, name: 'US recession probability, 12m (%)', nameLocation: 'middle', nameGap: 26, nameTextStyle: { color: '#9c917b', fontSize: 10 } }, AX),
+        yAxis: Object.assign({ type: 'value', min: -30, max: 130, name: 'Stress, % of 2008', nameTextStyle: { color: '#9c917b', fontSize: 10 } }, AX),
         series: [
-          { type: 'scatter', symbolSize: 11, data: eps.map(e => ({ name: e.name, value: [e.vec.p, e.vec.stress], itemStyle: { color: col(e), opacity: .85 } })), label: { show: true, formatter: p => p.data.name.split(' ')[0], position: 'right', color: '#9fb3bd', fontSize: 9 },
+          { type: 'scatter', symbolSize: 11, data: eps.map(e => ({ name: e.name, value: [e.vec.p, e.vec.stress], itemStyle: { color: col(e), opacity: .85 } })), label: { show: true, formatter: p => p.data.name.split(' ')[0], position: 'right', color: '#c9bfa8', fontSize: 9 },
             markArea: { silent: true, data: [[{ xAxis: 40, yAxis: 60, itemStyle: { color: 'rgba(236,129,123,.10)' }, label: { show: true, formatter: 'SYSTEMIC', color: '#ec817b', fontSize: 9, position: 'insideTopRight' } }, { xAxis: 100, yAxis: 130 }], [{ xAxis: 0, yAxis: 35, itemStyle: { color: 'rgba(243,182,100,.05)' } }, { xAxis: 100, yAxis: 60 }]] } },
           { type: 'line', data: trail, showSymbol: true, symbolSize: (v, p) => (p.dataIndex === trail.length - 1 ? 16 : 4), lineStyle: { color: '#e8f0f3', width: 1, opacity: .6 }, itemStyle: { color: '#e8f0f3' }, label: { show: true, formatter: p => (p.dataIndex === trail.length - 1 ? 'NOW' : ''), position: 'top', color: '#e8f0f3', fontWeight: 'bold', fontSize: 10 } }
         ] });
@@ -463,7 +463,9 @@
     show() { if (!S.data && !S.loading) load(false); else if (S.data) setTimeout(resize, 30); },
     refresh() { return load(true); },
     rerender() { if (S.data) render(); },
-    get data() { return S.data; }
+    get data() { return S.data; },
+    get extra() { return S.extra || null; },
+    load(force) { return load(!!force); }
   };
   window.addEventListener('resize', resize);
   window.addEventListener('wf:locale', () => window.FaultlineRadar.rerender());

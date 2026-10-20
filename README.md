@@ -1,5 +1,19 @@
 # WORLD FAULTLINE · Global Systems Observatory
 
+## v1.3 — Recession Lab and cinematic redesign
+- **Recession Lab** (`#lab`) has 9 scenario presets built on today's live data: status quo with Hormuz effectively closed since 28 Feb 2026, Hormuz reopens, Gulf escalation at $150, a $200 oil shock, a Russia–NATO clash, a Taiwan blockade, a US–China war, a conventional World War III and an AI/equity bust. Six sliders let you build your own scenario.
+- **How a shock is passed through:**
+  - Oil → world growth: IMF Apr 2026 scenario slope of −0.039pp per dollar, from an IMF Oct 2026 base of 3.4% at $87.4.
+  - War shocks: Bloomberg Economics (Taiwan blockade −5%, US–China war −10.2%).
+  - Growth → G20 CLI: 1.4 points per pp.
+  - G20 CLI → downturn diffusion: OLS on history.
+  - Rates and NFCI → the fitted US logit.
+  - Stress components are re-scaled to % of 2008.
+  - The regime verdict is re-run under the scenario.
+- **Monte Carlo:** 4,000 draws give P(g<2%), P(g<1%) and P(g<0) under the scenario. The page also shows break-even Brent prices, a country impact map (oil channel × energy-import dependence, war channel × region × trade openness) and a scenario matrix.
+- **Escalation index — "how close to WW3"** (`/api/geo`). Inputs: the Caldara–Iacoviello GPR (historical series since 1900, compared with WWI/WWII, Korea, Cuba, 9/11, Ukraine and Iran 2026), the daily GPR, GDELT flashpoint news intensity, the Doomsday Clock (85 s, Jan 2026) and the Brent war premium over pre-war. It is explicitly **not** a probability.
+- **Design:** warm black with gold accents, Playfair Display headings, DM Mono figures and a film-grain texture.
+
 ## v1.0 — Recession & Crisis Radar (default view)
 
 Answers four questions from live public data, recomputed by a Vercel function (`/api/radar`, edge-cached 1h):

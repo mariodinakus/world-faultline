@@ -576,5 +576,5 @@
     };
   }
 
-  return { compute, OECD_URL: () => OECD + Object.keys(CLI_WEIGHTS).concat(['G20']).join('+') + '.M.LI...AA...H?startPeriod=1970-01&format=csvfile', MODEL, EPISODES, CLI_WEIGHTS, COUNTRIES, _internal: { parseCsv, parseJsonStat, parseFred, monthRange, addMonths, cliScore, gdpScore, SCORE_RULES } };
+  return { compute, verdict, OECD_URL: () => OECD + Object.keys(CLI_WEIGHTS).concat(['G20']).join('+') + '.M.LI...AA...H?startPeriod=1970-01&format=csvfile', MODEL, EPISODES, CLI_WEIGHTS, COUNTRIES, _internal: { parseCsv, parseJsonStat, parseFred, monthRange, addMonths, cliScore, gdpScore, SCORE_RULES } };
 });
