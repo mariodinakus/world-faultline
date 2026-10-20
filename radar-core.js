@@ -554,7 +554,7 @@
     v.answers.systemic.boomRed = banking.rows.filter(b => b.level === 'red').map(b => b.iso3);
     v.answers.systemic.boomAmber = banking.rows.filter(b => b.level === 'amber').map(b => b.iso3);
     v.answers.systemic.globalCreditD8 = banking.globalCreditD8;
-    if (ledger && ledger.sarlin[0].Ur > 0) { v.answers.us.alarmThreshold = r2(ledger.sarlin[0].tau * 100, 0); v.answers.us.aboveAlarm = P != null && P >= ledger.sarlin[0].tau * 100; }
+    if (ledger) { const sl = ledger.sarlin.find(x => x.mu === 0.8 && x.Ur > 0) || ledger.sarlin.find(x => x.Ur > 0); if (sl) { v.answers.us.alarmThreshold = r2(sl.tau * 100, 0); v.answers.us.alarmMu = sl.mu; v.answers.us.aboveAlarm = P != null && P >= sl.tau * 100; } }
 
     const h0 = months.indexOf('1970-01');
     const H = months.slice(h0).map((m, k) => { const i = k + h0; return [m, us.prob[i] == null ? null : r2(us.prob[i] * 100, 1), us.rec[i], r2(st.us[i], 1), r2(st.ea[i], 1), r2(G.g20[i], 2), r2(G.diff[i], 0), r2(us.spread[i], 2)]; });

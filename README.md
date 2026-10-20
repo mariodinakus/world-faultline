@@ -21,7 +21,7 @@ Data: FRED (St. Louis Fed), OECD SDMX, ECB Data Portal, Eurostat. OECD rejects s
 - **Episodes, not months, are the unit of evidence.** The model card reports the independent recession episodes in the out-of-sample window and the minimum AUROC difference detectable with 80% power (paper, Table 5).
 - **Dependence-robust inference.** The AUROC is shown with three 90% intervals: DeLong, clustered by episode, and clustered by episode with 24-month tranquil blocks (Obuchowski 1997 estimator, paper eq. 1). The clustered interval is about 3× wider.
 - **Leave-one-episode-out** AUROC, plus Brier and log scores against climatology.
-- **Decision usefulness.** Sarlin (2013) loss with μ = 0.5 and 0.8. The Sarlin-optimal τ* is the alarm threshold used in the verdict and the proximity gauges.
+- **Decision usefulness.** Sarlin (2013) loss with μ = 0.5 and 0.8. The Sarlin-optimal τ* at μ = 0.8 is the alarm threshold used in the verdict and the proximity gauges.
 - **No ML horse race.** The paper finds the logit the most stable model and that differences of a few AUROC points cannot be detected with available crises. The global layer rests on 5 waves, so it uses declared rules rather than fitted coefficients.
 - **2008-type build-up layer** uses the JST predictor logic: 2-year change in BIS private credit/GDP, 2-year real house-price growth (BIS via FRED) and leave-one-out global credit growth, for 31 economies.
 
