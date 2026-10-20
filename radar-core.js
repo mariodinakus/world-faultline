@@ -397,15 +397,124 @@
   /* ------------------------------------------------------------------ */
   /* Orchestrator                                                         */
   /* ------------------------------------------------------------------ */
+  /* ------------------------------------------------------------------ */
+  /* Banking-crisis build-up (Schularick–Taylor / JST predictor logic)    */
+  /* BIS credit to private non-financial sector (% GDP) and BIS real      */
+  /* residential property prices, both via FRED. Two-year changes, as in  */
+  /* Dinakus (2026, Table 8), plus leave-one-out global credit growth.    */
+  /* ------------------------------------------------------------------ */
+  const BIS_CC = { US: 'USA', GB: 'GBR', DE: 'DEU', FR: 'FRA', IT: 'ITA', ES: 'ESP', GR: 'GRC', PT: 'PRT', IE: 'IRL', NL: 'NLD', BE: 'BEL', AT: 'AUT', FI: 'FIN', SE: 'SWE', DK: 'DNK', NO: 'NOR', CH: 'CHE', JP: 'JPN', KR: 'KOR', CN: 'CHN', IN: 'IND', ID: 'IDN', AU: 'AUS', CA: 'CAN', MX: 'MEX', BR: 'BRA', TR: 'TUR', ZA: 'ZAF', PL: 'POL', CZ: 'CZE', HU: 'HUN' };
+  const BANK_W = Object.assign({ NLD: 1.2, BEL: 0.66, AUT: 0.52, PRT: 0.29, GRC: 0.25, IRL: 0.55, FIN: 0.3, SWE: 0.6, DNK: 0.41, NOR: 0.48, CHE: 0.94, POL: 0.86, CZE: 0.35, HUN: 0.22 }, CLI_WEIGHTS);
+  async function loadBis(fetchText) {
+    const tasks = [], names = [];
+    Object.keys(BIS_CC).forEach(cc => ['PAM770A', 'R628BIS'].forEach(sfx => { names.push([cc, sfx]); tasks.push(async () => parseFred(await fetchText(FRED + '?id=Q' + cc + sfx + '&cosd=2012-01-01'), 'Q' + cc + sfx)); }));
+    const res = await pool(tasks, 6); const out = {}, errors = [];
+    res.forEach((r, i) => { const [cc, sfx] = names[i]; if (r.ok) (out[cc] = out[cc] || {})[sfx] = r.value; else errors.push('Q' + cc + sfx + ': ' + r.error); });
+    return { data: out, errors };
+  }
+  function bankingBuildUp(B) {
+    const rows = [];
+    Object.entries(BIS_CC).forEach(([cc, iso3]) => {
+      const c = B.data[cc] || {}; const cr = c.PAM770A || [], hp = c.R628BIS || [];
+      const crL = cr[cr.length - 1], cr8 = cr.length > 8 ? cr[cr.length - 9] : null;
+      const hpL = hp[hp.length - 1], hp8 = hp.length > 8 ? hp[hp.length - 9] : null;
+      const hpMax = hp.length ? Math.max(...hp.slice(-20).map(o => o.v)) : null;
+      const d8 = crL && cr8 ? crL.v - cr8.v : null;
+      const h2 = hpL && hp8 ? 100 * Math.log(hpL.v / hp8.v) : null;
+      const dd = hpL && hpMax ? 100 * (hpL.v / hpMax - 1) : null;
+      if (d8 == null && h2 == null) return;
+      rows.push({ iso3, cc, credit: crL ? r2(crL.v, 1) : null, creditDate: crL ? crL.d : null, creditD8: r2(d8, 1), house2y: r2(h2, 1), houseDate: hpL ? hpL.d : null, houseFromPeak5y: r2(dd, 1) });
+    });
+    // leave-one-out global credit growth (GDP-weighted), as in the JST "global credit" predictor
+    const tot = rows.filter(r => r.creditD8 != null).reduce((a, r) => a + (BANK_W[r.iso3] || 0.3), 0);
+    const sum = rows.filter(r => r.creditD8 != null).reduce((a, r) => a + (BANK_W[r.iso3] || 0.3) * r.creditD8, 0);
+    rows.forEach(r => {
+      const w = BANK_W[r.iso3] || 0.3; r.globalCreditD8 = r.creditD8 == null ? r2(sum / tot, 1) : r2((sum - w * r.creditD8) / (tot - w), 1);
+      const sc = pw(r.creditD8, [[0, 0], [4, 30], [8, 60], [12, 85], [16, 100]]);
+      const sh = pw(r.house2y, [[0, 0], [10, 50], [20, 100]]);
+      const parts = [sc, sh].filter(x => x != null); let score = parts.length ? (sc != null && sh != null ? 0.6 * sc + 0.4 * sh : parts[0]) : null;
+      // a simultaneous credit AND house-price boom is the Schularick–Taylor danger zone
+      if (r.creditD8 != null && r.house2y != null && r.creditD8 > 6 && r.house2y > 10) score = Math.min(100, score + 15);
+      r.score = r2(score, 0); r.level = score == null ? 'n/a' : score >= 60 ? 'red' : score >= 35 ? 'amber' : 'green';
+      r.phase = r.creditD8 == null ? null : r.creditD8 > 6 && (r.house2y ?? 0) > 10 ? 'boom' : r.creditD8 > 3 ? 'building' : (r.houseFromPeak5y ?? 0) < -10 ? 'bust / deleveraging' : 'neutral';
+    });
+    rows.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+    return { rows, globalCreditD8: tot ? r2(sum / tot, 1) : null };
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Evidence ledger (Dinakus 2026): episodes as the unit of evidence,   */
+  /* clustered AUROC variance (Obuchowski 1997), leave-one-episode-out,  */
+  /* proper scores, minimum detectable differences and Sarlin usefulness */
+  /* ------------------------------------------------------------------ */
+  function clusteredAuc(p, y, cl) {
+    const pos = [], neg = []; p.forEach((v, i) => (y[i] ? pos : neg).push(i));
+    const M = pos.length, N = neg.length; if (!M || !N) return null;
+    const V10 = new Map(), V01 = new Map();
+    pos.forEach(i => { let s = 0; neg.forEach(j => { s += p[i] > p[j] ? 1 : p[i] === p[j] ? 0.5 : 0; }); V10.set(i, s / N); });
+    neg.forEach(j => { let s = 0; pos.forEach(i => { s += p[i] > p[j] ? 1 : p[i] === p[j] ? 0.5 : 0; }); V01.set(j, s / M); });
+    const A = [...V10.values()].reduce((a, b) => a + b, 0) / M;
+    const U10 = {}, U01 = {};
+    pos.forEach(i => { U10[cl[i]] = (U10[cl[i]] || 0) + (V10.get(i) - A); });
+    neg.forEach(j => { U01[cl[j]] = (U01[cl[j]] || 0) + (V01.get(j) - A); });
+    const keys = [...new Set(Object.keys(U10).concat(Object.keys(U01)))]; const K = keys.length;
+    let s10 = 0, s01 = 0, sx = 0; keys.forEach(k => { const a = U10[k] || 0, b = U01[k] || 0; s10 += a * a; s01 += b * b; sx += a * b; });
+    const v = K / (K - 1) * (s10 / (M * M) + s01 / (N * N) + 2 * sx / (M * N));
+    return { auc: A, se: Math.sqrt(Math.max(v, 0)), K, M, N };
+  }
+  function mddFromEpisodes(K) { // Dinakus (2026) Table 5, calibrated row; ∝ 1/√K outside the grid
+    const g = [[11, 0.122], [22, 0.090], [45, 0.067], [90, 0.047], [180, 0.035]];
+    if (K <= 11) return 0.122 * Math.sqrt(11 / K); if (K >= 180) return 0.035 * Math.sqrt(180 / K);
+    for (let i = 1; i < g.length; i++) if (K <= g[i][0]) { const [k0, m0] = g[i - 1], [k1, m1] = g[i]; const t = (Math.log(K) - Math.log(k0)) / (Math.log(k1) - Math.log(k0)); return m0 + t * (m1 - m0); }
+    return null;
+  }
+  function evidenceLedger(months, rec) {
+    const oosStart = months.indexOf(MODEL.oosStart), H = 12;
+    const p = [], y = [], t = [], ep = [];
+    // label y_t and the episode (next onset) each pre-recession month belongs to
+    const onsets = []; for (let i = 1; i < months.length; i++) if (rec[i] === 1 && rec[i - 1] === 0) onsets.push(i);
+    MODEL.oos.forEach((v, k) => {
+      const i = oosStart + k; if (v == null || rec[i] !== 0) return;
+      let any = 0, known = true; for (let h = 1; h <= H; h++) { const r = rec[i + h]; if (r == null) { known = false; break; } if (r === 1) any = 1; }
+      if (!known) return; const on = any ? onsets.find(o => o > i) : null;
+      p.push(v / 100); y.push(any); t.push(i); ep.push(any ? months[on] : null);
+    });
+    if (!p.length) return null;
+    const episodes = [...new Set(ep.filter(Boolean))];
+    const naive = clusteredAuc(p, y, p.map((_, k) => 'o' + k));
+    const byEp = clusteredAuc(p, y, p.map((_, k) => (y[k] ? 'E' + ep[k] : 'o' + k)));
+    const robust = clusteredAuc(p, y, p.map((_, k) => (y[k] ? 'E' + ep[k] : 'B' + Math.floor(t[k] / 24))));
+    const ci = (r, z) => [r2(Math.max(0, r.auc - z * r.se), 3), r2(Math.min(1, r.auc + z * r.se), 3)];
+    const leaveOut = episodes.map(e => {
+      const yr = +e.slice(0, 4); const keep = p.map((_, k) => !(ep[k] === e) && !(+months[t[k]].slice(0, 4) >= yr - 1 && +months[t[k]].slice(0, 4) <= yr));
+      const pp = p.filter((_, k) => keep[k]), yy = y.filter((_, k) => keep[k]); const r = clusteredAuc(pp, yy, pp.map((_, k) => 'o' + k));
+      return { episode: e, auc: r ? r2(r.auc, 3) : null };
+    });
+    const base = y.reduce((a, b) => a + b, 0) / y.length;
+    const brier = p.reduce((a, v, k) => a + (v - y[k]) ** 2, 0) / p.length, brierBase = y.reduce((a, v) => a + (base - v) ** 2, 0) / y.length;
+    const ll = q => -q.reduce((a, v, k) => a + (y[k] ? Math.log(Math.max(v, 1e-4)) : Math.log(Math.max(1 - v, 1e-4))), 0) / q.length;
+    // Sarlin (2013): L(μ) = μ·T1·P1 + (1−μ)·T2·P2 ; U_r = (min(μ·P1,(1−μ)·P2) − L) / min(μ·P1,(1−μ)·P2)
+    const P1 = base, P2 = 1 - base;
+    const sarlin = mu => { let best = null; for (let tau = 0.02; tau <= 0.9; tau += 0.01) { let fn = 0, fp = 0, np = 0, nn = 0; p.forEach((v, k) => { if (y[k]) { np++; if (v < tau) fn++; } else { nn++; if (v >= tau) fp++; } }); const T1 = fn / np, T2 = fp / nn; const L = mu * T1 * P1 + (1 - mu) * T2 * P2; const Ua = Math.min(mu * P1, (1 - mu) * P2) - L; const Ur = Ua / Math.min(mu * P1, (1 - mu) * P2); if (!best || Ur > best.Ur) best = { tau: r2(tau, 2), T1: r2(T1, 3), T2: r2(T2, 3), Ur: r2(Ur, 3) }; } return Object.assign({ mu }, best); };
+    return {
+      window: MODEL.oosStart + ' → ' + months[t[t.length - 1]], months: p.length, positives: y.filter(Boolean).length, episodes, waves: episodes.length,
+      auc: r2(naive.auc, 3), ciNaive90: ci(naive, 1.645), ciEpisode90: ci(byEp, 1.645), ciRobust90: ci(robust, 1.645),
+      seInflation: { episode: r2(byEp.se / naive.se, 2), robust: r2(robust.se / naive.se, 2) }, clusters: { robust: robust.K },
+      leaveOneEpisodeOut: leaveOut, mdd80: r2(mddFromEpisodes(episodes.length), 3), mddTable: [[11, 0.122], [22, 0.090], [45, 0.067], [90, 0.047], [180, 0.035]],
+      scores: { brier: r2(brier, 4), brierClimatology: r2(brierBase, 4), log: r2(ll(p), 3), logClimatology: r2(ll(p.map(() => base)), 3), meanForecast: r2(100 * p.reduce((a, b) => a + b, 0) / p.length, 1), baseRate: r2(100 * base, 1) },
+      sarlin: [sarlin(0.5), sarlin(0.8)]
+    };
+  }
+
   async function compute(opts) {
     const today = opts.today || new Date();
     const fetchText = opts.fetchText, fetchJson = opts.fetchJson || (async u => JSON.parse(await fetchText(u)));
     const cur = isoDate(today).slice(0, 7);
     const months = monthRange('1959-01', cur);
     const sources = {};
-    const [Fr, Or, Er, Sr] = await pool([
-      () => loadFred(fetchText, today), () => loadOecd(fetchText, opts.oecdText), () => loadEcb(fetchText, today), () => loadEurostat(fetchJson, today)
-    ], 4);
+    const [Fr, Or, Er, Sr, Br0] = await pool([
+      () => loadFred(fetchText, today), () => loadOecd(fetchText, opts.oecdText), () => loadEcb(fetchText, today), () => loadEurostat(fetchJson, today), () => loadBis(fetchText)
+    ], 5);
     const F = Fr.ok ? Fr.value : { m: {}, r: {}, d: {}, errors: ['FRED: ' + Fr.error] };
     const S = Or.ok ? Or.value : {};
     const E = Er.ok ? Er.value : { errors: ['ECB: ' + Er.error] };
@@ -414,12 +523,17 @@
     sources.oecd = { ok: Or.ok, relay: !!opts.oecdText, errors: Or.ok ? [] : [Or.error] };
     sources.ecb = { ok: !!(E.ea || E.ciss), errors: E.errors };
     sources.eurostat = { ok: !!(ES.esi || ES.gdp), errors: ES.errors };
+    const BIS = Br0.ok ? Br0.value : { data: {}, errors: ['BIS via FRED: ' + Br0.error] };
+    sources.bis = { ok: Object.keys(BIS.data).length > 0, series: Object.values(BIS.data).reduce((a, o) => a + Object.keys(o).length, 0), errors: BIS.errors };
 
     const us = usModel(F, months);
     const st = stressScores(F, months, E.ea);
     const G = globalCycle(S, months);
     const countries = countryRadar(G, E, ES);
     const signals = signalBoard(F, us);
+    const banking = bankingBuildUp(BIS);
+    banking.rows.forEach(b => { const c = countries.find(x => x.iso3 === b.iso3); if (c) c.banking = b; else { const meta = COUNTRIES[b.iso3]; countries.push({ iso3: b.iso3, name: meta ? meta[0] : b.iso3, region: meta ? meta[2] : 'Other', score: null, level: 'n/a', components: {}, coverage: 0, banking: b }); } });
+    const ledger = evidenceLedger(months, us.rec);
 
     const lastIdx = arr => { for (let i = arr.length - 1; i >= 0; i--) if (arr[i] != null) return i; return -1; };
     const iUs = lastIdx(st.us), iEa = lastIdx(st.ea), iD = lastIdx(G.diff);
@@ -437,13 +551,17 @@
     const curVec = { p: P, stress: Number.isFinite(Math.max(Sus ?? -Infinity, Sea ?? -Infinity)) ? Math.max(Sus ?? -Infinity, Sea ?? -Infinity) : null, g20, diff: diffNow };
     const an = analogs(eps, curVec, hist);
     const v = verdict({ P, Sus, Sea, g20, g20ch6, diff: diffNow, red, amber });
+    v.answers.systemic.boomRed = banking.rows.filter(b => b.level === 'red').map(b => b.iso3);
+    v.answers.systemic.boomAmber = banking.rows.filter(b => b.level === 'amber').map(b => b.iso3);
+    v.answers.systemic.globalCreditD8 = banking.globalCreditD8;
+    if (ledger && ledger.sarlin[0].Ur > 0) { v.answers.us.alarmThreshold = r2(ledger.sarlin[0].tau * 100, 0); v.answers.us.aboveAlarm = P != null && P >= ledger.sarlin[0].tau * 100; }
 
     const h0 = months.indexOf('1970-01');
     const H = months.slice(h0).map((m, k) => { const i = k + h0; return [m, us.prob[i] == null ? null : r2(us.prob[i] * 100, 1), us.rec[i], r2(st.us[i], 1), r2(st.ea[i], 1), r2(G.g20[i], 2), r2(G.diff[i], 0), r2(us.spread[i], 2)]; });
     while (H.length && H[H.length - 1].slice(1).every(x => x == null)) H.pop();
 
     return {
-      version: '1.0', generatedAt: new Date().toISOString(), asOf: isoDate(today), sources,
+      version: '1.2', generatedAt: new Date().toISOString(), asOf: isoDate(today), sources,
       verdict: v,
       us: { model: { id: MODEL.id, fitted: MODEL.fitted, target: MODEL.target, vars: MODEL.vars.map(k => ({ id: k, label: MODEL.labels[k] })), beta: MODEL.beta, mean: MODEL.mean, sd: MODEL.sd, lambda: MODEL.lambda, sample: MODEL.sample, backtest: MODEL.backtest }, latest: us.latest, lastComplete: us.lastComplete, change3m: us.change3m, contributions: us.contrib, oos: { start: MODEL.oosStart, series: MODEL.oos } },
       stress: {
@@ -453,7 +571,7 @@
       global: { g20: { value: r2(g20, 2), month: G.li >= 0 ? months[G.li] : null, change6m: r2(g20ch6, 2) }, diffusion: { value: r2(diffNow, 0), month: iD >= 0 ? months[iD] : null }, weights: CLI_WEIGHTS, countries: G.countries },
       episodes: eps.map(e => ({ id: e.id, name: e.name, type: e.type, from: e.from, to: e.to, global: e.global, systemic: e.systemic, peakMonth: e.peakMonth, vec: e.vec ? { p: r2(e.vec.p, 1), stress: r2(e.vec.stress, 1), g20: r2(e.vec.g20, 2), diff: r2(e.vec.diff, 0) } : null })),
       analogs: an.slice(0, 6), current: { p: r2(curVec.p, 1), stress: r2(curVec.stress, 1), g20: r2(g20, 2), diff: r2(diffNow, 0) },
-      countries, signals,
+      countries, signals, banking, evidence: ledger,
       history: { cols: ['month', 'usRecProb12m', 'usrec', 'usStressPct2008', 'eaStressPct2008', 'g20Cli', 'downturnDiffusion', 'termSpread'], rows: H }
     };
   }

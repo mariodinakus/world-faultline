@@ -139,3 +139,22 @@
 @media(max-width:680px){.rd-ds-head{grid-template-columns:1fr}.rd-ds-item{grid-template-columns:minmax(0,1.4fr) 80px 90px}.rd-ds-item em{display:none}}
 .rd-track em.up i{top:-16px}
 .rd-track{margin:20px 0 20px}
+
+/* v1.2 — evidence ledger */
+.rd-ev-grid{display:grid;grid-template-columns:1.1fr 1.2fr 1fr 1fr;gap:16px}
+.rd-ev-kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
+.rd-ev-kpis>div{background:#101e28;border:1px solid #263b47;border-radius:8px;padding:12px}
+.rd-ev-kpis span{display:block;font:8px/1.4 var(--mono);color:#8fa3ae;letter-spacing:.05em;min-height:22px}
+.rd-ev-kpis b{display:block;font:650 26px var(--sans);margin:6px 0 2px}
+.rd-ev-kpis small{font:8.5px/1.4 var(--mono);color:#6f8592;display:block}
+.rd-h4{margin:0 0 10px;font:10px var(--mono);color:var(--teal);letter-spacing:.06em;font-weight:500}
+.rd-ci{display:grid;grid-template-columns:150px minmax(0,1fr) 110px;gap:10px;align-items:center;font-size:11px;color:#b6c6cd;margin:10px 0}
+.rd-ci small{font:9px var(--mono);color:#7d929e}
+.rd-ci-track{position:relative;height:16px;background:#14222c;border-radius:4px}
+.rd-ci-track em{position:absolute;top:-3px;bottom:-3px;width:1px;background:#e8f0f3;opacity:.6}
+.rd-ci-track i{position:absolute;top:5px;height:6px;border-radius:3px}
+.rd-ci-track i.c1{background:#5cdab6}.rd-ci-track i.c2{background:#f3b664}.rd-ci-track i.c3{background:#ec817b}
+.rd-ci-track b{position:absolute;top:2px;width:3px;height:12px;margin-left:-1px;background:#e8f0f3;border-radius:2px}
+@media(max-width:1200px){.rd-ev-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:680px){.rd-ev-grid{grid-template-columns:1fr}.rd-ci{grid-template-columns:1fr}}
+.rd-ci{grid-template-columns:minmax(0,1fr) 92px;row-gap:5px}.rd-ci>span{grid-column:1/-1}
