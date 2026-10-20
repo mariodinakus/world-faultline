@@ -18,5 +18,13 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/radar.js": {
+      "maxDuration": 60
+    },
+    "api/geo.js": {
+      "maxDuration": 60
+    }
+  }
 }

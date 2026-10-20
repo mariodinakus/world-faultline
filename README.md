@@ -1,5 +1,46 @@
 # WORLD FAULTLINE · Global Systems Observatory
 
+## v1.3 — Recession Lab and cinematic redesign
+- **Recession Lab** (`#lab`) has 9 scenario presets built on today's live data: status quo with Hormuz effectively closed since 28 Feb 2026, Hormuz reopens, Gulf escalation at $150, a $200 oil shock, a Russia–NATO clash, a Taiwan blockade, a US–China war, a conventional World War III and an AI/equity bust. Six sliders let you build your own scenario.
+- **How a shock is passed through:**
+  - Oil → world growth: IMF Apr 2026 scenario slope of −0.039pp per dollar, from an IMF Oct 2026 base of 3.4% at $87.4.
+  - War shocks: Bloomberg Economics (Taiwan blockade −5%, US–China war −10.2%).
+  - Growth → G20 CLI: 1.4 points per pp.
+  - G20 CLI → downturn diffusion: OLS on history.
+  - Rates and NFCI → the fitted US logit.
+  - Stress components are re-scaled to % of 2008.
+  - The regime verdict is re-run under the scenario.
+- **Monte Carlo:** 4,000 draws give P(g<2%), P(g<1%) and P(g<0) under the scenario. The page also shows break-even Brent prices, a country impact map (oil channel × energy-import dependence, war channel × region × trade openness) and a scenario matrix.
+- **Escalation index — "how close to WW3"** (`/api/geo`). Inputs: the Caldara–Iacoviello GPR (historical series since 1900, compared with WWI/WWII, Korea, Cuba, 9/11, Ukraine and Iran 2026), the daily GPR, GDELT flashpoint news intensity, the Doomsday Clock (85 s, Jan 2026) and the Brent war premium over pre-war. It is explicitly **not** a probability.
+- **Design:** warm black with gold accents, Playfair Display headings, DM Mono figures and a film-grain texture.
+
+## v1.0 — Recession & Crisis Radar (default view)
+
+Answers four questions from live public data, recomputed by a Vercel function (`/api/radar`, edge-cached 1h):
+
+| Question | Engine | Type |
+|---|---|---|
+| US recession in the next 12 months? | Ridge-logit on NBER dates 1972–2024: 10Y−3M spread, 24-month minimum spread, Chicago Fed NFCI | **Fitted & backtested** (OOS AUC 0.90, Brier 0.098 vs 0.109 climatology, leave-one-cycle-out AUC 0.91) |
+| A 2008-type systemic crisis? | Financial stress as % of the 2008 peak: NFCI, Baa−10Y, VIX, STLFSI (US) + ECB CISS (euro area) | Transparent scaling, 0% = 1990–2019 median, 100% = 2007–09 peak |
+| Global recession? | OECD G20 composite leading indicator + GDP-weighted share of 17 economies in contraction phase | Rule thresholds anchored on 1975/1982/1991/2009/2020 troughs |
+| Local recessions? | Country score from OECD CLI, Eurostat ESI & quarterly GDP, ECB CISS, 10Y spread vs Bund | Rule-based, thresholds printed in the UI |
+
+Plus a regime ladder (Expansion → Local → Late cycle → Global slowdown → Stress building → Global recession → Systemic), a crisis map (recession odds × stress) with past episodes, a nearest-neighbour historical analog finder, a 15-signal early-warning board and a model card.
+
+Files: `radar-core.js` (UMD computation core), `api/radar.js` (serverless aggregator), `radar.js` / `radar.css` (UI), `research/fit_us_recession.js` (reproducible fit + backtest).
+
+Data: FRED (St. Louis Fed), OECD SDMX, ECB Data Portal, Eurostat. OECD rejects some cloud IPs, so when the server fetch fails the browser fetches the OECD CSV (CORS-enabled) and posts it back for recomputation. Missing sources are disclosed, never imputed.
+
+### v1.2 — design rules from Dinakus (2026), *How Many Crises Does It Take?*
+- **Episodes, not months, are the unit of evidence.** The model card reports the independent recession episodes in the out-of-sample window and the minimum AUROC difference detectable with 80% power (paper, Table 5).
+- **Dependence-robust inference.** The AUROC is shown with three 90% intervals: DeLong, clustered by episode, and clustered by episode with 24-month tranquil blocks (Obuchowski 1997 estimator, paper eq. 1). The clustered interval is about 3× wider.
+- **Leave-one-episode-out** AUROC, plus Brier and log scores against climatology.
+- **Decision usefulness.** Sarlin (2013) loss with μ = 0.5 and 0.8. The Sarlin-optimal τ* at μ = 0.8 is the alarm threshold used in the verdict and the proximity gauges.
+- **No ML horse race.** The paper finds the logit the most stable model and that differences of a few AUROC points cannot be detected with available crises. The global layer rests on 5 waves, so it uses declared rules rather than fitted coefficients.
+- **2008-type build-up layer** uses the JST predictor logic: 2-year change in BIS private credit/GDP, 2-year real house-price growth (BIS via FRED) and leave-one-out global credit growth, for 31 economies.
+
+Caveats: FRED series are revised, not real-time vintages; only 7 US recession onsets in sample; the 2022–24 inversion was a false alarm (OOS peak ≈83%); exogenous shocks (COVID) are not forecastable; global and country layers are rule-based, not fitted. Not investment advice.
+
 An open-data country intelligence research application (static site, no build pipeline) designed for deployment to Vercel.
 
 ## Features
