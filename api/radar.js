@@ -5,14 +5,14 @@ const core = require('../radar-core.js');
 
 const UA = 'WorldFaultline-Radar/1.0 (+https://world-faultline.vercel.app; open research)';
 
-async function fetchText(url, tries = 2) {
+async function fetchText(url, tries = 2, headers) {
   let lastErr;
   for (let k = 0; k < tries; k++) {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 25000);
     try {
-      const r = await fetch(url, { signal: ctrl.signal, headers: { 'User-Agent': UA, Accept: 'text/csv,application/json,*/*' } });
-      if (!r.ok) throw new Error('HTTP ' + r.status);
+      const r = await fetch(url, { signal: ctrl.signal, headers: Object.assign({ 'User-Agent': UA, Accept: '*/*' }, headers || {}) });
+      if (!r.ok) { let b = ''; try { b = (await r.text()).replace(/\s+/g, ' ').slice(0, 140); } catch (_) {} throw new Error('HTTP ' + r.status + (b ? ' · ' + b : '')); }
       return await r.text();
     } catch (e) {
       lastErr = e;
@@ -27,13 +27,19 @@ async function fetchText(url, tries = 2) {
 module.exports = async (req, res) => {
   const t0 = Date.now();
   try {
-    const out = await core.compute({ fetchText });
+    // POST relay: when OECD refuses the server, the browser fetches the OECD CSV (CORS-enabled) and posts it here
+    let oecdText = null;
+    if (req.method === 'POST') {
+      const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+      if (typeof body.oecd === 'string' && body.oecd.length < 4e6 && /REF_AREA/.test(body.oecd.slice(0, 400))) oecdText = body.oecd;
+    }
+    const out = await core.compute({ fetchText, oecdText });
     out.computeMs = Date.now() - t0;
     const healthy = out.sources.fred.ok && out.sources.oecd.ok;
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Access-Control-Allow-Origin', '*');
     // Fresh for 1h at the edge, serve stale up to 1 day while revalidating in the background
-    res.setHeader('Cache-Control', healthy ? 'public, s-maxage=3600, stale-while-revalidate=86400' : 'public, s-maxage=300, stale-while-revalidate=3600');
+    res.setHeader('Cache-Control', req.method === 'POST' ? 'no-store' : healthy ? 'public, s-maxage=3600, stale-while-revalidate=86400' : 'public, s-maxage=300, stale-while-revalidate=3600');
     res.status(200).send(JSON.stringify(out));
   } catch (e) {
     res.setHeader('Cache-Control', 'no-store');
