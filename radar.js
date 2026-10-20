@@ -108,6 +108,11 @@
       card(L.q.local, String(red.length) + '<small>/ ' + d.countries.length + '</small>', '', A.local.level, red.length ? (loc() === 'el' ? 'Κόκκινο: ' : 'Red: ') + red.map(c => esc(c.name)).join(', ') + (amber.length ? ' · ' + (loc() === 'el' ? 'πορτοκαλί: ' : 'amber: ') + amber.slice(0, 6).map(c => esc(c.name)).join(', ') + (amber.length > 6 ? '…' : '') : '') : (loc() === 'el' ? 'Καμία οικονομία στο κόκκινο. ' : 'No economy in the red. ') + (amber.length ? (loc() === 'el' ? 'Πορτοκαλί: ' : 'Amber: ') + amber.slice(0, 8).map(c => esc(c.name)).join(', ') : ''), gauge(d.countries.length ? 100 * red.length / d.countries.length : null, 25)) +
       '</div>');
 
+    // How close are we + world map
+    html.push(proximityHtml(d));
+    html.push(worldMapHtml(d));
+    html.push('<section class="panel" id="rd-dossier-panel"></section>');
+
     // Map + analogs
     html.push('<div class="rd-row"><section class="panel"><div class="panel-head"><div><div class="micro-label">REGIME SPACE · LAST 24 MONTHS VS. PAST CRISES</div><h2>' + esc(L.map) + '</h2></div></div><div id="rd-map" class="rd-chart tall"></div><div class="rd-legend"><span><i style="background:#e8f0f3"></i>NOW + 24M TRAIL</span><span><i style="background:#ec817b"></i>SYSTEMIC EPISODE</span><span><i style="background:#f3b664"></i>GLOBAL RECESSION</span><span><i style="background:#75cfe7"></i>OTHER EPISODE</span></div></section>' +
       '<section class="panel"><div class="panel-head"><div><div class="micro-label">NEAREST NEIGHBOUR · P, STRESS, G20 CLI, DIFFUSION</div><h2>' + esc(L.analogs) + '</h2></div></div><div class="rd-analogs">' +
@@ -130,6 +135,9 @@
     html.push('<section class="panel"><div class="panel-head"><div><div class="micro-label">OECD CLI · EUROSTAT ESI & GDP · ECB CISS & BOND SPREADS</div><h2>' + esc(L.countries) + '</h2></div><div class="rd-tools" id="rd-regions">' + regions.map(r => '<button data-region="' + esc(r) + '" class="' + (S.region === r ? 'on' : '') + '">' + esc(r === 'all' ? L.all : r.toUpperCase()) + '</button>').join('') + '</div></div><div class="rd-table-wrap"><table class="rd-table"><thead><tr><th>ECONOMY</th><th>RECESSION SIGNAL</th><th>OECD CLI · 3M</th><th>PHASE</th><th>SENTIMENT (ESI)</th><th>GDP Q/Q · LAST 2</th><th>STRESS (CISS)</th><th>10Y vs BUND</th></tr></thead><tbody id="rd-ctry"></tbody></table></div>' +
       '<p class="fineprint">Score 0–100 = weighted mean of available components (real activity ×2: CLI, ESI, GDP; financial ×1: CISS, sovereign spread). Red ≥60, amber ≥40. Thresholds are transparent rules, not fitted per country: CLI 101→0, 100→30, 99→55, 98→80, ≤97→100 (+15 if falling); ESI 105→0 … ≤85→100; two negative GDP quarters = 100; CISS 0.05→0 … 0.6→100; spread 1pp→0 … 6pp→100.</p></section>');
 
+    // Live equations
+    html.push(equationsHtml(d));
+
     // Model card
     const m = d.us.model, bt = m.backtest;
     html.push('<section class="panel"><div class="panel-head"><div><div class="micro-label">TRANSPARENCY · WHAT THE NUMBERS CAN AND CANNOT CLAIM</div><h2>' + esc(L.model) + '</h2></div></div><div class="rd-model-grid">' +
@@ -144,8 +152,201 @@
 
     $('radar-root').innerHTML = html.join('');
     renderCountries();
+    $('rd-ctry').addEventListener('click', e => { const tr = e.target.closest('tr[data-iso]'); if (!tr) return; S.dossier = tr.dataset.iso; renderDossier(); $('rd-dossier-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
     $('rd-regions').addEventListener('click', e => { const b = e.target.closest('button[data-region]'); if (!b) return; S.region = b.dataset.region; $('rd-regions').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); renderCountries(); });
     drawCharts();
+    const mt = $('rd-wm-tools'); if (mt) mt.addEventListener('click', e => { const b = e.target.closest('button[data-wm]'); if (!b) return; if (b.dataset.wm === 'eu' || b.dataset.wm === 'world') { S.wmView = b.dataset.wm; } else { S.wmMetric = b.dataset.wm; } mt.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.wm === S.wmMetric || x.dataset.wm === S.wmView)); drawWorldMap(); });
+    drawWorldMap();
+    renderDossier();
+    loadExtra();
+  }
+
+  /* ---------------- non-economic & structural layer (World Bank WDI/WGI) ---------------- */
+  const EXTRA = [
+    ['VC.BTL.DETH', 'Battle-related deaths (conflict)', 'n', 'SECURITY & POLITICS', v => Math.min(100, Math.log10(1 + v) * 25)],
+    ['MS.MIL.XPND.GD.ZS', 'Military expenditure / GDP', '%', 'SECURITY & POLITICS', v => Math.min(100, Math.max(0, (v - 1) / 5 * 100))],
+    ['VC.IHR.PSRC.P5', 'Intentional homicides per 100k', '', 'SECURITY & POLITICS', v => Math.min(100, Math.max(0, (v - 1) / 29 * 100))],
+    ['SN.ITK.MSFI.ZS', 'Moderate/severe food insecurity', '%', 'FOOD, HEALTH & DEMOGRAPHY', v => Math.min(100, Math.max(0, (v - 5) / 55 * 100))],
+    ['SP.DYN.LE00.IN', 'Life expectancy at birth', 'yrs', 'FOOD, HEALTH & DEMOGRAPHY', v => Math.min(100, Math.max(0, (82 - v) / 27 * 100))],
+    ['SP.POP.65UP.TO.ZS', 'Population aged 65+', '%', 'FOOD, HEALTH & DEMOGRAPHY', v => Math.min(100, Math.max(0, (v - 10) / 20 * 100))],
+    ['SP.POP.GROW', 'Population growth', '%', 'FOOD, HEALTH & DEMOGRAPHY', null],
+    ['EG.IMP.CONS.ZS', 'Energy imports, net / energy use', '%', 'ENERGY, CLIMATE & DIGITAL', v => Math.min(100, Math.max(0, v))],
+    ['EG.ELC.ACCS.ZS', 'Access to electricity', '%', 'ENERGY, CLIMATE & DIGITAL', v => Math.min(100, Math.max(0, 100 - v))],
+    ['IT.NET.USER.ZS', 'Internet users', '%', 'ENERGY, CLIMATE & DIGITAL', null],
+    ['BX.TRF.PWKR.DT.GD.ZS', 'Remittances received / GDP', '%', 'EXTERNAL & FINANCE', v => Math.min(100, Math.max(0, (v - 2) / 18 * 100))],
+    ['ST.INT.RCPT.XP.ZS', 'Tourism receipts / exports', '%', 'EXTERNAL & FINANCE', v => Math.min(100, Math.max(0, (v - 5) / 35 * 100))],
+    ['FS.AST.PRVT.GD.ZS', 'Domestic credit to private sector / GDP', '%', 'EXTERNAL & FINANCE', v => Math.min(100, Math.max(0, (v - 60) / 120 * 100))],
+    ['GC.BAL.CASH.GD.ZS', 'Government cash balance / GDP', '%', 'EXTERNAL & FINANCE', v => Math.min(100, Math.max(0, -v / 8 * 100))],
+    ['NE.EXP.GNFS.ZS', 'Exports / GDP (trade exposure)', '%', 'EXTERNAL & FINANCE', null],
+    ['NY.GDP.PCAP.CD', 'GDP per capita', 'usd', 'EXTERNAL & FINANCE', null]
+  ];
+  async function loadExtra() {
+    if (S.extra || S.extraLoading) return; S.extraLoading = true;
+    try {
+      const codes = EXTRA.map(e => e[0]); const groups = []; for (let i = 0; i < codes.length; i += 4) groups.push(codes.slice(i, i + 4));
+      const res = await Promise.allSettled(groups.map(g => fetch('https://api.worldbank.org/v2/country/all/indicator/' + g.join(';') + '?source=2&format=json&mrnev=1&per_page=20000').then(r => r.json())));
+      const out = {}; let n = 0;
+      res.forEach(r => { if (r.status !== 'fulfilled' || !Array.isArray(r.value) || !Array.isArray(r.value[1])) return; r.value[1].forEach(p => { const iso = p.countryiso3code, code = p.indicator && p.indicator.id; if (!iso || p.value == null) return; const rec = out[iso] = out[iso] || {}; if (!rec[code] || +p.date > +rec[code].y) { rec[code] = { v: +p.value, y: p.date }; n++; } }); });
+      S.extra = out; S.extraN = n;
+    } catch (e) { S.extra = {}; S.extraErr = e.message; }
+    S.extraLoading = false; renderDossier(); if (['conflict', 'mil', 'food', 'energy'].includes(S.wmMetric)) drawWorldMap();
+  }
+  window.addEventListener('wf:svi', () => { if (S.data) { renderDossier(); if (['svi', 'social', 'inst', 'pv'].includes(S.wmMetric)) drawWorldMap(); } });
+  const SVI = () => (window.FaultlineSVI && window.FaultlineSVI.scores) || null;
+  const wbName = iso => { const c = window.FaultlineSVI && window.FaultlineSVI.countries.find(x => x.id === iso); return c ? c.name : null; };
+  function pbar(v) { if (v == null) return '<span class="c-mute">—</span>'; const lv = v >= 60 ? 'red' : v >= 40 ? 'amber' : 'green'; return '<div class="rd-score"><i><b class="bg-' + lv + '" style="width:' + Math.max(2, v) + '%"></b></i><span class="c-' + lv + '">' + Math.round(v) + '</span></div>'; }
+  function fmtV(v, u) { if (v == null || !Number.isFinite(v)) return '—'; if (u === 'usd') return '$' + Math.round(v).toLocaleString('en-US'); if (u === 'n') return Math.round(v).toLocaleString('en-US'); return (Math.abs(v) >= 100 ? v.toFixed(0) : v.toFixed(1)) + (u ? (u === '%' ? '%' : ' ' + u) : ''); }
+  function renderDossier() {
+    const box = $('rd-dossier-panel'); if (!box || !S.data) return;
+    const el = loc() === 'el'; const d = S.data;
+    S.dossier = S.dossier || 'GRC';
+    const iso = S.dossier; const rc = d.countries.find(c => c.iso3 === iso); const sv = SVI() && SVI()[iso]; const ex = S.extra && S.extra[iso];
+    const wbList = (window.FaultlineSVI && window.FaultlineSVI.countries) || d.countries.map(c => ({ id: c.iso3, name: c.name }));
+    const name = (rc && rc.name) || wbName(iso) || iso;
+    const opts = wbList.slice().sort((a, b) => a.name.localeCompare(b.name)).map(c => '<option value="' + esc(c.id) + '"' + (c.id === iso ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('');
+    const item = (label, val, year, pressure, src) => '<div class="rd-ds-item"><span>' + esc(label) + (src ? '<small>' + esc(src) + '</small>' : '') + '</span><b>' + val + '</b><em>' + esc(year || '') + '</em>' + pbar(pressure) + '</div>';
+    const groups = [];
+    // Cycle
+    const k = rc ? rc.components : {}; const cyc = [];
+    if (k.cli) cyc.push(item('OECD composite leading indicator', num(k.cli.value, 2) + ' (' + sgn(k.cli.ch3, 2) + ')', k.cli.month, k.cli.score, k.cli.phase));
+    if (k.esi) cyc.push(item('Economic sentiment (ESI)', num(k.esi.value, 1), k.esi.month, k.esi.score, 'Eurostat'));
+    if (k.gdp) cyc.push(item('Real GDP q/q, last two quarters', k.gdp.last.map(q => sgn(q.v, 1) + '%').join(' / '), k.gdp.last[k.gdp.last.length - 1].q, k.gdp.score, k.gdp.technical ? 'TECHNICAL RECESSION' : 'Eurostat'));
+    if (k.ciss) cyc.push(item('Systemic stress (ECB CISS)', num(k.ciss.value, 3), k.ciss.date, k.ciss.score, '1y max ' + num(k.ciss.max1y, 2)));
+    if (k.spread) cyc.push(item('10Y bond spread vs Bund', sgn(k.spread.value, 2) + 'pp', k.spread.month, k.spread.score, 'yield ' + num(k.spread.yield, 2) + '%'));
+    groups.push([el ? 'ΚΥΚΛΟΣ & ΑΓΟΡΕΣ (ΖΩΝΤΑΝΑ)' : 'CYCLE & MARKETS (LIVE)', cyc.length ? cyc.join('') : '<p class="muted">' + (el ? 'Καμία μηνιαία/ημερήσια πηγή κύκλου για αυτή τη χώρα.' : 'No monthly/daily cycle source covers this economy.') + '</p>']);
+    // SVI domains
+    if (sv) Object.values(sv.domains).forEach(dm => { const gname = { economic: el ? 'ΜΑΚΡΟΟΙΚΟΝΟΜΙΚΗ ΠΙΕΣΗ' : 'MACRO PRESSURE', social: el ? 'ΚΟΙΝΩΝΙΑ' : 'SOCIETY', institutional: el ? 'ΘΕΣΜΟΙ & ΠΟΛΙΤΙΚΗ ΣΤΑΘΕΡΟΤΗΤΑ (WGI)' : 'INSTITUTIONS & POLITICAL STABILITY (WGI)' }[dm.key]; groups.push([gname + ' · ' + (dm.value == null ? 'N/A' : dm.value.toFixed(0) + '/100'), dm.parts.map(pt => item(pt.label, pt.value == null ? '—' : fmtV(pt.value, ''), pt.year, pt.stress, pt.reason === 'stale' ? 'STALE' : pt.code)).join('')]); });
+    else groups.push([el ? 'ΔΟΜΙΚΑ (WORLD BANK)' : 'STRUCTURAL (WORLD BANK)', '<p class="muted">' + (el ? 'Φόρτωση World Bank WDI/WGI…' : 'Loading World Bank WDI/WGI…') + '</p>']);
+    // Extras grouped
+    const eg = {}; EXTRA.forEach(e => { const o = ex && ex[e[0]]; (eg[e[3]] = eg[e[3]] || []).push(item(e[1], o ? fmtV(o.v, e[2]) : '—', o ? o.y : '', o && e[4] ? e[4](o.v) : null, e[0])); });
+    if (!S.extra) groups.push([el ? 'ΑΣΦΑΛΕΙΑ, ΤΡΟΦΗ, ΕΝΕΡΓΕΙΑ…' : 'SECURITY, FOOD, ENERGY…', '<p class="muted">Loading…</p>']);
+    else Object.entries(eg).forEach(([g, items]) => groups.push([g, items.join('')]));
+    const total = groups.reduce((a, g) => a + (g[1].match(/rd-ds-item/g) || []).length, 0);
+    box.innerHTML = '<div class="panel-head"><div><div class="micro-label">' + (el ? 'ΦΑΚΕΛΟΣ ΧΩΡΑΣ · ' : 'COUNTRY DOSSIER · ') + total + (el ? ' ΔΕΙΚΤΕΣ · ΟΙΚΟΝΟΜΙΑ, ΚΟΙΝΩΝΙΑ, ΘΕΣΜΟΙ, ΑΣΦΑΛΕΙΑ, ΕΝΕΡΓΕΙΑ' : ' INDICATORS · ECONOMY, SOCIETY, INSTITUTIONS, SECURITY, ENERGY') + '</div><h2>' + esc(name) + '</h2></div><label class="inline-select">' + (el ? 'ΧΩΡΑ' : 'ECONOMY') + ' <select id="rd-ds-sel">' + opts + '</select></label></div>' +
+      '<div class="rd-ds-head"><div><span>' + (el ? 'ΚΥΚΛΙΚΟ ΣΗΜΑ ΥΦΕΣΗΣ' : 'CYCLICAL RECESSION SIGNAL') + '</span><b class="c-' + (rc ? rc.level : 'mute') + '">' + (rc && rc.score != null ? rc.score : '—') + '</b><small>' + (el ? 'πόσο κοντά σε ύφεση τώρα' : 'how close to recession now') + '</small></div>' +
+      '<div><span>' + (el ? 'ΔΟΜΙΚΗ ΕΥΑΛΩΤΟΤΗΤΑ (SVI)' : 'STRUCTURAL VULNERABILITY (SVI)') + '</span><b>' + (sv && sv.value != null ? sv.value.toFixed(0) : '—') + '</b><small>' + (el ? 'πόσο βαθιά θα πονούσε' : 'how hard a shock would hit') + '</small></div>' +
+      '<div><span>' + (el ? 'ΟΙΚΟΝ. · ΚΟΙΝ. · ΘΕΣΜ.' : 'ECON · SOCIAL · INSTIT.') + '</span><b>' + (sv ? ['economic', 'social', 'institutional'].map(k2 => sv.domains[k2].value == null ? '—' : sv.domains[k2].value.toFixed(0)).join(' · ') : '—') + '</b><small>0–100 ' + (el ? 'πίεση' : 'pressure') + '</small></div></div>' +
+      '<div class="rd-ds-grid">' + groups.map(g => '<div class="rd-ds-group"><h4>' + esc(g[0]) + '</h4>' + g[1] + '</div>').join('') + '</div>' +
+      '<p class="fineprint">' + (el ? 'Μπάρες 0–100 = πίεση/ευαλωτότητα με διαφανή όρια (δεν είναι πιθανότητες). Οι δομικοί δείκτες είναι ετήσιοι (World Bank WDI/WGI) και αλλάζουν αργά· το κυκλικό σήμα είναι μηνιαίο/ημερήσιο. Κενά δεν συμπληρώνονται.' : 'Bars 0–100 = pressure/vulnerability via transparent thresholds (not probabilities). Structural indicators are annual (World Bank WDI/WGI) and move slowly; the cyclical signal is monthly/daily. Gaps are never filled.') + '</p>';
+    $('rd-ds-sel').onchange = e => { S.dossier = e.target.value; renderDossier(); };
+  }
+
+  /* ---------------- how close are we ---------------- */
+  function trend(col, n) {
+    const rows = S.data.history.rows.filter(r => r[col] != null).slice(-(n || 6)); if (rows.length < 3) return null;
+    const xs = rows.map((_, i) => i), ys = rows.map(r => r[col]); const mx = xs.reduce((a, b) => a + b) / xs.length, my = ys.reduce((a, b) => a + b) / ys.length;
+    let num_ = 0, den = 0; xs.forEach((x, i) => { num_ += (x - mx) * (ys[i] - my); den += (x - mx) ** 2; }); return den ? num_ / den : null;
+  }
+  function pillars(d) {
+    const el = loc() === 'el';
+    const stressNow = d.current.stress;
+    const rows = S.data.history.rows; const sCol = rows.map(r => (r[3] == null && r[4] == null ? null : Math.max(r[3] ?? -999, r[4] ?? -999)));
+    const sTrend = (() => { const v = sCol.filter(x => x != null).slice(-6); if (v.length < 3) return null; return (v[v.length - 1] - v[0]) / (v.length - 1); })();
+    return [
+      { id: 'p', label: el ? 'Πιθανότητα ύφεσης ΗΠΑ (12μ)' : 'US recession probability (12m)', unit: '%', x: d.current.p, calm: 5, main: 50, dir: 1, slope: trend(1, 6), dec: 0,
+        marks: [[30, el ? 'επιτήρηση' : 'watch'], [50, el ? 'κλήση ύφεσης' : 'recession call']] },
+      { id: 'g20', label: el ? 'Πρόδρομος δείκτης G20 (OECD CLI)' : 'G20 leading indicator (OECD CLI)', unit: '', x: d.current.g20, calm: 101, main: 98.8, dir: -1, slope: trend(5, 6), dec: 2,
+        marks: [[100, el ? 'τάση' : 'trend'], [99.6, el ? 'επιβράδυνση' : 'slowdown'], [98.8, el ? 'παγκόσμια ύφεση' : 'global recession'], [97.6, el ? 'βαθιά' : 'severe']] },
+      { id: 'diff', label: el ? 'Διάχυση συρρίκνωσης (% παγκόσμιου ΑΕΠ)' : 'Downturn diffusion (% of world GDP)', unit: '%', x: d.current.diff, calm: 0, main: 60, dir: 1, slope: trend(6, 6), dec: 0,
+        marks: [[45, el ? 'επιβράδυνση' : 'slowdown'], [60, el ? 'συγχρονισμένη ύφεση' : 'synchronised recession']] },
+      { id: 'stress', label: el ? 'Χρηματοπιστωτική πίεση (% του 2008)' : 'Financial stress (% of 2008 peak)', unit: '%', x: stressNow, calm: 0, main: 60, dir: 1, slope: sTrend, dec: 0,
+        marks: [[35, el ? 'πίεση' : 'stress'], [60, el ? 'συστημική' : 'systemic'], [100, '2008']] }
+    ];
+  }
+  const progress = q => (q.x == null ? null : Math.max(0, Math.min(100, 100 * (q.x - q.calm) / (q.main - q.calm))));
+  function proximityHtml(d) {
+    const el = loc() === 'el'; const P = pillars(d);
+    const prog = P.map(progress).filter(v => v != null); const idx = prog.length ? prog.reduce((a, b) => a + b) / prog.length : null;
+    const sys = progress(P[3]) == null ? null : Math.max(0, Math.min(100, 100 * (P[3].x) / 100));
+    const tone = idx == null ? 'na' : idx >= 75 ? 'red' : idx >= 45 ? 'amber' : 'green';
+    const row = q => {
+      const lo = Math.min(q.calm, ...q.marks.map(m => m[0]), q.x ?? q.calm), hi = Math.max(q.calm, ...q.marks.map(m => m[0]), q.x ?? q.calm);
+      const span = hi - lo || 1; const pos = v => (q.dir > 0 ? (v - lo) / span : (hi - v) / span) * 100;
+      const pr = progress(q); const toward = q.slope == null ? null : q.slope * q.dir;
+      let eta;
+      if (q.x == null) eta = '—';
+      else if ((q.dir > 0 && q.x >= q.main) || (q.dir < 0 && q.x <= q.main)) eta = el ? 'ΣΤΟ ΟΡΙΟ ΤΩΡΑ' : 'AT TRIGGER NOW';
+      else if (toward != null && toward > 1e-6) { const m = Math.abs(q.main - q.x) / Math.abs(q.slope); eta = (m > 120 ? '>120' : Math.round(m)) + (el ? ' μήνες με τον τρέχοντα ρυθμό' : ' months at current 6m pace'); }
+      else eta = el ? 'απομακρύνεται / σταθερό' : 'moving away / flat';
+      const gap = q.x == null ? '—' : (q.dir > 0 ? '+' : '−') + Math.abs(q.main - q.x).toFixed(q.dec || 1) + q.unit;
+      return '<div class="rd-prox-row"><div class="rd-prox-lab"><b>' + esc(q.label) + '</b><small>' + (el ? 'τώρα ' : 'now ') + num(q.x, q.dec) + q.unit + ' · 6m ' + (el ? 'κλίση ' : 'slope ') + sgn(q.slope, q.dec ? 3 : 1) + '/mo</small></div>' +
+        '<div class="rd-track"><span class="fill" style="width:' + Math.max(0, Math.min(100, pos(q.x ?? q.calm))) + '%"></span>' + q.marks.map((m, mi) => '<em class="' + (mi % 2 ? 'up' : '') + '" style="left:' + pos(m[0]) + '%"><i>' + esc(m[1]) + '</i></em>').join('') + '<span class="dot" style="left:' + Math.max(0, Math.min(100, pos(q.x ?? q.calm))) + '%"></span></div>' +
+        '<div class="rd-prox-num"><strong>' + (pr == null ? '—' : Math.round(pr) + '%') + '</strong><small>' + (el ? 'απόσταση ' : 'gap ') + gap + '</small><small>' + esc(eta) + '</small></div></div>';
+    };
+    return '<section class="panel rd-prox" data-tone="' + tone + '"><div class="panel-head"><div><div class="micro-label">' + (el ? 'ΑΠΟΣΤΑΣΗ ΑΠΟ ΤΑ ΟΡΙΑ ΕΝΕΡΓΟΠΟΙΗΣΗΣ' : 'DISTANCE TO THE TRIGGERS') + '</div><h2>' + (el ? 'Πόσο κοντά είμαστε;' : 'How close are we?') + '</h2></div><span class="panel-hint">0% = ' + (el ? 'ηρεμία' : 'calm') + ' · 100% = ' + (el ? 'όριο ύφεσης' : 'recession trigger') + '</span></div>' +
+      '<div class="rd-prox-grid"><div class="rd-prox-big"><div class="rd-q">' + (el ? 'ΔΕΙΚΤΗΣ ΕΓΓΥΤΗΤΑΣ ΥΦΕΣΗΣ' : 'RECESSION PROXIMITY INDEX') + '</div><div class="rd-ring" style="--v:' + (idx ?? 0) + '"><span>' + (idx == null ? '—' : Math.round(idx)) + '<small>/100</small></span></div><p>' +
+      (el ? 'Μέσος όρος της προόδου των 4 πυλώνων προς το όριο ύφεσης. Συστημική εγγύτητα (πίεση ως % του 2008): ' : 'Mean progress of the 4 pillars toward their recession trigger. Systemic proximity (stress as % of 2008): ') + '<b>' + (sys == null ? '—' : Math.round(sys) + '%') + '</b></p></div>' +
+      '<div class="rd-prox-rows">' + P.map(row).join('') + '</div></div>' +
+      '<p class="fineprint">' + (el ? 'Πρόοδος = 100·(x − ηρεμία)/(όριο − ηρεμία), κομμένη στο [0,100]. Οι «μήνες ως το όριο» είναι γραμμική προέκταση της κλίσης 6 μηνών — αριθμητική, όχι πρόβλεψη. Ηρεμία: P 5%, CLI 101, διάχυση 0%, πίεση 0% (μακροχρόνιος διάμεσος).' : 'Progress = 100·(x − calm)/(trigger − calm), clipped to [0,100]. "Months to trigger" is a linear extrapolation of the 6-month slope — arithmetic, not a forecast. Calm anchors: P 5%, CLI 101, diffusion 0%, stress 0% (long-run median).') + '</p></section>';
+  }
+
+  /* ---------------- world map ---------------- */
+  function worldMapHtml(d) {
+    const el = loc() === 'el'; S.wmMetric = S.wmMetric || 'score'; S.wmView = S.wmView || 'world';
+    const b = (k, l) => '<button data-wm="' + k + '" class="' + (S.wmMetric === k || S.wmView === k ? 'on' : '') + '">' + l + '</button>';
+    return '<section class="panel"><div class="panel-head"><div><div class="micro-label">' + (el ? 'ΠΑΓΚΟΣΜΙΟΣ ΧΑΡΤΗΣ · ' : 'WORLD MAP · ') + d.countries.length + (el ? ' ΟΙΚΟΝΟΜΙΕΣ' : ' ECONOMIES') + '</div><h2>' + (el ? 'Πού σχηματίζεται η ύφεση' : 'Where recession risk is forming') + '</h2></div><div class="rd-tools" id="rd-wm-tools">' +
+      b('score', el ? 'ΣΚΟΡ ΥΦΕΣΗΣ' : 'RECESSION SCORE') + b('cli', 'OECD CLI') + b('esi', el ? 'ΣΥΝΑΙΣΘΗΜΑ ESI' : 'SENTIMENT ESI') + b('gdp', el ? 'ΑΕΠ Τ/Τ' : 'GDP Q/Q') + b('ciss', 'CISS') + b('svi', 'SVI') + b('social', el ? 'ΚΟΙΝΩΝΙΑ' : 'SOCIAL') + b('inst', el ? 'ΘΕΣΜΟΙ' : 'INSTITUTIONS') + b('pv', el ? 'ΠΟΛ. ΣΤΑΘΕΡΟΤΗΤΑ' : 'POL. STABILITY') + b('conflict', el ? 'ΣΥΓΚΡΟΥΣΕΙΣ' : 'CONFLICT') + b('mil', el ? 'ΑΜΥΝΑ %ΑΕΠ' : 'MILITARY %GDP') + b('food', el ? 'ΕΠΙΣΙΤΙΣΤΙΚΗ ΑΝΑΣΦ.' : 'FOOD INSECURITY') + b('energy', el ? 'ΕΝΕΡΓ. ΕΞΑΡΤΗΣΗ' : 'ENERGY IMPORTS') + '<span style="width:10px"></span>' + b('world', el ? 'ΚΟΣΜΟΣ' : 'WORLD') + b('eu', el ? 'ΕΥΡΩΠΗ' : 'EUROPE') + '</div></div>' +
+      '<div id="rd-world" class="rd-world"></div><p class="fineprint">' + (el ? 'Γκρι = καμία πηγή για τη χώρα (δεν γίνεται εκτίμηση). Κλικ/hover για τα στοιχεία. Πηγές: OECD CLI, Eurostat ESI & ΑΕΠ, ΕΚΤ CISS & spreads.' : 'Grey = no source covers the economy (nothing is imputed). Hover for components. Sources: OECD CLI, Eurostat ESI & GDP, ECB CISS & spreads.') + '</p></section>';
+  }
+  let GEO = null;
+  async function drawWorldMap() {
+    const box = $('rd-world'); if (!box || typeof echarts === 'undefined') return;
+    try {
+      if (!GEO) { const r = await fetch('https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson'); if (!r.ok) throw new Error('map layer HTTP ' + r.status); GEO = await r.json(); echarts.registerMap('wf-radar', GEO); }
+      const d = S.data, by = {}; d.countries.forEach(c => { by[c.iso3] = c; });
+      const metric = S.wmMetric || 'score';
+      const sv = SVI() || {}, ex = S.extra || {};
+      const exv = (iso3, code) => (ex[iso3] && ex[iso3][code] ? ex[iso3][code].v : null);
+      const val2 = iso3 => { const r = sv[iso3]; switch (metric) { case 'svi': return r ? r.value : null; case 'social': return r ? r.domains.social.value : null; case 'inst': return r ? r.domains.institutional.value : null; case 'pv': { const pt = r && r.domains.institutional.parts.find(x => x.code === 'GOV_WGI_PV_SC'); return pt ? pt.value : null; } case 'conflict': { const v = exv(iso3, 'VC.BTL.DETH'); return v == null ? null : Math.log10(1 + v); } case 'mil': return exv(iso3, 'MS.MIL.XPND.GD.ZS'); case 'food': return exv(iso3, 'SN.ITK.MSFI.ZS'); case 'energy': return exv(iso3, 'EG.IMP.CONS.ZS'); } return undefined; };
+      const val = (c, iso3) => { const v2 = val2(iso3); if (v2 !== undefined) return v2; if (!c) return null; const k = c.components; switch (metric) { case 'score': return c.score; case 'cli': return k.cli ? k.cli.value : null; case 'esi': return k.esi ? k.esi.value : null; case 'gdp': return k.gdp ? k.gdp.last[k.gdp.last.length - 1].v : null; case 'ciss': return k.ciss ? k.ciss.value : null; } return null; };
+      const iso = f => f.id || (f.properties && (f.properties.iso_a3 || f.properties.ISO_A3 || f.properties.adm0_a3));
+      const data = GEO.features.map(f => { const c = by[iso(f)]; return { name: f.properties.name, iso: iso(f), value: val(c, iso(f)), c }; });
+      const VM = { score: { min: 0, max: 100, colors: ['#25a993', '#a6bd81', '#e9c46a', '#e39b5b', '#d0605e'] }, cli: { min: 97, max: 102, colors: ['#d0605e', '#e39b5b', '#e9c46a', '#a6bd81', '#25a993'] }, esi: { min: 85, max: 110, colors: ['#d0605e', '#e39b5b', '#e9c46a', '#a6bd81', '#25a993'] }, gdp: { min: -1, max: 1.5, colors: ['#d0605e', '#e39b5b', '#e9c46a', '#a6bd81', '#25a993'] }, ciss: { min: 0, max: 0.3, colors: ['#25a993', '#a6bd81', '#e9c46a', '#e39b5b', '#d0605e'] } }[metric] || ({ svi: [10, 55], social: [5, 65], inst: [5, 85], conflict: [0, 4], mil: [0, 6], food: [0, 60], energy: [-100, 100] }[metric] ? (() => { const r = { svi: [10, 55], social: [5, 65], inst: [5, 85], conflict: [0, 4], mil: [0, 6], food: [0, 60], energy: [-100, 100] }[metric]; return { min: r[0], max: r[1], colors: ['#25a993', '#a6bd81', '#e9c46a', '#e39b5b', '#d0605e'] }; })() : { min: 0, max: 100, colors: ['#d0605e', '#e39b5b', '#e9c46a', '#a6bd81', '#25a993'] });
+      if (metric === 'conflict') VM.text = ['10k+ deaths', '0'];
+      if (S.charts['rd-world']) S.charts['rd-world'].dispose(); box.innerHTML = '';
+      const c = echarts.init(box); S.charts['rd-world'] = c;
+      const eu = S.wmView === 'eu';
+      c.setOption({ backgroundColor: 'transparent',
+        tooltip: Object.assign({ trigger: 'item', formatter: p => { const x = p.data && p.data.c; if (!x) return esc(p.name) + '<br/>' + (p.data && p.data.value != null ? 'value <b>' + num(p.data.value, 1) + '</b>' : '<span style="color:#7f95a1">no source</span>') + '<br/><span style="color:#7f95a1">click → dossier</span>'; const k = x.components; return '<b>' + esc(x.name) + '</b> · score <b>' + (x.score ?? '—') + '</b> (' + x.level + ')<br/>' + (k.cli ? 'CLI ' + k.cli.value + ' (' + sgn(k.cli.ch3, 2) + ', ' + k.cli.phase + ')<br/>' : '') + (k.esi ? 'ESI ' + k.esi.value + ' (' + esc(k.esi.month) + ')<br/>' : '') + (k.gdp ? 'GDP q/q ' + k.gdp.last.map(q => sgn(q.v, 1)).join(' / ') + '<br/>' : '') + (k.ciss ? 'CISS ' + k.ciss.value + '<br/>' : '') + (k.spread ? '10Y vs Bund ' + sgn(k.spread.value, 2) + 'pp' : ''); } }, TT),
+        visualMap: { min: VM.min, max: VM.max, calculable: false, orient: 'horizontal', left: 10, bottom: 6, itemWidth: 10, itemHeight: 120, inRange: { color: VM.colors }, text: VM.text || [String(VM.max), String(VM.min)], textStyle: { color: '#8aa7ad', fontSize: 10 } },
+        series: [{ type: 'map', map: 'wf-radar', roam: true, zoom: eu ? 4.2 : 1.15, center: eu ? [16, 51] : undefined, scaleLimit: { min: 1, max: 14 }, data, nameProperty: 'name',
+          itemStyle: { areaColor: '#1a2a33', borderColor: '#0b1820', borderWidth: .5 }, emphasis: { label: { show: false }, itemStyle: { areaColor: '#75cfe7' } }, select: { disabled: true } }] });
+      c.on('click', p => { const i = p.data && p.data.iso; if (!i) return; S.dossier = i; renderDossier(); const pnl = $('rd-dossier-panel'); if (pnl) pnl.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    } catch (e) { box.innerHTML = '<div class="chart-no-data">World map layer unavailable: ' + esc(e.message) + '. The country table below has the same data.</div>'; }
+  }
+
+  /* ---------------- live equations ---------------- */
+  function equationsHtml(d) {
+    const el = loc() === 'el'; const m = d.us.model, C = d.us.contributions;
+    const eta = m.beta[0] + C.reduce((a, c) => a + (c.logit || 0), 0); const Pn = 1 / (1 + Math.exp(-eta));
+    const f = (x, k = 2) => (x == null ? '—' : (x < 0 ? '−' : '') + Math.abs(x).toFixed(k));
+    const zLines = C.map((c, j) => 'z(' + c.id + ') = (' + f(c.value) + ' − ' + f(m.mean[j], 3) + ') / ' + f(m.sd[j], 3) + ' = ' + f(c.z)).join('<br/>');
+    const etaLine = 'η = ' + f(m.beta[0]) + C.map((c, j) => ' ' + (m.beta[j + 1] < 0 ? '−' : '+') + ' ' + Math.abs(m.beta[j + 1]).toFixed(3) + '·(' + f(c.z) + ')').join('') + ' = <b>' + f(eta, 3) + '</b>';
+    const pLine = 'P = 1 / (1 + e<sup>−η</sup>) = 1 / (1 + e<sup>' + f(-eta, 3) + '</sup>) = <b>' + (Pn * 100).toFixed(1) + '%</b>';
+    const logit = p => Math.log(p / (1 - p));
+    const need = target => C.map((c, j) => { const b = m.beta[j + 1]; const zs = c.z + (logit(target) - eta) / b; return { id: c.id, x: m.mean[j] + m.sd[j] * zs }; });
+    const n30 = need(0.30), n50 = need(0.50);
+    const names = { spread: el ? 'Spread 10Y−3M' : '10Y−3M spread', spreadMin24: el ? 'Ελάχιστο spread 24μ' : '24m minimum spread', nfci: 'NFCI' };
+    const inv = '<table class="rd-table" style="margin-top:8px"><thead><tr><th>' + (el ? 'ΜΕΤΑΒΛΗΤΗ (ΜΟΝΗ ΤΗΣ)' : 'VARIABLE (ALONE)') + '</th><th>' + (el ? 'ΤΩΡΑ' : 'NOW') + '</th><th>' + (el ? 'ΓΙΑ P = 30%' : 'FOR P = 30%') + '</th><th>' + (el ? 'ΓΙΑ P = 50%' : 'FOR P = 50%') + '</th><th>' + (el ? 'ΑΝΑΦΟΡΑ' : 'REFERENCE') + '</th></tr></thead><tbody>' +
+      C.map((c, j) => '<tr><td>' + esc(names[c.id] || c.id) + '</td><td class="mono">' + f(c.value) + '</td><td class="mono c-amber">' + f(n30[j].x) + '</td><td class="mono c-red">' + f(n50[j].x) + '</td><td class="mono c-mute">' + ({ spread: el ? '2007: ≈ −0.5 · 2023: ≈ −1.6' : '2007: ≈ −0.5 · 2023: ≈ −1.6', spreadMin24: el ? 'κινείται μόνο προς τα κάτω' : 'can only ratchet down', nfci: el ? '2008 κορύφωση ≈ 3.0' : '2008 peak ≈ 3.0' }[c.id] || '') + '</td></tr>').join('') + '</tbody></table>';
+    const us = d.stress.us;
+    const sLines = us.components.map(c => 'S(' + c.id + ') = 100·(' + f(c.value, 2) + ' − ' + f(c.baseline, 2) + ') / (' + f(c.gfcPeak, 2) + ' − ' + f(c.baseline, 2) + ') = ' + f(c.pctOf2008, 1) + '%').join('<br/>');
+    const ea = d.stress.ea;
+    const eaLine = ea.baseline != null ? 'S(CISS<sub>EA</sub>) = 100·(x − ' + f(ea.baseline, 3) + ') / (' + f(ea.gfcPeakMonthly, 3) + ' − ' + f(ea.baseline, 3) + ') = ' + f(ea.current, 1) + '%' : '';
+    const g = d.global; const w = g.weights || {}; const inC = g.countries.filter(c => c.phase === 'contraction' || (c.cli != null && c.cli < 100 && c.ch3 < 0));
+    const totW = g.countries.filter(c => c.cli != null && c.ch3 != null).reduce((a, c) => a + (w[c.iso3] || 0), 0);
+    const dLine = 'D = Σ w<sub>i</sub>·1[CLI<sub>i</sub> &lt; 100 ∧ ΔCLI<sub>i,3m</sub> &lt; 0] / Σ w<sub>i</sub> = (' + (inC.map(c => c.iso3 + ' ' + (w[c.iso3] || 0)).join(' + ') || '0') + ') / ' + totW.toFixed(1) + ' = <b>' + f(g.diffusion.value, 0) + '%</b>';
+    const blk = (title, body, note) => '<div class="rd-eq"><h4>' + title + '</h4><div class="equation">' + body + '</div>' + (note ? '<p class="fineprint">' + note + '</p>' : '') + '</div>';
+    return '<section class="panel"><div class="panel-head"><div><div class="micro-label">' + (el ? 'ΖΩΝΤΑΝΕΣ ΕΞΙΣΩΣΕΙΣ · ΜΕ ΤΙΣ ΤΡΕΧΟΥΣΕΣ ΤΙΜΕΣ' : 'LIVE EQUATIONS · CURRENT VALUES SUBSTITUTED') + '</div><h2>' + (el ? 'Οι εξισώσεις πίσω από κάθε αριθμό' : 'The equations behind every number') + '</h2></div><span class="panel-hint">' + esc(d.us.latest ? d.us.latest.month : '') + '</span></div><div class="rd-eq-grid">' +
+      blk(el ? '① ΠΙΘΑΝΟΤΗΤΑ ΥΦΕΣΗΣ ΗΠΑ (LOGIT ΜΕ RIDGE)' : '① US RECESSION PROBABILITY (RIDGE LOGIT)', 'P(ύφεση<sub>t+1…t+12</sub>) = σ(β<sub>0</sub> + Σ β<sub>j</sub>·z<sub>j</sub>)<br/><br/>' + zLines + '<br/><br/>' + etaLine + '<br/>' + pLine,
+        el ? 'β εκτιμήθηκαν με penalized MLE: max Σ[y·ln P + (1−y)·ln(1−P)] − (λ/2)·Σβ<sub>j</sub><sup>2</sup>, λ = 32, Newton–IRLS.' : 'β estimated by penalised MLE: max Σ[y·ln P + (1−y)·ln(1−P)] − (λ/2)·Σβ<sub>j</sub><sup>2</sup>, λ = 32, Newton–IRLS.') +
+      blk(el ? '② ΑΝΤΙΣΤΡΟΦΗ: ΤΙ ΧΡΕΙΑΖΕΤΑΙ ΓΙΑ ΝΑ ΑΝΑΨΕΙ;' : '② INVERSION: WHAT WOULD IT TAKE?', 'x<sub>j</sub>* = μ<sub>j</sub> + σ<sub>j</sub>·[ z<sub>j</sub> + (logit(P*) − η) / β<sub>j</sub> ]<br/>logit(0.30) = −0.847 · logit(0.50) = 0' + inv,
+        el ? 'Κάθε γραμμή: πόσο πρέπει να κινηθεί ΜΟΝΗ της η μεταβλητή (οι άλλες σταθερές) για να φτάσει το μοντέλο το 30% / 50%.' : 'Each row: how far that variable alone (others fixed) must move for the model to reach 30% / 50%.') +
+      blk(el ? '③ ΠΙΕΣΗ ΩΣ % ΤΟΥ 2008' : '③ STRESS AS % OF THE 2008 PEAK', 'S<sub>k</sub> = 100·(x<sub>k</sub> − median<sub>1990–2019</sub>) / (max<sub>2007–09</sub> − median)<br/><br/>' + sLines + '<br/>S<sub>US</sub> = mean(S<sub>k</sub>) = <b>' + f(us.current, 1) + '%</b><br/>' + eaLine + '<br/>S = max(S<sub>US</sub>, S<sub>EA</sub>) = <b>' + f(d.current.stress, 1) + '%</b>') +
+      blk(el ? '④ ΠΑΓΚΟΣΜΙΑ ΔΙΑΧΥΣΗ ΣΥΡΡΙΚΝΩΣΗΣ' : '④ GLOBAL DOWNTURN DIFFUSION', dLine + '<br/><br/>' + (el ? 'Όριο παγκόσμιας ύφεσης: ' : 'Global-recession rule: ') + 'CLI<sub>G20</sub> &lt; 98.8 ∧ D ≥ 60%<br/>' + (el ? 'Τώρα: ' : 'Now: ') + 'CLI<sub>G20</sub> = ' + f(g.g20.value, 2) + ', D = ' + f(g.diffusion.value, 0) + '%', el ? 'Βάρη w = ονομαστικό ΑΕΠ 2024 (τρισ. $), σταθερά ώστε η ιστορία να είναι συγκρίσιμη.' : 'Weights w = 2024 nominal GDP (USD tn), fixed so history is comparable.') +
+      blk(el ? '⑤ ΣΚΟΡ ΥΦΕΣΗΣ ΧΩΡΑΣ' : '⑤ COUNTRY RECESSION SCORE', 'Score<sub>c</sub> = Σ ω<sub>k</sub>·g<sub>k</sub>(x<sub>c,k</sub>) / Σ ω<sub>k</sub><br/>ω = 2 (CLI, ESI, ΑΕΠ) · 1 (CISS, spread)<br/>g<sub>CLI</sub>: 101→0, 100→30, 99→55, 98→80, ≤97→100 (+15 αν πέφτει)<br/>g<sub>ΑΕΠ</sub> = 100 αν δύο αρνητικά τρίμηνα', el ? 'Κανόνες, όχι εκτίμηση ανά χώρα — δεν υπάρχουν αρκετές χρονολογημένες υφέσεις για κάθε οικονομία.' : 'Rules, not per-country fits — there are too few dated recessions per economy.') +
+      blk(el ? '⑥ ΔΕΙΚΤΗΣ ΕΓΓΥΤΗΤΑΣ' : '⑥ PROXIMITY INDEX', 'π<sub>k</sub> = clip<sub>[0,100]</sub>( 100·(x<sub>k</sub> − calm<sub>k</sub>) / (trigger<sub>k</sub> − calm<sub>k</sub>) )<br/>Π = (π<sub>P</sub> + π<sub>CLI</sub> + π<sub>D</sub> + π<sub>S</sub>) / 4<br/>T<sub>k</sub> = (trigger<sub>k</sub> − x<sub>k</sub>) / slope<sub>k,6m</sub>') +
+      '</div></section>';
   }
 
   function card(q, big, unit, level, text, gaugeHtml) {
@@ -169,7 +370,7 @@
     $('rd-ctry').innerHTML = rows.map(c => {
       const k = c.components; const cli = k.cli, esi = k.esi, gdp = k.gdp, ciss = k.ciss, sp = k.spread;
       const phase = cli && cli.phase ? '<span class="' + ph[cli.phase][1] + '">' + ph[cli.phase][0] + '</span>' : '<span class="c-mute">—</span>';
-      return '<tr class="' + (c.iso3 === 'GRC' ? 'hl' : '') + '"><td class="cname"><b>' + esc(c.name) + '</b><small>' + esc(c.iso3) + ' · ' + esc(c.region) + ' · ' + c.coverage + ' src</small></td><td>' + scoreBar(c.score, c.level) + '</td>' +
+      return '<tr data-iso="' + esc(c.iso3) + '" style="cursor:pointer" class="' + (c.iso3 === 'GRC' ? 'hl' : '') + '"><td class="cname"><b>' + esc(c.name) + '</b><small>' + esc(c.iso3) + ' · ' + esc(c.region) + ' · ' + c.coverage + ' src</small></td><td>' + scoreBar(c.score, c.level) + '</td>' +
         '<td class="mono">' + (cli ? num(cli.value, 2) + ' <span class="' + (cli.ch3 < 0 ? 'c-red' : 'c-green') + '">' + sgn(cli.ch3, 2) + '</span>' : '—') + '</td><td class="mono">' + phase + '</td>' +
         '<td class="mono">' + (esi ? num(esi.value, 1) + ' <span class="' + ((esi.ch3 || 0) < 0 ? 'c-red' : 'c-green') + '">' + sgn(esi.ch3, 1) + '</span> <small class="c-mute">' + esc(esi.month) + '</small>' : '—') + '</td>' +
         '<td class="mono">' + (gdp ? gdp.last.map(q => '<span class="' + (q.v < 0 ? 'c-red' : q.v < 0.2 ? 'c-amber' : 'c-green') + '">' + sgn(q.v, 1) + '</span>').join(' / ') + ' <small class="c-mute">' + esc(gdp.last[gdp.last.length - 1].q) + '</small>' + (gdp.technical ? ' <span class="rd-tag red">TECH. RECESSION</span>' : '') : '—') + '</td>' +

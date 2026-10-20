@@ -87,6 +87,7 @@ async function loadGlobalStress(){
   const result=await window.FaultlineStress.loadGlobal(api,state.countries,END_YEAR);
   state.stressScores=result.scores;
   state.stressLoaded=true;
+  window.FaultlineSVI={scores:result.scores,countries:state.countries,loadedAt:result.loadedAt};window.dispatchEvent(new Event('wf:svi'));
   const count=Object.values(result.scores).filter(r=>r.value!==null).length;
   label.textContent=count+'/'+state.countries.length+' complete three-domain SVI readings · '+result.observations+' source observations'+(result.failures.length?' · '+result.failures.length+' source group(s) unavailable':'');
   if(result.failures.length)notify(result.failures.length+' World Bank source batches unavailable. Missing domain data are NOT imputed.');
