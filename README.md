@@ -1,5 +1,24 @@
 # WORLD FAULTLINE · Global Systems Observatory
 
+## v1.0 — Recession & Crisis Radar (default view)
+
+Answers four questions from live public data, recomputed by a Vercel function (`/api/radar`, edge-cached 1h):
+
+| Question | Engine | Type |
+|---|---|---|
+| US recession in the next 12 months? | Ridge-logit on NBER dates 1972–2024: 10Y−3M spread, 24-month minimum spread, Chicago Fed NFCI | **Fitted & backtested** (OOS AUC 0.90, Brier 0.098 vs 0.109 climatology, leave-one-cycle-out AUC 0.91) |
+| A 2008-type systemic crisis? | Financial stress as % of the 2008 peak: NFCI, Baa−10Y, VIX, STLFSI (US) + ECB CISS (euro area) | Transparent scaling, 0% = 1990–2019 median, 100% = 2007–09 peak |
+| Global recession? | OECD G20 composite leading indicator + GDP-weighted share of 17 economies in contraction phase | Rule thresholds anchored on 1975/1982/1991/2009/2020 troughs |
+| Local recessions? | Country score from OECD CLI, Eurostat ESI & quarterly GDP, ECB CISS, 10Y spread vs Bund | Rule-based, thresholds printed in the UI |
+
+Plus a regime ladder (Expansion → Local → Late cycle → Global slowdown → Stress building → Global recession → Systemic), a crisis map (recession odds × stress) with past episodes, a nearest-neighbour historical analog finder, a 15-signal early-warning board and a model card.
+
+Files: `radar-core.js` (UMD computation core), `api/radar.js` (serverless aggregator), `radar.js` / `radar.css` (UI), `research/fit_us_recession.js` (reproducible fit + backtest).
+
+Data: FRED (St. Louis Fed), OECD SDMX, ECB Data Portal, Eurostat. OECD rejects some cloud IPs, so when the server fetch fails the browser fetches the OECD CSV (CORS-enabled) and posts it back for recomputation. Missing sources are disclosed, never imputed.
+
+Caveats: FRED series are revised, not real-time vintages; only 7 US recession onsets in sample; the 2022–24 inversion was a false alarm (OOS peak ≈83%); exogenous shocks (COVID) are not forecastable; global and country layers are rule-based, not fitted. Not investment advice.
+
 An open-data country intelligence research application (static site, no build pipeline) designed for deployment to Vercel.
 
 ## Features
