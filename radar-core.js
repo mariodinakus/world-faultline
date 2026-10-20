@@ -127,9 +127,15 @@
     return out;
   }
 
-  async function loadOecd(fetchText) {
+  async function loadOecd(fetchText, pre) {
+    if (pre) { const S0 = {}; parseCsv(pre).forEach(r => { const v = parseFloat(r.OBS_VALUE); if (Number.isFinite(v) && r.REF_AREA) (S0[r.REF_AREA] = S0[r.REF_AREA] || {})[r.TIME_PERIOD] = v; }); if (!S0.G20) throw new Error('OECD CLI (client relay): G20 aggregate missing'); return S0; }
     const codes = Object.keys(CLI_WEIGHTS).concat(['G20', 'G7', 'G4E', 'A5M']).join('+');
-    const rows = parseCsv(await fetchText(OECD + codes + '.M.LI...AA...H?startPeriod=1970-01&format=csvfile'));
+    const urlA = OECD + codes + '.M.LI...AA...H?startPeriod=1970-01&format=csvfile';
+    const urlB = OECD + codes + '.M.LI...AA...H?startPeriod=1970-01';
+    let text;
+    try { text = await fetchText(urlA); }
+    catch (e) { text = await fetchText(urlB, 2, { Accept: 'application/vnd.sdmx.data+csv; charset=utf-8; version=1.0' }); }
+    const rows = parseCsv(text);
     const S = {};
     rows.forEach(r => { const v = parseFloat(r.OBS_VALUE); if (Number.isFinite(v)) (S[r.REF_AREA] = S[r.REF_AREA] || {})[r.TIME_PERIOD] = v; });
     if (!S.G20) throw new Error('OECD CLI: G20 aggregate missing');
@@ -398,14 +404,14 @@
     const months = monthRange('1959-01', cur);
     const sources = {};
     const [Fr, Or, Er, Sr] = await pool([
-      () => loadFred(fetchText, today), () => loadOecd(fetchText), () => loadEcb(fetchText, today), () => loadEurostat(fetchJson, today)
+      () => loadFred(fetchText, today), () => loadOecd(fetchText, opts.oecdText), () => loadEcb(fetchText, today), () => loadEurostat(fetchJson, today)
     ], 4);
     const F = Fr.ok ? Fr.value : { m: {}, r: {}, d: {}, errors: ['FRED: ' + Fr.error] };
     const S = Or.ok ? Or.value : {};
     const E = Er.ok ? Er.value : { errors: ['ECB: ' + Er.error] };
     const ES = Sr.ok ? Sr.value : { errors: ['Eurostat: ' + Sr.error] };
     sources.fred = { ok: Object.keys(F.m).length > 0, series: Object.keys(F.m).length + Object.keys(F.d).length + Object.keys(F.r).length, errors: F.errors };
-    sources.oecd = { ok: Or.ok, errors: Or.ok ? [] : [Or.error] };
+    sources.oecd = { ok: Or.ok, relay: !!opts.oecdText, errors: Or.ok ? [] : [Or.error] };
     sources.ecb = { ok: !!(E.ea || E.ciss), errors: E.errors };
     sources.eurostat = { ok: !!(ES.esi || ES.gdp), errors: ES.errors };
 
@@ -452,5 +458,5 @@
     };
   }
 
-  return { compute, MODEL, EPISODES, CLI_WEIGHTS, COUNTRIES, _internal: { parseCsv, parseJsonStat, parseFred, monthRange, addMonths, cliScore, gdpScore, SCORE_RULES } };
+  return { compute, OECD_URL: () => OECD + Object.keys(CLI_WEIGHTS).concat(['G20']).join('+') + '.M.LI...AA...H?startPeriod=1970-01&format=csvfile', MODEL, EPISODES, CLI_WEIGHTS, COUNTRIES, _internal: { parseCsv, parseJsonStat, parseFred, monthRange, addMonths, cliScore, gdpScore, SCORE_RULES } };
 });

@@ -66,11 +66,22 @@
       if (!r.ok || j.error) throw new Error(j.message || ('HTTP ' + r.status));
       S.data = j; S.loadedAt = new Date();
       render();
+      if (j.sources && j.sources.oecd && !j.sources.oecd.ok) relayOecd();
     } catch (e) {
       S.error = e.name === 'AbortError' ? 'Timed out' : e.message;
       if (!S.data) $('radar-root').innerHTML = '<div class="rd-error">Radar data unavailable: ' + esc(S.error) + '. No substitute values are shown.<br/><br/><button class="small-btn" id="rd-retry">↻ ' + esc(t().retry) + '</button></div>';
       const b = $('rd-retry'); if (b) b.onclick = () => load(true);
     } finally { S.loading = false; }
+  }
+
+  // OECD sometimes refuses cloud servers; browsers are allowed (CORS). Fetch here, recompute server-side.
+  async function relayOecd() {
+    try {
+      const url = 'https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CLI,/USA+CHN+DEU+JPN+IND+GBR+FRA+ITA+BRA+CAN+MEX+KOR+ESP+AUS+IDN+TUR+ZAF+G20.M.LI...AA...H?startPeriod=1970-01&format=csvfile';
+      const r = await fetch(url); if (!r.ok) return; const csv = await r.text();
+      const p = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ oecd: csv }) });
+      const j = await p.json(); if (p.ok && !j.error && j.sources.oecd.ok) { S.data = j; render(); }
+    } catch (e) { /* keep server result; OECD gap stays disclosed */ }
   }
 
   /* ---------------- render ---------------- */
