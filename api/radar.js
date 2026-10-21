@@ -39,7 +39,7 @@ module.exports = async (req, res) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Access-Control-Allow-Origin', '*');
     // Fresh for 1h at the edge, serve stale up to 1 day while revalidating in the background
-    res.setHeader('Cache-Control', req.method === 'POST' ? 'no-store' : healthy ? 'public, s-maxage=3600, stale-while-revalidate=86400' : 'public, s-maxage=300, stale-while-revalidate=3600');
+    res.setHeader('Cache-Control', req.method === 'POST' ? 'no-store' : healthy ? 'public, s-maxage=900, stale-while-revalidate=86400' : 'public, s-maxage=300, stale-while-revalidate=3600');
     res.status(200).send(JSON.stringify(out));
   } catch (e) {
     res.setHeader('Cache-Control', 'no-store');
