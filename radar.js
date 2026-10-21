@@ -64,7 +64,7 @@
       clearTimeout(timer);
       const j = await r.json();
       if (!r.ok || j.error) throw new Error(j.message || ('HTTP ' + r.status));
-      if (S.data && S.data.generatedAt !== j.generatedAt) S.prevSnap = snapshot(S.data);
+      if (S.data && S.data.generatedAt !== j.generatedAt) { const ps = snapshot(S.data); if (ps.ok) S.prevSnap = ps; }
       S.data = j; S.loadedAt = new Date();
       render(); stamp();
       if (j.sources && j.sources.oecd && !j.sources.oecd.ok) relayOecd();
@@ -88,7 +88,7 @@
   /* ---------------- what changed ---------------- */
   const SNAP_KEY = 'wf-radar-snapshot-v1';
   function snapshot(d) {
-    return { t: d.generatedAt, code: d.verdict.code, P: d.current.p, S: d.current.stress, g20: d.current.g20, diff: d.current.diff,
+    return { ok: !!(d.sources && d.sources.oecd && d.sources.oecd.ok && d.sources.fred && d.sources.fred.ok), t: d.generatedAt, code: d.verdict.code, P: d.current.p, S: d.current.stress, g20: d.current.g20, diff: d.current.diff,
       sig: Object.fromEntries(d.signals.map(s => [s.id, [s.value, s.status, s.label]])),
       cty: Object.fromEntries(d.countries.filter(c => c.score != null).map(c => [c.iso3, [c.score, c.level, c.name]])) };
   }
@@ -97,11 +97,13 @@
   function renderChanges() {
     const box = $('rd-changes'); if (!box || !S.data) return;
     const el = loc() === 'el'; const cur = snapshot(S.data);
+    // only compare complete computations (the OECD leading indicator can arrive a few seconds later via the relay)
+    if (!cur.ok) { box.innerHTML = '<div class="rd-changes"><span class="rd-ch-head">' + (el ? 'ΤΙ ΑΛΛΑΞΕ' : 'WHAT CHANGED') + '</span><span class="rd-ch-empty">' + (el ? 'Αναμονή για όλες τις πηγές…' : 'Waiting for all sources…') + '</span></div>'; return; }
     // baseline: previous refresh in this session, else the snapshot saved on the last visit
-    if (!S.baseline) { const stored = readSnap(); S.baseline = stored && stored.t !== cur.t ? stored : (stored && stored.base ? stored.base : null); }
+    if (!S.baseline) { let stored = readSnap(); if (stored && !stored.ok) stored = null; S.baseline = stored && stored.t !== cur.t ? stored : (stored && stored.base && stored.base.ok ? stored.base : null); }
     if (S.prevSnap) S.baseline = S.prevSnap;
     const b = S.baseline;
-    const stored = readSnap(); if (!stored || stored.t !== cur.t) writeSnap(Object.assign({}, cur, { base: b || null }));
+    const stored = readSnap(); if (!stored || !stored.ok || stored.t !== cur.t) writeSnap(Object.assign({}, cur, { base: b || null }));
     if (!b) { box.innerHTML = '<div class="rd-changes"><span class="rd-ch-head">' + (el ? 'ΤΙ ΑΛΛΑΞΕ' : 'WHAT CHANGED') + '</span><span class="rd-ch-empty">' + (el ? 'Πρώτη καταγραφή σε αυτόν τον browser — από την επόμενη ενημέρωση θα βλέπεις εδώ τι άλλαξε.' : 'First snapshot in this browser — from the next update you will see what changed here.') + '</span></div>'; return; }
     const items = [];
     const ago = (() => { const m = Math.round((new Date(cur.t) - new Date(b.t)) / 60e3); return m < 60 ? m + '′' : m < 2880 ? Math.round(m / 60) + (el ? ' ώρες' : 'h') : Math.round(m / 1440) + (el ? ' ημέρες' : 'd'); })();
