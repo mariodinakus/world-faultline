@@ -46,9 +46,25 @@
 
   /* ---------------- data ---------------- */
   async function loadGeo() {
-    try { const r = await fetch('/api/geo'); const j = await r.json(); if (!r.ok) throw new Error(j.message || r.status); L.geo = j; }
+    try { const r = await fetch('/api/geo'); const txt = await r.text(); let j; try { j = JSON.parse(txt); } catch (_) { throw new Error('HTTP ' + r.status); } if (!r.ok) throw new Error(j.message || r.status); L.geo = j; }
     catch (e) { L.geoErr = e.message; }
     renderGeo();
+    if (L.geo) loadNews();
+  }
+  // GDELT flashpoints arrive one by one (each call ≈10 s uncached, then edge-cached for 6 h)
+  async function loadNews() {
+    const fps = L.geo.flashpoints || []; L.geo.news = fps.map(f => ({ id: f.id, label: f.label, error: T('loading…', 'φόρτωση…') })); renderGeo();
+    for (const f of fps) {
+      try { const r = await fetch('/api/news?id=' + f.id); const j = await r.json(); const k = L.geo.news.findIndex(n => n.id === f.id); L.geo.news[k] = Object.assign({ label: f.label }, j); }
+      catch (e) { const k = L.geo.news.findIndex(n => n.id === f.id); L.geo.news[k] = { id: f.id, label: f.label, error: e.message }; }
+      recomputeEscalation(); renderGeo();
+    }
+  }
+  function recomputeEscalation() {
+    const E = L.geo.escalation; if (!E) return;
+    const nn = L.geo.news.filter(n => n.ratio != null); E.parts = E.parts.filter(p => p.id !== 'news');
+    if (nn.length) { const top = nn.filter(n => ['ww3', 'nuclear', 'taiwan', 'nato'].includes(n.id)); const arr = (top.length ? top : nn).map(n => n.ratio); const r = arr.reduce((a, b) => a + b, 0) / arr.length; E.parts.splice(1, 0, { id: 'news', label: 'Great-power flashpoint news intensity (7d vs 90d median)', value: Math.round(r * 100) / 100, score: Math.round(clamp(50 + 50 * Math.log2(r), 0, 100)), weight: 0.2 }); }
+    const w = E.parts.reduce((a, p) => a + p.weight, 0); E.value = w ? Math.round(E.parts.reduce((a, p) => a + p.weight * p.score, 0) / w) : null; E.coverage = w;
   }
   async function ensureRadar() {
     const R = window.FaultlineRadar; if (!R) return null;
@@ -159,18 +175,18 @@
       '<p class="fineprint">' + T('E = 0.35·min(100, GPRH as % of WWII peak) + 0.20·news(50 + 50·log₂ ratio) + 0.20·100·(1 − ln s / ln 1020) + 0.25·min(100, Brent premium / 1.5). GPR counts newspaper articles about geopolitical tensions (Caldara & Iacoviello, AER 2022); GPRH runs from 1900 so today can be compared with the world wars, Korea, Cuba and 9/11. Weights are declared choices.', 'E = 0.35·min(100, GPRH ως % της κορύφωσης του Β’ ΠΠ) + 0.20·ειδήσεις(50 + 50·log₂ λόγου) + 0.20·100·(1 − ln s / ln 1020) + 0.25·min(100, ασφάλιστρο Brent / 1.5). Το GPR μετρά άρθρα εφημερίδων για γεωπολιτικές εντάσεις (Caldara & Iacoviello, AER 2022)· το GPRH ξεκινά το 1900, άρα το σήμερα συγκρίνεται με τους παγκόσμιους πολέμους, την Κορέα, την Κούβα και την 11η Σεπτεμβρίου. Τα βάρη είναι δηλωμένες επιλογές.') + '</p>';
     drawGpr();
   }
-  function spark(a) { const v = (a || []).filter(Number.isFinite); if (v.length < 3) return ''; const mn = Math.min(...v), mx = Math.max(...v), rg = mx - mn || 1; return '<svg viewBox="0 0 100 24" preserveAspectRatio="none" class="lab-spark"><polyline points="' + a.map((x, i) => (i / (a.length - 1) * 100).toFixed(1) + ',' + (22 - (x - mn) / rg * 20).toFixed(1)).join(' ') + '" fill="none" stroke="#d4af6a" stroke-width="1.3" vector-effect="non-scaling-stroke"/></svg>'; }
+  function spark(a) { const v = (a || []).filter(Number.isFinite); if (v.length < 3) return ''; const mn = Math.min(...v), mx = Math.max(...v), rg = mx - mn || 1; return '<svg viewBox="0 0 100 24" preserveAspectRatio="none" class="lab-spark"><polyline points="' + a.map((x, i) => (i / (a.length - 1) * 100).toFixed(1) + ',' + (22 - (x - mn) / rg * 20).toFixed(1)).join(' ') + '" fill="none" stroke="#f5c869" stroke-width="1.3" vector-effect="non-scaling-stroke"/></svg>'; }
   function chart(id) { const e = $(id); if (!e || typeof echarts === 'undefined') return null; if (L.chart[id]) L.chart[id].dispose(); L.chart[id] = echarts.init(e); return L.chart[id]; }
-  const TT = { backgroundColor: '#14110b', borderColor: '#5a4a2a', textStyle: { color: '#f1e9d6', fontSize: 11 } };
+  const TT = { backgroundColor: '#0e1222', borderColor: '#3b4370', textStyle: { color: '#eef1ff', fontSize: 11 } };
   function drawGpr() {
     const g = L.geo; if (!g || !g.gpr) return; const c = chart('lab-gpr'); if (!c) return;
     const s = g.gpr.series; const marks = g.gpr.marks;
     c.setOption({ backgroundColor: 'transparent', grid: { left: 46, right: 16, top: 24, bottom: 48 }, tooltip: Object.assign({ trigger: 'axis' }, TT),
-      xAxis: { type: 'category', data: s.map(x => x[0]), boundaryGap: false, axisLabel: { color: '#9c917b', fontSize: 10 }, axisLine: { lineStyle: { color: '#3a3324' } } },
-      yAxis: { type: 'value', axisLabel: { color: '#9c917b', fontSize: 10 }, splitLine: { lineStyle: { color: '#2a251b', type: 'dashed' } } },
-      dataZoom: [{ type: 'inside' }, { type: 'slider', height: 14, bottom: 8, borderColor: '#3a3324', fillerColor: 'rgba(212,175,106,.12)', textStyle: { color: '#9c917b' } }],
-      series: [{ name: 'GPRH (1900–)', type: 'line', data: s.map(x => x[1]), showSymbol: false, lineStyle: { color: '#d4af6a', width: 1.2 }, areaStyle: { color: 'rgba(212,175,106,.10)' },
-        markPoint: { symbol: 'pin', symbolSize: 30, itemStyle: { color: '#c0504d' }, label: { fontSize: 8, color: '#fff', formatter: p => p.name.split(' ')[0] }, data: marks.map(m => ({ name: m.name, coord: [m.month, m.gprh], value: m.gprh })) } }] });
+      xAxis: { type: 'category', data: s.map(x => x[0]), boundaryGap: false, axisLabel: { color: '#8b93b8', fontSize: 10 }, axisLine: { lineStyle: { color: '#252b45' } } },
+      yAxis: { type: 'value', axisLabel: { color: '#8b93b8', fontSize: 10 }, splitLine: { lineStyle: { color: '#1b2036', type: 'dashed' } } },
+      dataZoom: [{ type: 'inside' }, { type: 'slider', height: 14, bottom: 8, borderColor: '#252b45', fillerColor: 'rgba(245,200,105,.12)', textStyle: { color: '#8b93b8' } }],
+      series: [{ name: 'GPRH (1900–)', type: 'line', data: s.map(x => x[1]), showSymbol: false, lineStyle: { color: '#f5c869', width: 1.2 }, areaStyle: { color: 'rgba(245,200,105,.10)' },
+        markPoint: { symbol: 'pin', symbolSize: 30, itemStyle: { color: '#f43f5e' }, label: { fontSize: 8, color: '#fff', formatter: p => p.name.split(' ')[0] }, data: marks.map(m => ({ name: m.name, coord: [m.month, m.gprh], value: m.gprh })) } }] });
   }
 
   function presetById(id) { return PRESETS.find(p => p.id === id) || PRESETS[0]; }
@@ -263,10 +279,10 @@
   function drawMc(hist, mc) {
     const c = chart('lab-mc'); if (!c) return;
     c.setOption({ backgroundColor: 'transparent', grid: { left: 40, right: 12, top: 12, bottom: 30 }, tooltip: Object.assign({ trigger: 'axis' }, TT),
-      xAxis: { type: 'category', data: hist.map(h => h[0].toFixed(1)), axisLabel: { color: '#9c917b', fontSize: 9 }, axisLine: { lineStyle: { color: '#3a3324' } } },
+      xAxis: { type: 'category', data: hist.map(h => h[0].toFixed(1)), axisLabel: { color: '#8b93b8', fontSize: 9 }, axisLine: { lineStyle: { color: '#252b45' } } },
       yAxis: { type: 'value', axisLabel: { show: false }, splitLine: { show: false } },
-      series: [{ type: 'bar', data: hist.map(h => ({ value: h[1], itemStyle: { color: h[0] < 0 ? '#c0504d' : h[0] < 1 ? '#d9822b' : h[0] < 2 ? '#d4af6a' : '#6fae8f' } })), barCategoryGap: '8%',
-        markLine: { silent: true, symbol: 'none', label: { fontSize: 9, color: '#d4af6a' }, lineStyle: { color: '#d4af6a', type: 'dashed' }, data: [2, 1, 0].map(th => { let k = 0, best = 1e9; hist.forEach((h, i) => { const dd = Math.abs(h[0] - th); if (dd < best) { best = dd; k = i; } }); return { xAxis: k, label: { formatter: th + '%' } }; }) } }] });
+      series: [{ type: 'bar', data: hist.map(h => ({ value: h[1], itemStyle: { color: h[0] < 0 ? '#f43f5e' : h[0] < 1 ? '#fb923c' : h[0] < 2 ? '#f5c869' : '#34d399' } })), barCategoryGap: '8%',
+        markLine: { silent: true, symbol: 'none', label: { fontSize: 9, color: '#f5c869' }, lineStyle: { color: '#f5c869', type: 'dashed' }, data: [2, 1, 0].map(th => { let k = 0, best = 1e9; hist.forEach((h, i) => { const dd = Math.abs(h[0] - th); if (dd < best) { best = dd; k = i; } }); return { xAxis: k, label: { formatter: th + '%' } }; }) } }] });
   }
   async function drawMap(s) {
     const box = $('lab-map'); if (!box || typeof echarts === 'undefined') return;
@@ -276,8 +292,8 @@
       const data = L.geoJson.features.map(f => { const r = by[f.id]; return { name: f.properties.name, value: r ? Math.round(r.dG * 10) / 10 : null, r }; });
       const c = chart('lab-map');
       c.setOption({ backgroundColor: 'transparent', tooltip: Object.assign({ trigger: 'item', formatter: p => { const r = p.data && p.data.r; return r ? '<b>' + esc(r.name) + '</b><br/>ΔGDP ' + sgn(r.dG, 1) + 'pp (oil ' + sgn(r.dOil, 1) + ', war ' + sgn(r.dWar, 1) + ')' : esc(p.name) + '<br/>no data'; } }, TT),
-        visualMap: { min: -8, max: 1, calculable: false, orient: 'horizontal', left: 10, bottom: 6, itemHeight: 120, itemWidth: 10, inRange: { color: ['#7a1f1f', '#c0504d', '#d9822b', '#d4af6a', '#6fae8f'] }, text: ['+1pp', '−8pp'], textStyle: { color: '#9c917b', fontSize: 10 } },
-        series: [{ type: 'map', map: 'wf-lab', roam: true, zoom: 1.15, data, itemStyle: { areaColor: '#1d1a14', borderColor: '#0d0b07', borderWidth: 0.5 }, emphasis: { label: { show: false }, itemStyle: { areaColor: '#d4af6a' } }, select: { disabled: true } }] });
+        visualMap: { min: -8, max: 1, calculable: false, orient: 'horizontal', left: 10, bottom: 6, itemHeight: 120, itemWidth: 10, inRange: { color: ['#9f1239', '#f43f5e', '#fb923c', '#fbbf24', '#34d399'] }, text: ['+1pp', '−8pp'], textStyle: { color: '#8b93b8', fontSize: 10 } },
+        series: [{ type: 'map', map: 'wf-lab', roam: true, zoom: 1.15, data, itemStyle: { areaColor: '#161b30', borderColor: '#070912', borderWidth: 0.5 }, emphasis: { label: { show: false }, itemStyle: { areaColor: '#f5c869' } }, select: { disabled: true } }] });
     } catch (e) { box.innerHTML = '<div class="chart-no-data">Map unavailable: ' + esc(e.message) + '</div>'; }
   }
   window.addEventListener('resize', () => Object.values(L.chart).forEach(c => c && c.resize()));
