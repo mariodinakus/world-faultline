@@ -49,7 +49,7 @@
     try { const r = await fetch('/api/geo'); const txt = await r.text(); let j; try { j = JSON.parse(txt); } catch (_) { throw new Error('HTTP ' + r.status); } if (!r.ok) throw new Error(j.message || r.status); L.geo = j; }
     catch (e) { L.geoErr = e.message; }
     renderGeo();
-    if (L.geo) loadNews();
+    if (L.geo && !(L.geo.news || []).some(n => n.ratio != null)) loadNews();
   }
   // GDELT flashpoints arrive one by one (each call ≈10 s uncached, then edge-cached for 6 h)
   async function loadNews() {
@@ -63,7 +63,7 @@
   function recomputeEscalation() {
     const E = L.geo.escalation; if (!E) return;
     const nn = L.geo.news.filter(n => n.ratio != null); E.parts = E.parts.filter(p => p.id !== 'news');
-    if (nn.length) { const top = nn.filter(n => ['ww3', 'nuclear', 'taiwan', 'nato'].includes(n.id)); const arr = (top.length ? top : nn).map(n => n.ratio); const r = arr.reduce((a, b) => a + b, 0) / arr.length; E.parts.splice(1, 0, { id: 'news', label: 'Great-power flashpoint news intensity (7d vs 90d median)', value: Math.round(r * 100) / 100, score: Math.round(clamp(50 + 50 * Math.log2(r), 0, 100)), weight: 0.2 }); }
+    if (nn.length) { const top = nn.filter(n => ['ww3', 'nuclear', 'taiwan', 'nato'].includes(n.id)); const arr = (top.length ? top : nn).map(n => n.ratio); const r = arr.reduce((a, b) => a + b, 0) / arr.length; E.parts.splice(1, 0, { id: 'news', label: 'Public attention to great-power flashpoints (7d vs 90d median)', value: Math.round(r * 100) / 100, score: Math.round(clamp(50 + 50 * Math.log2(r), 0, 100)), weight: 0.2 }); }
     const w = E.parts.reduce((a, p) => a + p.weight, 0); E.value = w ? Math.round(E.parts.reduce((a, p) => a + p.weight * p.score, 0) / w) : null; E.coverage = w;
   }
   async function ensureRadar() {
@@ -163,14 +163,14 @@
     const parts = E.parts.map(pp => '<div class="lab-part"><span>' + esc(pp.label) + '</span><div class="rd-gauge"><i style="width:' + Math.max(2, pp.score) + '%"></i></div><b>' + pp.score + '</b><small>' + (pp.id === 'gpr' ? num(pp.value, 0) + '% of WWII' : pp.id === 'news' ? '×' + num(pp.value, 2) : pp.id === 'clock' ? pp.value + ' s' : sgn(pp.value, 0) + '%') + ' · w ' + pp.weight + '</small></div>').join('');
     const gp = g.gpr; const marks = gp ? gp.marks : [];
     const news = (g.news || []).map(n => '<tr><td>' + esc(n.label) + '</td><td class="mono">' + (n.ratio == null ? '<span class="c-mute">' + esc(n.error || '—') + '</span>' : '<span class="' + (n.ratio >= 1.5 ? 'c-red' : n.ratio >= 1.1 ? 'c-amber' : 'c-green') + '">×' + num(n.ratio, 2) + '</span>') + '</td><td>' + spark(n.spark) + '</td></tr>').join('');
-    box.innerHTML = '<div class="panel-head"><div><div class="micro-label">' + T('ESCALATION INDEX · GPR · GDELT · DOOMSDAY CLOCK · OIL WAR PREMIUM', 'ΔΕΙΚΤΗΣ ΚΛΙΜΑΚΩΣΗΣ · GPR · GDELT · DOOMSDAY CLOCK · ΠΟΛΕΜΙΚΟ ΑΣΦΑΛΙΣΤΡΟ ΠΕΤΡΕΛΑΙΟΥ') + '</div><h2 class="lab-title">' + T('How close are we to World War III?', 'Πόσο κοντά είμαστε σε Γ’ Παγκόσμιο;') + '</h2></div><span class="panel-hint">' + esc((g.generatedAt || '').slice(0, 16).replace('T', ' ')) + ' UTC</span></div>' +
+    box.innerHTML = '<div class="panel-head"><div><div class="micro-label">' + T('ESCALATION INDEX · GPR · WIKIPEDIA ATTENTION · DOOMSDAY CLOCK · OIL WAR PREMIUM', 'ΔΕΙΚΤΗΣ ΚΛΙΜΑΚΩΣΗΣ · GPR · ΠΡΟΣΟΧΗ WIKIPEDIA · DOOMSDAY CLOCK · ΠΟΛΕΜΙΚΟ ΑΣΦΑΛΙΣΤΡΟ ΠΕΤΡΕΛΑΙΟΥ') + '</div><h2 class="lab-title">' + T('How close are we to World War III?', 'Πόσο κοντά είμαστε σε Γ’ Παγκόσμιο;') + '</h2></div><span class="panel-hint">' + esc((g.generatedAt || '').slice(0, 16).replace('T', ' ')) + ' UTC</span></div>' +
       '<div class="lab-geo-grid"><div class="lab-geo-big" data-tone="' + tone + '"><div class="rd-ring" style="--v:' + (v ?? 0) + '"><span>' + (v ?? '—') + '<small>/100</small></span></div><b>' + esc(band ? band[1] : '—') + '</b><p>' + T('Escalation intensity relative to history — <u>not</u> a probability of world war. No model can estimate that probability from data: there have been two world wars.', 'Ένταση κλιμάκωσης σε σχέση με την ιστορία — <u>όχι</u> πιθανότητα παγκοσμίου πολέμου. Κανένα μοντέλο δεν μπορεί να την εκτιμήσει από δεδομένα: έχουν γίνει μόνο δύο παγκόσμιοι πόλεμοι.') + '</p></div>' +
       '<div><h4 class="rd-h4">' + T('COMPONENTS (0–100)', 'ΣΥΝΙΣΤΩΣΕΣ (0–100)') + '</h4>' + parts +
       '<div class="lab-facts"><div><span>GPR (Caldara–Iacoviello)</span><b>' + (gp && gp.latest ? num(gp.latest.gprh, 0) : '—') + '</b><small>' + (gp && gp.latest ? esc(gp.latest.month) + ' · ' + num(gp.percentileSince1900, 0) + T('th percentile since 1900', 'ο εκατοστημόριο από το 1900') : esc(g.sources.gprMonthly)) + '</small></div>' +
       '<div><span>' + T('Daily GPR, 7-day avg', 'Ημερήσιο GPR, μ.ό. 7 ημ.') + '</span><b>' + (g.gprDaily ? num(g.gprDaily.avg7, 0) : '—') + '</b><small>' + (g.gprDaily ? T('1-yr median ', 'διάμεσος έτους ') + num(g.gprDaily.median365, 0) : esc(g.sources.gprDaily)) + '</small></div>' +
       '<div><span>Doomsday Clock</span><b>' + g.doomsday.seconds + ' s</b><small>' + T('closest ever · set ', 'το πιο κοντά ever · ') + esc(g.doomsday.set) + '</small></div>' +
       '<div><span>Brent ' + T('war premium', 'πολεμικό ασφάλιστρο') + '</span><b>' + (g.brent ? sgn(g.brent.premiumPct, 0) + '%' : '—') + '</b><small>' + (g.brent ? '$' + num(g.brent.last.value, 1) + ' vs $' + num(g.brent.prewar, 1) + T(' pre-war', ' προ πολέμου') : '') + '</small></div></div></div>' +
-      '<div><h4 class="rd-h4">' + T('FLASHPOINT NEWS INTENSITY (GDELT, 7d vs 90d)', 'ΕΝΤΑΣΗ ΕΙΔΗΣΕΩΝ ΑΝΑ ΕΣΤΙΑ (GDELT, 7ημ vs 90ημ)') + '</h4><table class="rd-table lab-news"><tbody>' + news + '</tbody></table></div></div>' +
+      '<div><h4 class="rd-h4">' + T('PUBLIC ATTENTION BY FLASHPOINT (WIKIPEDIA PAGEVIEWS, 7d vs 90d)', 'ΔΗΜΟΣΙΑ ΠΡΟΣΟΧΗ ΑΝΑ ΕΣΤΙΑ (WIKIPEDIA PAGEVIEWS, 7ημ vs 90ημ)') + '</h4><table class="rd-table lab-news"><tbody>' + news + '</tbody></table></div></div>' +
       '<div id="lab-gpr" class="rd-chart"></div><div class="rd-legend">' + marks.map(m => '<span>' + esc(m.name) + ' · ' + m.gprh + '</span>').join('') + '</div>' +
       '<p class="fineprint">' + T('E = 0.35·min(100, GPRH as % of WWII peak) + 0.20·news(50 + 50·log₂ ratio) + 0.20·100·(1 − ln s / ln 1020) + 0.25·min(100, Brent premium / 1.5). GPR counts newspaper articles about geopolitical tensions (Caldara & Iacoviello, AER 2022); GPRH runs from 1900 so today can be compared with the world wars, Korea, Cuba and 9/11. Weights are declared choices.', 'E = 0.35·min(100, GPRH ως % της κορύφωσης του Β’ ΠΠ) + 0.20·ειδήσεις(50 + 50·log₂ λόγου) + 0.20·100·(1 − ln s / ln 1020) + 0.25·min(100, ασφάλιστρο Brent / 1.5). Το GPR μετρά άρθρα εφημερίδων για γεωπολιτικές εντάσεις (Caldara & Iacoviello, AER 2022)· το GPRH ξεκινά το 1900, άρα το σήμερα συγκρίνεται με τους παγκόσμιους πολέμους, την Κορέα, την Κούβα και την 11η Σεπτεμβρίου. Τα βάρη είναι δηλωμένες επιλογές.') + '</p>';
     drawGpr();
