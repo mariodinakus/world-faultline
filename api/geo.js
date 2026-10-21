@@ -12,6 +12,11 @@ const GPR_M = 'https://www.matteoiacoviello.com/gpr_files/data_gpr_export.xls';
 const GPR_D = 'https://www.matteoiacoviello.com/gpr_files/data_gpr_daily_recent.xls';
 const FRED = 'https://fred.stlouisfed.org/graph/fredgraph.csv';
 
+// Public-attention proxy: English Wikipedia daily pageviews (Wikimedia REST API). GDELT rate-limits cloud IPs.
+const WIKI = {
+  ww3: ['World_War_III'], nuclear: ['Nuclear_warfare', 'Nuclear_holocaust'], hormuz: ['Strait_of_Hormuz'],
+  taiwan: ['Taiwan_Strait', 'Chinese_unification'], nato: ['North_Atlantic_Treaty', 'NATO'], korea: ['North_Korea', 'Korean_conflict']
+};
 const FLASHPOINTS = [
   { id: 'ww3', label: 'World War III / great-power war', q: '("world war iii" OR "world war 3" OR "third world war")' },
   { id: 'nuclear', label: 'Nuclear use / threats', q: '("nuclear war" OR "nuclear strike" OR "tactical nuclear")' },
@@ -40,6 +45,8 @@ const median = a => { const v = a.filter(Number.isFinite).sort((x, y) => x - y);
 function toKey(v, daily) {
   let d;
   if (v instanceof Date) d = new Date(v.getTime() + 12 * 3600e3);
+  else if (typeof v === 'number' && v > 18000000 && v < 21001231) { const t = String(Math.round(v)); d = new Date(Date.UTC(+t.slice(0, 4), +t.slice(4, 6) - 1, +t.slice(6, 8), 12)); }
+  else if (typeof v === 'string' && /^\d{8}$/.test(v.trim())) { const t = v.trim(); d = new Date(Date.UTC(+t.slice(0, 4), +t.slice(4, 6) - 1, +t.slice(6, 8), 12)); }
   else if (typeof v === 'number') { const p = XLSX.SSF.parse_date_code(v); if (!p) return null; d = new Date(Date.UTC(p.y, p.m - 1, p.d, 12)); }
   else if (typeof v === 'string' && /^\d{4}-\d{2}/.test(v)) d = new Date(v.slice(0, 10) + 'T12:00:00Z');
   else return null;
@@ -109,6 +116,24 @@ async function gdelt(deadline) {
   }
   return out;
 }
+async function wiki() {
+  const end = new Date(Date.now() - 864e5), start = new Date(end.getTime() - 120 * 864e5);
+  const f = d => d.toISOString().slice(0, 10).replace(/-/g, '');
+  const out = await Promise.all(FLASHPOINTS.map(async fp => {
+    try {
+      const series = {};
+      await Promise.all(WIKI[fp.id].map(async art => {
+        const j = JSON.parse(await get('https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/' + encodeURIComponent(art) + '/daily/' + f(start) + '/' + f(end), false, 10000));
+        (j.items || []).forEach(it => { const k = it.timestamp.slice(0, 8); series[k] = (series[k] || 0) + it.views; });
+      }));
+      const vals = Object.keys(series).sort().map(k => series[k]);
+      if (vals.length < 30) throw new Error('too few days');
+      const last7 = mean(vals.slice(-7)), base = median(vals.slice(-97, -7));
+      return { id: fp.id, label: fp.label, source: 'Wikipedia pageviews: ' + WIKI[fp.id].join(', '), last7: r2(last7, 0), median90d: r2(base, 0), ratio: base ? r2(last7 / base, 2) : null, spark: vals.slice(-90).filter((_, k) => k % 3 === 0) };
+    } catch (e) { return { id: fp.id, label: fp.label, error: String(e.message || e) }; }
+  }));
+  return out;
+}
 async function brent() {
   const t = await get(FRED + '?id=DCOILBRENTEU&cosd=2025-12-01');
   const rows = t.trim().split('\n').slice(1).map(l => { const [d, v] = l.split(','); return { d, v: parseFloat(v) }; }).filter(o => Number.isFinite(o.v));
@@ -122,7 +147,7 @@ function escalationIndex(g, gd, news, oil) {
   const parts = [];
   if (g && g.pctOfWW2 != null) parts.push({ id: 'gpr', label: 'Geopolitical Risk (GPRH) as % of the WWII peak', value: g.pctOfWW2, score: Math.min(100, g.pctOfWW2), weight: 0.35 });
   const nn = (news || []).filter(n => n.ratio != null);
-  if (nn.length) { const top = nn.filter(n => ['ww3', 'nuclear', 'taiwan', 'nato'].includes(n.id)); const r = mean((top.length ? top : nn).map(n => n.ratio)); parts.push({ id: 'news', label: 'Great-power flashpoint news intensity (7d vs 90d median)', value: r2(r, 2), score: Math.max(0, Math.min(100, 50 + 50 * Math.log2(r))), weight: 0.2 }); }
+  if (nn.length) { const top = nn.filter(n => ['ww3', 'nuclear', 'taiwan', 'nato'].includes(n.id)); const r = mean((top.length ? top : nn).map(n => n.ratio)); parts.push({ id: 'news', label: 'Public attention to great-power flashpoints (Wikipedia, 7d vs 90d median)', value: r2(r, 2), score: Math.max(0, Math.min(100, 50 + 50 * Math.log2(r))), weight: 0.2 }); }
   const s = DOOMSDAY.seconds; parts.push({ id: 'clock', label: 'Doomsday Clock (log scale, 1020 s = safest ever)', value: s, score: Math.max(0, Math.min(100, 100 * (1 - Math.log(s) / Math.log(1020)))), weight: 0.2 });
   if (oil && oil.premiumPct != null) parts.push({ id: 'oil', label: 'War premium in Brent vs pre-war level', value: oil.premiumPct, score: Math.max(0, Math.min(100, oil.premiumPct / 1.5)), weight: 0.25 });
   const w = parts.reduce((a, p) => a + p.weight, 0);
@@ -137,11 +162,10 @@ module.exports = async (req, res) => {
   const budget = (p, ms, label) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timed out')), ms))]);
   const settle = p => p.then(v => ({ ok: true, v }), e => ({ ok: false, e: String(e && e.message || e) }));
   // GDELT is slow (~10 s per query) and rate-limited, so flashpoints are served one per call by /api/news
-  const [gm, gd, oil] = await Promise.all([settle(budget(gprMonthly(), 25000, 'GPR monthly')), settle(budget(gprDaily(), 25000, 'GPR daily')), settle(budget(brent(), 20000, 'FRED Brent'))]);
-  const news = { ok: true, v: null };
+  const [gm, gd, oil, news] = await Promise.all([settle(budget(gprMonthly(), 25000, 'GPR monthly')), settle(budget(gprDaily(), 25000, 'GPR daily')), settle(budget(brent(), 20000, 'FRED Brent')), settle(budget(wiki(), 20000, 'Wikipedia'))]);
   const out = {
     generatedAt: new Date().toISOString(),
-    sources: { gprMonthly: gm.ok ? 'ok' : gm.e, gprDaily: gd.ok ? 'ok' : gd.e, brent: oil.ok ? 'ok' : oil.e, gdelt: 'via /api/news' }, flashpoints: FLASHPOINTS.map(f => ({ id: f.id, label: f.label })),
+    sources: { gprMonthly: gm.ok ? 'ok' : gm.e, gprDaily: gd.ok ? 'ok' : gd.e, brent: oil.ok ? 'ok' : oil.e, attention: news.ok ? 'ok (Wikipedia pageviews)' : news.e }, flashpoints: FLASHPOINTS.map(f => ({ id: f.id, label: f.label })),
     gpr: gm.ok ? gm.v : null, gprDaily: gd.ok ? gd.v : null, brent: oil.ok ? oil.v : null, news: news.ok ? news.v : null,
     doomsday: DOOMSDAY, prewar: PREWAR
   };
