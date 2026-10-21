@@ -65,7 +65,7 @@
       const j = await r.json();
       if (!r.ok || j.error) throw new Error(j.message || ('HTTP ' + r.status));
       S.data = j; S.loadedAt = new Date();
-      render();
+      render(); stamp();
       if (j.sources && j.sources.oecd && !j.sources.oecd.ok) relayOecd();
     } catch (e) {
       S.error = e.name === 'AbortError' ? 'Timed out' : e.message;
@@ -469,5 +469,18 @@
   };
   window.addEventListener('resize', resize);
   window.addEventListener('wf:locale', () => window.FaultlineRadar.rerender());
-  setInterval(() => { if (document.visibilityState === 'visible' && S.data && Date.now() - S.loadedAt > 30 * 60e3) load(false); }, 60e3);
+  // Continuous refresh: data recomputed server-side at most every 15 min; the page re-pulls every 15 min while visible
+  const REFRESH_MS = 15 * 60e3;
+  function stamp() {
+    const t = $('live-stamp-t'), n = $('live-stamp-n'); if (!t || !S.data) return;
+    const el = loc() === 'el'; const g = new Date(S.data.generatedAt);
+    const f = d => d.toLocaleString(el ? 'el-GR' : 'en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const ago = Math.max(0, Math.round((Date.now() - g) / 60e3)); const next = Math.max(0, Math.ceil((REFRESH_MS - (Date.now() - S.loadedAt)) / 60e3));
+    t.textContent = (el ? 'Ενημέρωση: ' : 'Updated: ') + f(g);
+    n.textContent = ' · ' + (ago < 1 ? (el ? 'μόλις τώρα' : 'just now') : (el ? 'πριν ' + ago + '′' : ago + ' min ago')) + ' · ' + (el ? 'επόμενη σε ' : 'next in ') + next + '′';
+    $('live-stamp').title = (el ? 'Τελευταία δεδομένα: ' : 'Latest data: ') + 'US model ' + (S.data.us.latest ? S.data.us.latest.month : '—') + ' · G20 CLI ' + (S.data.global.g20.month || '—') + ' · EA CISS ' + (S.data.stress.ea.latestDaily ? S.data.stress.ea.latestDaily.date : '—');
+  }
+  setInterval(() => { stamp(); if (document.visibilityState === 'visible' && S.data && Date.now() - S.loadedAt > REFRESH_MS) load(false); }, 30e3);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.data && Date.now() - S.loadedAt > REFRESH_MS) load(false); });
+  window.addEventListener('wf:locale', stamp); window.addEventListener('wf:radar', stamp);
 })();

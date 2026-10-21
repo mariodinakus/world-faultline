@@ -105,3 +105,9 @@ select:focus,input:focus{border-color:var(--gold)}
 footer{border-color:var(--line);color:#6f78a3}footer span{color:#4f577d}
 .orbit{border-color:#2c3560;border-top-color:var(--gold)}
 @media(max-width:680px){h1{font-size:36px}.panel h2{font-size:19px}}
+
+.live-stamp{display:inline-flex;align-items:center;gap:6px;font:10px var(--mono);color:#9aa2c7;border:1px solid rgba(52,211,153,.35);background:rgba(52,211,153,.06);padding:7px 11px;border-radius:999px;margin-right:6px;letter-spacing:.02em}
+.live-stamp b{color:#eef1ff;font-weight:500}.live-stamp em{font-style:normal;color:#6ee7b7}
+.live-stamp .live-dot{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+@media(max-width:680px){.live-stamp{display:inline-flex!important;font-size:9px;padding:5px 8px}.live-stamp em{display:none}}
