@@ -80,7 +80,7 @@
       const url = 'https://sdmx.oecd.org/public/rest/data/OECD.SDD.STES,DSD_STES@DF_CLI,/USA+CHN+DEU+JPN+IND+GBR+FRA+ITA+BRA+CAN+MEX+KOR+ESP+AUS+IDN+TUR+ZAF+G20.M.LI...AA...H?startPeriod=1970-01&format=csvfile';
       const r = await fetch(url); if (!r.ok) return; const csv = await r.text();
       const p = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ oecd: csv }) });
-      const j = await p.json(); if (p.ok && !j.error && j.sources.oecd.ok) { S.data = j; render(); }
+      const j = await p.json(); if (p.ok && !j.error && j.sources.oecd.ok) { S.data = j; render(); window.dispatchEvent(new Event('wf:radar')); }
     } catch (e) { /* keep server result; OECD gap stays disclosed */ }
   }
 

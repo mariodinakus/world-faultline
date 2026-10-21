@@ -298,5 +298,7 @@
   }
   window.addEventListener('resize', () => Object.values(L.chart).forEach(c => c && c.resize()));
   window.addEventListener('wf:locale', () => { const root = $('lab-root'); if (root && root.dataset.ready && window.FaultlineRadar && window.FaultlineRadar.data) { renderGeo(); renderLab(window.FaultlineRadar.data); } });
+  // The OECD leading indicator can arrive a few seconds later via the browser relay: re-run the Lab when it does
+  window.addEventListener('wf:radar', () => { const root = $('lab-root'); if (root && root.dataset.ready && window.FaultlineRadar.data) renderLab(window.FaultlineRadar.data); });
   window.FaultlineLab = { show, PRESETS, CAL };
 })();
