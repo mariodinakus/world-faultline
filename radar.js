@@ -64,6 +64,7 @@
       clearTimeout(timer);
       const j = await r.json();
       if (!r.ok || j.error) throw new Error(j.message || ('HTTP ' + r.status));
+      if (S.data && S.data.generatedAt !== j.generatedAt) S.prevSnap = snapshot(S.data);
       S.data = j; S.loadedAt = new Date();
       render(); stamp();
       if (j.sources && j.sources.oecd && !j.sources.oecd.ok) relayOecd();
@@ -84,6 +85,39 @@
     } catch (e) { /* keep server result; OECD gap stays disclosed */ }
   }
 
+  /* ---------------- what changed ---------------- */
+  const SNAP_KEY = 'wf-radar-snapshot-v1';
+  function snapshot(d) {
+    return { t: d.generatedAt, code: d.verdict.code, P: d.current.p, S: d.current.stress, g20: d.current.g20, diff: d.current.diff,
+      sig: Object.fromEntries(d.signals.map(s => [s.id, [s.value, s.status, s.label]])),
+      cty: Object.fromEntries(d.countries.filter(c => c.score != null).map(c => [c.iso3, [c.score, c.level, c.name]])) };
+  }
+  function readSnap() { try { return JSON.parse(localStorage.getItem(SNAP_KEY) || 'null'); } catch (e) { return null; } }
+  function writeSnap(x) { try { localStorage.setItem(SNAP_KEY, JSON.stringify(x)); } catch (e) {} }
+  function renderChanges() {
+    const box = $('rd-changes'); if (!box || !S.data) return;
+    const el = loc() === 'el'; const cur = snapshot(S.data);
+    // baseline: previous refresh in this session, else the snapshot saved on the last visit
+    if (!S.baseline) { const stored = readSnap(); S.baseline = stored && stored.t !== cur.t ? stored : (stored && stored.base ? stored.base : null); }
+    if (S.prevSnap) S.baseline = S.prevSnap;
+    const b = S.baseline;
+    const stored = readSnap(); if (!stored || stored.t !== cur.t) writeSnap(Object.assign({}, cur, { base: b || null }));
+    if (!b) { box.innerHTML = '<div class="rd-changes"><span class="rd-ch-head">' + (el ? 'ΤΙ ΑΛΛΑΞΕ' : 'WHAT CHANGED') + '</span><span class="rd-ch-empty">' + (el ? 'Πρώτη καταγραφή σε αυτόν τον browser — από την επόμενη ενημέρωση θα βλέπεις εδώ τι άλλαξε.' : 'First snapshot in this browser — from the next update you will see what changed here.') + '</span></div>'; return; }
+    const items = [];
+    const ago = (() => { const m = Math.round((new Date(cur.t) - new Date(b.t)) / 60e3); return m < 60 ? m + '′' : m < 2880 ? Math.round(m / 60) + (el ? ' ώρες' : 'h') : Math.round(m / 1440) + (el ? ' ημέρες' : 'd'); })();
+    const num_ = (k, label, unit, dec, worseUp, thr) => { const a = b[k], c = cur[k]; if (a == null || c == null) return; const dlt = c - a; if (Math.abs(dlt) < thr) return; const bad = worseUp ? dlt > 0 : dlt < 0; items.push({ w: Math.abs(dlt) / thr, h: '<span class="rd-ch ' + (bad ? 'bad' : 'good') + '">' + (dlt > 0 ? '▲' : '▼') + ' ' + label + ' <b>' + a.toFixed(dec) + unit + ' → ' + c.toFixed(dec) + unit + '</b></span>' }); };
+    if (b.code !== cur.code) { const ord = ['EXPANSION', 'LOCAL', 'LATE_CYCLE', 'GLOBAL_SLOWDOWN', 'SYSTEMIC_WATCH', 'GLOBAL_RECESSION', 'SYSTEMIC']; const bad = ord.indexOf(cur.code) > ord.indexOf(b.code); items.push({ w: 99, h: '<span class="rd-ch ' + (bad ? 'bad' : 'good') + ' big">' + (bad ? '▲' : '▼') + ' ' + (el ? 'Καθεστώς: ' : 'Regime: ') + '<b>' + esc(t().regimes[b.code]) + ' → ' + esc(t().regimes[cur.code]) + '</b></span>' }); }
+    num_('P', el ? 'Πιθ. ύφεσης ΗΠΑ' : 'US recession prob.', '%', 1, true, 0.3);
+    num_('S', el ? 'Πίεση (% 2008)' : 'Stress (% of 2008)', '%', 0, true, 1);
+    num_('g20', 'G20 CLI', '', 2, false, 0.02);
+    num_('diff', el ? 'Διάχυση συρρίκνωσης' : 'Downturn diffusion', '%', 0, true, 2);
+    const rank = { ok: 0, watch: 1, alert: 2, na: -1 };
+    Object.entries(cur.sig).forEach(([id, [v, st, lab]]) => { const p = b.sig && b.sig[id]; if (!p) return; if (p[1] !== st && rank[st] >= 0 && rank[p[1]] >= 0) { const bad = rank[st] > rank[p[1]]; items.push({ w: 20, h: '<span class="rd-ch ' + (bad ? 'bad' : 'good') + '">' + (bad ? '⚠' : '✓') + ' ' + esc(lab) + ' <b>' + p[1].toUpperCase() + ' → ' + st.toUpperCase() + '</b></span>' }); } else if (v != null && p[0] != null && p[0] !== v) { const rel = Math.abs(v - p[0]) / (Math.abs(p[0]) || 1); if (rel >= 0.05) items.push({ w: rel * 10, h: '<span class="rd-ch neutral">' + (v > p[0] ? '▲' : '▼') + ' ' + esc(lab) + ' <b>' + p[0] + ' → ' + v + '</b></span>' }); } });
+    Object.entries(cur.cty).forEach(([iso, [sc, lv, name]]) => { const p = b.cty && b.cty[iso]; if (!p) return; if (p[1] !== lv) { const r = { green: 0, amber: 1, red: 2 }; const bad = r[lv] > r[p[1]]; items.push({ w: 15, h: '<span class="rd-ch ' + (bad ? 'bad' : 'good') + '">' + esc(name) + ' <b>' + p[1] + ' → ' + lv + '</b> (' + p[0] + '→' + sc + ')</span>' }); } });
+    items.sort((x, y) => y.w - x.w);
+    box.innerHTML = '<div class="rd-changes"><span class="rd-ch-head">' + (el ? 'ΤΙ ΑΛΛΑΞΕ · ΤΑ ΤΕΛΕΥΤΑΙΑ ' : 'WHAT CHANGED · LAST ') + ago + '</span>' + (items.length ? items.slice(0, 14).map(i => i.h).join('') + (items.length > 14 ? '<span class="rd-ch neutral">+' + (items.length - 14) + '</span>' : '') : '<span class="rd-ch-empty">' + (el ? 'Καμία ουσιαστική αλλαγή — οι πηγές δεν έχουν δημοσιεύσει νέα στοιχεία που μετακινούν τους δείκτες.' : 'No material change — sources have not published anything that moves the indicators.') + '</span>') + '</div>';
+  }
+
   /* ---------------- render ---------------- */
   function render() {
     const d = S.data; if (!d) return;
@@ -99,6 +133,7 @@
       '<div class="rd-meta">' + esc(L.updated) + ' <b>' + esc(fmtDate(d.generatedAt)) + '</b><br/>US model month <b>' + esc(d.us.latest ? d.us.latest.month + (d.us.latest.partial ? ' (MTD)' : '') : '—') + '</b><br/>G20 CLI <b>' + esc(d.global.g20.month || '—') + '</b> · EA CISS <b>' + esc(d.stress.ea.latestDaily ? d.stress.ea.latestDaily.date : '—') + '</b><div class="rd-src">' + ['fred', 'oecd', 'ecb', 'eurostat'].map(k => srcBadge(k, d.sources[k])).join('') + '</div></div></div>' +
       '<div class="rd-ladder">' + ORDER.map(c => { const on = ORDER.indexOf(c) <= ORDER.indexOf(v.code); return '<div class="rd-step' + (on ? ' on' : '') + (c === v.code ? ' current' : '') + '" data-tone="' + TONE[c] + '">' + esc(L.regimes[c]) + '</div>'; }).join('') + '</div></section>');
 
+    html.push('<div id="rd-changes"></div>');
     // Four answers
     const g = A.global;
     html.push('<div class="rd-answers">' +
@@ -157,6 +192,7 @@
     $('rd-ctry').addEventListener('click', e => { const tr = e.target.closest('tr[data-iso]'); if (!tr) return; S.dossier = tr.dataset.iso; renderDossier(); $('rd-dossier-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
     $('rd-regions').addEventListener('click', e => { const b = e.target.closest('button[data-region]'); if (!b) return; S.region = b.dataset.region; $('rd-regions').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); renderCountries(); });
     drawCharts();
+    renderChanges();
     const mt = $('rd-wm-tools'); if (mt) mt.addEventListener('click', e => { const b = e.target.closest('button[data-wm]'); if (!b) return; if (b.dataset.wm === 'eu' || b.dataset.wm === 'world') { S.wmView = b.dataset.wm; } else { S.wmMetric = b.dataset.wm; } mt.querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.wm === S.wmMetric || x.dataset.wm === S.wmView)); drawWorldMap(); });
     drawWorldMap();
     renderDossier();
