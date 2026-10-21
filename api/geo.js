@@ -24,8 +24,8 @@ const FLASHPOINTS = [
 const DOOMSDAY = { seconds: 85, set: '2026-01-27', source: 'Bulletin of the Atomic Scientists', history: [[1947, 420], [1953, 120], [1962, 420], [1984, 180], [1991, 1020], [2007, 300], [2018, 120], [2020, 100], [2023, 90], [2025, 89], [2026, 85]] };
 const PREWAR = { from: '2026-02-01', to: '2026-02-27', note: 'US–Israel war on Iran began 28 Feb 2026; Strait of Hormuz effectively closed since' };
 
-async function get(url, binary) {
-  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), 20000);
+async function get(url, binary, ms) {
+  const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), ms || 15000);
   try {
     const r = await fetch(url, { signal: ctrl.signal, headers: { 'User-Agent': UA, Accept: '*/*' } });
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -91,14 +91,16 @@ async function gprDaily() {
   const last = S[S.length - 1];
   return { last: { date: last.d, value: r2(last.v, 0) }, avg7: r2(mean(S.slice(-7).map(o => o.v)), 0), avg30: r2(mean(S.slice(-30).map(o => o.v)), 0), median365: r2(median(S.slice(-365).map(o => o.v)), 0), series: S.slice(-120).map(o => [o.d, r2(o.v, 0)]) };
 }
-async function gdelt() {
+async function gdelt(deadline) {
   const out = [];
   for (let i = 0; i < FLASHPOINTS.length; i++) {
     const f = FLASHPOINTS[i];
-    if (i) await sleep(5600); // GDELT asks for ≥5 s between requests
+    if (i) await sleep(5200); // GDELT asks for ≥5 s between requests
+    const left = deadline - Date.now();
+    if (left < 3000) { out.push({ id: f.id, label: f.label, error: 'skipped (time budget)' }); continue; }
     try {
       const url = 'https://api.gdeltproject.org/api/v2/doc/doc?query=' + encodeURIComponent(f.q) + '&mode=timelinevol&timespan=3months&format=json';
-      const j = JSON.parse(await get(url));
+      const j = JSON.parse(await get(url, false, Math.min(8000, left - 500)));
       const data = (j.timeline && j.timeline[0] && j.timeline[0].data) || [];
       const vals = data.map(o => ({ d: String(o.date).slice(0, 8), v: +o.value })).filter(o => Number.isFinite(o.v));
       const last7 = mean(vals.slice(-7).map(o => o.v)), base = median(vals.map(o => o.v));
@@ -131,11 +133,15 @@ function escalationIndex(g, gd, news, oil) {
 
 module.exports = async (req, res) => {
   const t0 = Date.now();
+  // Hard budget: Vercel kills the function at 60 s, so every source gets a deadline
+  const budget = (p, ms, label) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error(label + ' timed out')), ms))]);
   const settle = p => p.then(v => ({ ok: true, v }), e => ({ ok: false, e: String(e && e.message || e) }));
-  const [gm, gd, oil, news] = await Promise.all([settle(gprMonthly()), settle(gprDaily()), settle(brent()), settle(gdelt())]);
+  // GDELT is slow (~10 s per query) and rate-limited, so flashpoints are served one per call by /api/news
+  const [gm, gd, oil] = await Promise.all([settle(budget(gprMonthly(), 25000, 'GPR monthly')), settle(budget(gprDaily(), 25000, 'GPR daily')), settle(budget(brent(), 20000, 'FRED Brent'))]);
+  const news = { ok: true, v: null };
   const out = {
     generatedAt: new Date().toISOString(),
-    sources: { gprMonthly: gm.ok ? 'ok' : gm.e, gprDaily: gd.ok ? 'ok' : gd.e, brent: oil.ok ? 'ok' : oil.e, gdelt: news.ok ? 'ok' : news.e },
+    sources: { gprMonthly: gm.ok ? 'ok' : gm.e, gprDaily: gd.ok ? 'ok' : gd.e, brent: oil.ok ? 'ok' : oil.e, gdelt: 'via /api/news' }, flashpoints: FLASHPOINTS.map(f => ({ id: f.id, label: f.label })),
     gpr: gm.ok ? gm.v : null, gprDaily: gd.ok ? gd.v : null, brent: oil.ok ? oil.v : null, news: news.ok ? news.v : null,
     doomsday: DOOMSDAY, prewar: PREWAR
   };
