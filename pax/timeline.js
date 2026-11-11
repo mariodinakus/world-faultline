@@ -106,6 +106,7 @@ function paxTimelineInit(){
  });
  document.addEventListener("pax:language",paxRenderTimeline);
  document.addEventListener("pax:data",paxRenderTimeline);
+ document.addEventListener("pax:progress",paxRenderTimeline);
  paxRenderTimeline();
 }
 paxTimelineInit();
