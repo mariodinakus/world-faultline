@@ -35,6 +35,17 @@ const PAX_QUESTIONS={
  yemen:["Ποιοι όροι προσωρινής εκεχειρίας εφαρμόζονται;","Τι ισχύει για λιμάνια, πτήσεις και εφοδιασμό;","Πώς παρακολουθείται η περιφερειακή διάσταση;"],
  syria:["Τι στάδιο έχουν οι συμφωνίες ενσωμάτωσης και ασφάλειας;","Πώς διασφαλίζονται τα δικαιώματα των κοινοτήτων;","Ποια μέτρα εφαρμογής τεκμηριώνονται ανεξάρτητα;"]
 };
+const PAX_QUESTIONS_EN={
+ ukraine:["What would make a ceasefire independently monitorable?","How are security guarantees and territorial issues addressed?","Which implementation steps can actually be documented?"],
+ gaza:["How is compliance with any ceasefire monitored?","What is the status of hostages and prisoners?","What is known about humanitarian access and governance?"],
+ iranisrael:["Which regional commitments can be verified?","Are direct or mediated diplomatic contacts taking place?","Are announced de-escalation measures implemented?"],
+ usiran:["What would nuclear verification require?","Which sanctions and commitments are publicly under discussion?","Which statements have translated into actual measures?"],
+ sudan:["How can civilian protection be documented?","Which monitoring mechanisms are agreed?","How can humanitarian access be protected?"],
+ drc:["Is there a working ceasefire verification mechanism?","What progress is observable in political talks?","How is humanitarian access monitored?"],
+ myanmar:["How is humanitarian access assessed?","What kinds of ceasefires have been announced?","How inclusive are mediation and talks?"],
+ yemen:["Which temporary ceasefire provisions are implemented?","What is the position on ports, flights and supplies?","How is the regional dimension addressed?"],
+ syria:["What is the implementation status of security and integration deals?","How are community rights protected?","What implementation measures are independently documented?"]
+};
 const PAX_INTEL={cluster:paxCluster};
 function paxIntelRender(){
  const r=state.rows[state.selected]||{},cl=paxCluster(r.articles||[]);
@@ -44,18 +55,20 @@ function paxIntelRender(){
  document.getElementById("intelConflict").textContent=REGIONS.find(x=>x.id===state.selected)?.name||"—";
  document.getElementById("clusterCount").textContent=String(cl.length);
  const feeds=r.sourceFeeds||[];
- panel.innerHTML=feeds.length?feeds.map(s=>'<div class="feed-health '+(s.status==="ok"?"ok":"down")+'"><span class="health-dot"></span><b>'+esc(s.feed)+'</b><small>'+esc(s.status==="ok"?"ΕΝΕΡΓΗ ΡΟΗ":"ΜΗ ΔΙΑΘΕΣΙΜΗ")+'</small><strong>'+Number(s.count||0)+'</strong></div>').join("")
-  :'<div class="intel-placeholder">'+(state.loading?"Έλεγχος παρόχων σε εξέλιξη…":"Δεν υπάρχουν διαθέσιμα διαγνωστικά πηγών.")+'</div>';
+ panel.innerHTML=feeds.length?feeds.map(s=>'<div class="feed-health '+(s.status==="ok"?"ok":"down")+'"><span class="health-dot"></span><b>'+esc(s.feed)+'</b><small>'+esc(s.status==="ok"?(paxLang()==="en"?"ACTIVE FEED":"ΕΝΕΡΓΗ ΡΟΗ"):(paxLang()==="en"?"UNAVAILABLE":"ΜΗ ΔΙΑΘΕΣΙΜΗ"))+'</small><strong>'+Number(s.count||0)+'</strong></div>').join("")
+  :'<div class="intel-placeholder">'+(state.loading?(paxLang()==="en"?"Checking news feeds…":"Έλεγχος παρόχων σε εξέλιξη…"):(paxLang()==="en"?"Source diagnostics unavailable.":"Δεν υπάρχουν διαθέσιμα διαγνωστικά πηγών."))+'</div>';
+ const publisherCount=r.stats?.publishers||new Set((r.articles||[]).map(a=>a.source)).size;
  document.getElementById("credibilityIntro").textContent=cl.length?
-  cl.length+" ομάδες παρόμοιων τίτλων από "+(r.stats?.publishers||new Set((r.articles||[]).map(a=>a.source)).size)+" εκδότες. "+live+" ομάδες εμφανίζονται σε τουλάχιστον δύο εκδότες. Αυτό δείχνει διασπορά δημοσίευσης, όχι ανεξάρτητη επιβεβαίωση."
-  :"Δεν υπάρχουν διαθέσιμα στοιχεία για συγκριτική ανάλυση πηγών.";
+  (paxLang()==="en"?cl.length+" similar-headline clusters from "+publisherCount+" publishers. "+live+" clusters appear in at least two outlets. This shows publication diversity, not independent confirmation.":
+   cl.length+" ομάδες παρόμοιων τίτλων από "+publisherCount+" εκδότες. "+live+" ομάδες εμφανίζονται σε τουλάχιστον δύο εκδότες. Αυτό δείχνει διασπορά δημοσίευσης, όχι ανεξάρτητη επιβεβαίωση."):
+  (paxLang()==="en"?"No reporting available for source comparison.":"Δεν υπάρχουν διαθέσιμα στοιχεία για συγκριτική ανάλυση πηγών.");
  document.getElementById("clusterList").innerHTML=cl.slice(0,11).map(g=>{
-  const lead=g.lead,others=g.articles.slice(0,6),type=g.publishers.length>1?"ΠΟΛΛΑΠΛΗ ΚΑΛΥΨΗ":"ΜΕΜΟΝΩΜΕΝΗ ΠΗΓΗ";
-  return '<article class="cluster-card"><div class="cluster-type">'+esc(type)+' · '+g.publishers.length+' ΕΚΔΟΤ'+(g.publishers.length===1?"ΗΣ":"ΕΣ")+'</div>'+
+  const lead=g.lead,others=g.articles.slice(0,6),type=g.publishers.length>1?(paxLang()==="en"?"MULTIPLE OUTLETS":"ΠΟΛΛΑΠΛΗ ΚΑΛΥΨΗ"):(paxLang()==="en"?"SINGLE PUBLISHER":"ΜΕΜΟΝΩΜΕΝΗ ΠΗΓΗ");
+  return '<article class="cluster-card"><div class="cluster-type">'+esc(type)+' · '+g.publishers.length+(paxLang()==="en"?(g.publishers.length===1?" PUBLISHER":" PUBLISHERS"):' ΕΚΔΟΤ'+(g.publishers.length===1?"ΗΣ":"ΕΣ"))+'</div>'+
    '<h4>'+esc(lead.title)+'</h4><div class="cluster-links">'+others.map(a=>'<a href="'+esc(validLink(a.url))+'" target="_blank" rel="noopener noreferrer">'+esc(a.source)+' ↗</a>').join("")+'</div>'+
-   '<div class="cluster-foot">'+timeLocal(lead.publishedAt)+' · Ομαδοποίηση ομοιότητας τίτλων, όχι διασταύρωση</div></article>'
+   '<div class="cluster-foot">'+timeLocal(lead.publishedAt)+' · '+(paxLang()==="en"?"Similar-headline grouping, not fact verification":"Ομαδοποίηση ομοιότητας τίτλων, όχι διασταύρωση")+'</div></article>'
  }).join("")||'<div class="intel-placeholder">Δεν ανακτήθηκαν σχετικά δημοσιεύματα.</div>';
- document.getElementById("negotiationMatrix").innerHTML=(PAX_QUESTIONS[state.selected]||[]).map((q,i)=>
+ document.getElementById("negotiationMatrix").innerHTML=((paxLang()==="en"?PAX_QUESTIONS_EN:PAX_QUESTIONS)[state.selected]||[]).map((q,i)=>
   '<div class="question-card"><span>OPEN QUESTION 0'+(i+1)+'</span><p>'+esc(q)+'</p></div>').join("");
 }
 let paxMarketData=null;
@@ -74,9 +87,9 @@ function paxMarketRender(){
   return'<article class="market-card"><div class="market-card-head"><span>'+esc(item.category)+'</span><a href="'+esc(validLink(item.url))+'" target="_blank" rel="noopener noreferrer">'+esc(item.source||"FRED")+' ↗</a></div>'+
    '<h4>'+esc(item.name)+'</h4><div class="market-value">'+(ok?Number(item.value).toLocaleString("el-GR",{maximumFractionDigits:3}):'—')+'</div><div class="market-unit">'+esc(item.unit)+'</div>'+
    '<div class="market-spark">'+paxSparkline(item.points)+'</div>'+
-   '<div class="market-bottom"><span>'+(change?(item.changePct>0?"+":"")+item.changePct+"%":"—")+'</span><small>'+esc(item.updatedAt||"Μη διαθέσιμο")+' · μη real-time</small></div></article>';
+   '<div class="market-bottom"><span>'+(change?(item.changePct>0?"+":"")+item.changePct+"%":"—")+'</span><small>'+esc(item.updatedAt||"Μη διαθέσιμο")+' · '+(paxLang()==="en"?"not live":"μη real-time")+'</small></div></article>';
  }).join("");
- document.getElementById("marketStamp").textContent=paxMarketData.available+" / "+paxMarketData.seriesTotal+" χρονοσειρές διαθέσιμες";
+ document.getElementById("marketStamp").textContent=paxMarketData.available+" / "+paxMarketData.seriesTotal+(paxLang()==="en"?" series available":" χρονοσειρές διαθέσιμες");
 }
 async function paxMarketsLoad(){
  try{const result=await fetch("/api/markets",{headers:{Accept:"application/json"}});if(!result.ok)throw Error("Markets unavailable");
