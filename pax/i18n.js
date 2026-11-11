@@ -108,6 +108,36 @@ for(const [gr,en] of [
  ["Η πρώτη επίσκεψη","First visit"],
  ["ΠΗΓΗ","SOURCE"]
 ])PAX_EN_TEXT.set(gr,en);
+/* PAX 2.2 navigation, briefing, peace process and strategy lab. */
+for(const [gr,en] of [
+ ["Πρόσφατες ειδήσεις: διπλωματικές εξελίξεις, κλιμάκωση και βασική κάλυψη. Οι τίτλοι δεν αποτελούν ανεξάρτητη επιβεβαίωση γεγονότων.","Recent reporting on diplomacy, escalation and contextual coverage. Headlines are not independent verification of events."],
+ ["ΟΜΑΔΕΣ ΔΗΜΟΣΙΕΥΜΑΤΩΝ /","HEADLINE CLUSTERS /"],
+ ["Τελευταίες 24 ώρες","Last 24 hours"],["Ανάκτηση δεδομένων…","Retrieving data…"],
+ ["ΔΙΠΛΩΜΑΤΙΑ","DIPLOMACY"],["ΚΛΙΜΑΚΩΣΗ","ESCALATION"],["ΛΟΙΠΗ ΚΑΛΥΨΗ","OTHER COVERAGE"],
+ ["Περιμένουμε δεδομένα για σύγκριση δημοσιεύσεων.","Waiting for source data to compare reporting volume."],
+ ["Ευρετική ομαδοποίηση παρόμοιων τίτλων, όχι επαλήθευση. Αριθμοί = ομάδες δημοσιευμάτων, όχι πραγματικά περιστατικά.","Headline similarity grouping is heuristic, not fact-checking. Counts represent news clusters, not confirmed incidents."],
+ ["Από τις διαπραγματεύσεις στις συμφωνίες, την εφαρμογή και τα αδιέξοδα: διαφορετικά, τεκμηριωμένα ορόσημα.","From talks and agreements through implementation and setbacks: distinct, source-linked milestones."],
+ ["Αναζήτηση σε συμφωνίες, πηγές…","Search agreements and sources…"],
+ ["Αναζήτηση ιστορικών διαπραγματεύσεων","Search negotiation history"],
+ ["ΟΛΑ ΤΑ ΟΡΟΣΗΜΑ","ALL MILESTONES"],
+ ["Επιλεκτικό αρχείο με συνδέσμους πηγών. Η ανακοίνωση μιας συμφωνίας δεν αποδεικνύει ότι εφαρμόζεται σήμερα.","A selective archive with source links. The announcement of an agreement does not prove present-day implementation."],
+ ["Δοκίμασε πώς μεταβάλλεται μια υποθετική ισορροπία Nash. Δεν είναι πρόβλεψη πραγματικού πολέμου.","Explore hypothetical Nash equilibria. This is not a prediction about any real conflict."],
+ ["Δύο υποθετικοί παίκτες · Συνομιλίες ή σκληρή στάση · Ισορροπία Nash","Two hypothetical actors · Talks or hardline posture · Nash equilibrium"],
+ ["Όφελος κοινών συνομιλιών","Mutual talks benefit"],
+ ["Όφελος μονομερούς πίεσης","Unilateral pressure advantage"],
+ ["Κόστος ταυτόχρονης κλιμάκωσης","Mutual escalation cost"],
+ ["Κόστος έκθεσης συνεργαζόμενου","Cooperating actor's exposure cost"],
+ ["Αυθαίρετες μονάδες χρησιμότητας, όχι μετρήσεις πραγματικών κυβερνήσεων. Η ισορροπία Nash δεν είναι πιθανότητα ειρήνης.","Illustrative utility units, not measurements of actual governments. A Nash equilibrium is not a probability of peace."],
+ ["Συνομιλίες / προτάσεις","Talks / proposals"],
+ ["Συμφωνίες / εφαρμογή","Agreements / implementation"],
+ ["Επιλεγμένη περιοχή","Conflict filter"],
+ ["Όλες οι συγκρούσεις","All conflicts"],
+ ["Φιλτράρισμα ειδοποιήσεων ανά σύγκρουση","Filter alerts by conflict"],
+ ["ΣΥΝΟΜΙΛΙΕΣ / ΠΡΟΤΑΣΗ","TALKS / PROPOSAL"],
+ ["ΑΝΑΦΟΡΑ ΣΥΜΦΩΝΙΑΣ","REPORTED AGREEMENT"],
+ ["ΑΝΑΦΟΡΑ ΑΔΙΕΞΟΔΟΥ","REPORTED BREAKDOWN"],
+ ["Η εφαρμογή φορτώθηκε. Ο δωρεάν server ειδήσεων ενεργοποιείται· οι ειδήσεις θα εμφανιστούν σταδιακά.","The interface has loaded. The free news server is waking up and articles will appear progressively."]
+])PAX_EN_TEXT.set(gr,en);
 const PAX_ORIGINAL_TEXT=new WeakMap(),PAX_ORIGINAL_ATTR=new WeakMap();
 function paxTranslateText(value){
  const raw=String(value),trim=raw.trim();if(!trim)return raw;
