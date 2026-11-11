@@ -73,6 +73,41 @@ const PAX_EN_TEXT=new Map([
  ["Μόνο δημοσιεύματα μετά την έναρξη της τρέχουσας φάσης","Only reports after the current conflict phase began"],
  ["Προβολή ιστορικού αρχείου","Explore historical archive"]
 ]);
+/* Additional dynamic component and methodology translations. */
+for(const [gr,en] of [
+ ["Η ανάκτηση απέτυχε","Fetch failed"],["Ανάκτηση…","Loading…"],["Δεν ανακτήθηκαν δημοσιεύματα — καμία ερμηνεία δεν είναι διαθέσιμη.","No reports retrieved — no assessment possible."],
+ ["Περιγραφή τάσεων σε τίτλους της εβδομάδας· όχι βαθμολογία ειρήνης ή πρόβλεψη.","This week's reported signals, not a peace score or forecast."],
+ ["Λίγες διακριτές ειδήσεις ή εκδότες — δεν εξάγεται αξιόπιστη ένδειξη.","Too few distinct reports or publishers for a reliable signal."],
+ ["Δεν ανακτήθηκαν δεδομένα και δεν υπολογίζεται δείκτης.","No data retrieved; no descriptive assessment is available."],
+ ["Δεν βρέθηκαν σαφείς τίτλοι που να υποστηρίζουν συμπέρασμα.","No clear headlines support a conclusion."],
+ ["Δεν υπάρχουν δημοσιεύματα που να ταιριάζουν σε αυτό το φίλτρο. Έλεγξε τις πηγές ή δοκίμασε άλλο φίλτρο.","No articles match this filter. Check the sources or try another filter."],
+ ["Η τωρινή εικόνα βασίζεται σε πρόσφατους τίτλους. Το PAX δεν μετατρέπει περισσότερη ειδησεογραφία σε μεγαλύτερη «πιθανότητα ειρήνης».","The current view is based on recent reporting. PAX does not turn additional headlines into a higher chance of peace."],
+ ["Δεν φορτώθηκαν οι βιβλιοθήκες του χάρτη.","The map libraries could not be loaded."],["Ο γεωγραφικός χάρτης δεν είναι προσωρινά διαθέσιμος.","The geographic map is temporarily unavailable."],
+ ["Αυτόματη ταξινόμηση ειδησεογραφικού τίτλου. Δεν έχει επικυρωθεί η πραγματοποίηση του γεγονότος. Η ίδια εξέλιξη ενδέχεται να καλύπτεται από περισσότερους εκδότες.","Automatically classified news headline. The underlying event has not been verified. Multiple outlets may cover the same development."],
+ ["Δεν υπάρχουν καταγεγραμμένα γεγονότα σε αυτό το χρονικό διάστημα. Δοκίμασε μεγαλύτερη περίοδο ή άλλη σύγκρουση.","No recorded events for this period. Try a longer window or another conflict."],
+ ["Δημοσίευμα","News report"],["ΑΝΑΦΟΡΑ","REPORT"],
+ ["ΕΝΕΡΓΗ ΡΟΗ","ACTIVE FEED"],["ΜΕΜΟΝΩΜΕΝΗ ΠΗΓΗ","SINGLE SOURCE"],
+ ["Έλεγχος παρόχων σε εξέλιξη…","Checking providers…"],["Δεν υπάρχουν διαθέσιμα διαγνωστικά πηγών.","Source diagnostics unavailable."],["Δεν υπάρχουν διαθέσιμα στοιχεία για συγκριτική ανάλυση πηγών.","No data are available for source comparison."],
+ ["Ομαδοποίηση ομοιότητας τίτλων, όχι διασταύρωση","Grouped by headline similarity, not verified"],
+ ["Δεν ανακτήθηκαν σχετικά δημοσιεύματα.","No relevant reports retrieved."],["Ανακτώνται οι δημόσιες οικονομικές χρονοσειρές…","Loading public economic time series…"],
+ ["Ιστορική μεταβολή της χρονοσειράς","Historical series movement"],["Μη διαθέσιμο","Unavailable"],["μη real-time","not real-time"],
+ ["ΕΝΕΡΓΕΙΑ","ENERGY"],["ΣΥΝΑΛΛΑΓΜΑ","FX"],["ΤΡΟΦΙΜΑ","FOOD"],
+ ["Άγνωστη πηγή","Unknown publisher"],["Νέα αναφορά χτυπήματος","New strike report"],["Νέα διπλωματική εξέλιξη","New diplomatic report"],
+ ["Η πρώτη επίσκεψη διαμορφώνει σημείο αναφοράς. Νέοι τίτλοι εμφανίζονται με μη αναγνωσμένο σήμα σε επόμενες ανακτήσεις.","Your first visit creates the initial baseline. New headlines appear as unread on subsequent updates."],
+ ["Δεν υπάρχουν πρόσφατοι τίτλοι ειδοποιήσεων στα επιλεγμένα φίλτρα. Δεν αποτελεί ένδειξη ότι δεν υπήρξαν γεγονότα.","No recent alerts match the selected filters. This does not mean that no events occurred."],
+ ["BROWSER ALERTS ΕΝΕΡΓΑ","BROWSER ALERTS ACTIVE"],["BROWSER ALERTS ΑΠΟΚΛΕΙΣΜΕΝΑ","BROWSER ALERTS BLOCKED"],["BROWSER ALERTS ΜΗ ΔΙΑΘΕΣΙΜΑ","BROWSER ALERTS UNAVAILABLE"],
+ ["Ενεργοποιήθηκαν ειδοποιήσεις browser για νέους τίτλους μόνο όσο το PAX είναι ανοιχτό. Δεν έχουμε push όταν κλείνει η σελίδα.","Browser alerts are enabled for new headlines while PAX is open. No notifications are sent when this page is closed."],
+ ["Ο browser έχει αποκλείσει τις ειδοποιήσεις. Μπορείς να αλλάξεις την άδεια από τις ρυθμίσεις ιστοτόπου. Οι ειδοποιήσεις μέσα στο PAX λειτουργούν κανονικά.","Your browser has blocked notifications. Change its site permissions if desired; in-app alerts still work."],
+ ["Το καμπανάκι λειτουργεί μέσα στο PAX. Browser alerts απαιτούν ρητή άδεια και λειτουργούν μόνο όσο η εφαρμογή είναι ανοιχτή.","The in-app bell always works. Browser notifications require permission and only work while the app is open."],
+ ["Δημοσίευμα, όχι επιβεβαιωμένο συμβάν","Published report, not a verified event"],
+ ["Το παλιό αριθμητικό Peace Proximity Index αποσύρθηκε επειδή μετρούσε λέξεις και τίτλους χωρίς επιστημονική βαθμονόμηση. Το νέο","The numerical Peace Proximity Index was withdrawn because it counted words and headlines without statistical calibration. The new"],
+ ["Οι ημερομηνίες ιστορικού αρχείου αντιστοιχούν σε επιλεγμένες, ορισμένες φάσεις των συγκρούσεων. Για την Ουκρανία χρησιμοποιούμε την 24/02/2022 (πλήρης εισβολή), αν και ο ευρύτερος πόλεμος άρχισε το 2014. Η ζωντανή ροή διατηρεί μόνο δημοσιεύσεις των τελευταίων επτά ημερών και ποτέ προγενέστερες της εκκίνησης του επιλεγμένου φακέλου. Το αρχείο είναι επιμελημένο και επιλεκτικό, όχι πλήρης αναζήτηση όλων των ιστορικών ειδήσεων.","Archive dates refer to defined phases of each conflict. Ukraine starts on 24 February 2022 (full-scale invasion), though the wider war began in 2014. The live feed shows only the most recent seven days, never before the defined conflict phase. The curated archive is selective, not a comprehensive historical news search."],
+ ["LIVE = ΤΕΛΕΥΤΑΙΕΣ 7 ΗΜΕΡΕΣ.","LIVE = LAST 7 DAYS."],
+ ["Το ιστορικό από την αρχή της σύγκρουσης βρίσκεται στο","Historical milestones since the start of the selected phase are in the"],
+ ["Δεν παρουσιάζουμε παλιότερες ειδήσεις ως τρέχουσες.","We never present older news as breaking developments."],
+ ["Η πρώτη επίσκεψη","First visit"],
+ ["ΠΗΓΗ","SOURCE"]
+])PAX_EN_TEXT.set(gr,en);
 const PAX_ORIGINAL_TEXT=new WeakMap(),PAX_ORIGINAL_ATTR=new WeakMap();
 function paxTranslateText(value){
  const raw=String(value),trim=raw.trim();if(!trim)return raw;
@@ -90,6 +125,17 @@ function paxTranslateText(value){
  [/^ΠΗΓΗ: (.*) ↗$/,(m,a)=>"SOURCE: "+a+" ↗"]
  ];
  for(const [rx,fn] of pattern){const match=trim.match(rx);if(match)return raw.replace(trim,fn(...match))}
+ const dynamic=[
+  [/^Ανακτήθηκαν (\d+) δημοσιεύματα από (\d+) εκδότες, οργανωμένα σε περίπου (\d+) ομάδες παρόμοιων τίτλων\. Από αυτές, (\d+) αφορούν διπλωματία και (\d+) κλιμάκωση\. Η ομαδοποίηση είναι ενδεικτική· δεν αποδεικνύει ανεξάρτητη επιβεβαίωση γεγονότων\.$/,(m,a,b,c,d,e)=>a+" articles from "+b+" publishers were grouped into approximately "+c+" similar-headline clusters; "+d+" concern diplomacy and "+e+" escalation. Grouping does not independently verify events."],
+  [/^(\d+) ομάδες παρόμοιων τίτλων από (\d+) εκδότες\. (\d+) ομάδες εμφανίζονται σε τουλάχιστον δύο εκδότες\. Αυτό δείχνει διασπορά δημοσίευσης, όχι ανεξάρτητη επιβεβαίωση\.$/,(m,a,b,c)=>a+" headline clusters from "+b+" publishers. "+c+" clusters appear at more than one publisher. This is coverage diversity, not independent confirmation."],
+  [/^Τροφοδοσία: (.+)\. Το ιστορικό διπλωματικών οροσήμων φαίνεται στο Timeline και δεν συγχέεται με την τρέχουσα ειδησεογραφία\.$/,(m,provider)=>"Source: "+provider+". Diplomatic milestones are recorded in the Timeline, separately from breaking news."],
+  [/^Κατά την προηγούμενη επίσκεψη: «(.+)»\. Σήμερα: «(.+)»\. Η αλλαγή περιγράφει τον τύπο των δημοσιευμάτων, όχι τεκμηριωμένη πρόοδο ή αναστροφή της σύγκρουσης\.$/,(m,a,b)=>"Previous visit: "+(PAX_EN_TEXT.get(a)||a)+". Now: "+(PAX_EN_TEXT.get(b)||b)+". The change reflects coverage, not a confirmed shift in the conflict."],
+  [/^Το περιγραφικό σήμα παραμένει «(.+)» από την προηγούμενη επίσκεψη\. Αυτό δεν αποδεικνύει σταθερή κατάσταση επί του πεδίου\.$/,(m,a)=>"The headline status remains "+(PAX_EN_TEXT.get(a)||a)+" since the previous visit. This does not prove unchanged conditions on the ground."],
+  [/^(\d+) ομάδες παρόμοιων τίτλων από (\d+) εκδότες/,(m,a,b)=>a+" similar-title clusters from "+b+" publishers"],
+  [/^(\d+) \/ (\d+) χρονοσειρές διαθέσιμες/,(m,a,b)=>a+" / "+b+" available time series"],
+  [/^(\d+) δημοσιεύματα · Αρχική δημοσίευση ↗$/,(m,a)=>a+" articles · Original publisher ↗"]
+ ];
+ for(const [rx,fn] of dynamic){const match=trim.match(rx);if(match)return raw.replace(trim,fn(...match))}
  return raw;
 }
 function paxTranslateTree(root){
