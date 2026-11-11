@@ -156,6 +156,8 @@ function setupUI(){
  clock();setInterval(clock,60000);
  try{const saved=JSON.parse(localStorage.getItem('pax-observation-v2')||'null');if(saved&&saved.at&&saved.values)state.prior=saved;}catch{}
 }
+const PAX_API_ORIGIN=(location.hostname.endsWith('.onrender.com')&&location.hostname!=='pax-conflict-intelligence.onrender.com')
+ ? 'https://pax-conflict-intelligence.onrender.com' : '';
 let paxLoadSequence=0;
 async function load(manual=false){
  const seq=++paxLoadSequence;
@@ -170,7 +172,7 @@ async function load(manual=false){
    const region=ordered[cursor++];
    const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
    try{
-    const response=await fetch('/api/news?region='+encodeURIComponent(region.id),{
+    const response=await fetch(PAX_API_ORIGIN+'/api/news?region='+encodeURIComponent(region.id),{
      signal:ctrl.signal,headers:{Accept:'application/json'}
     });
     const payload=await response.json();
