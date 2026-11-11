@@ -56,3 +56,24 @@ Future work: editorial event verification with primary documents and source-of-s
 **Market-provider availability (Nov 2026):** Unauthenticated FRED CSV fetches can be rejected by FRED. The API therefore accepts optional `FRED_API_KEY` configured **only** in Vercel environment settings, never committed to GitHub; an ECB public XML fallback is used for EUR/USD. Unavailable commodities remain blank rather than inferred or made up.
 
 **Release note:** Code changes must be deployed by the connected Vercel project. A GitHub commit does not imply that production updated successfully; always verify active deployment SHA and website before announcing a release.
+
+## PAX 2.1 — Greek/English and post-onset historical negotiations
+
+Use the EN / ΕΛ toggle in the header. UI translations are implemented in `i18n.js` and saved locally. International news headlines retain their original language. Dated, curated diplomacy records offer English translation and a primary-source or directly linked news source; `history.js` contains additions and conflict-scope definitions.
+
+The **live feed** is a rolling 7-day source aggregation that **cannot display reports dated before the start of the monitored conflict phase**. The **Negotiation Timeline** is a selective, linked historical archive of agreements, calls for ceasefire, implementation, breakdowns and talks dating from the conflict-phase start, with a distinct opt-in control for older contextual history. Sources are not automatically validated for ongoing implementation.
+
+Conflict phase start dates (not claims that the entire dispute began then):
+- Ukraine 2022-02-24 (full-scale invasion; wider war 2014)
+- Gaza 2023-10-07 (current war)
+- Israel–Iran 2024-04-13 (direct confrontation)
+- US–Iran 2025-06-22 (direct military phase)
+- Sudan 2023-04-15 (SAF–RSF war)
+- DR Congo / M23 2022-03-28 (renewed M23 phase)
+- Myanmar 2021-02-01 (post-coup period)
+- Yemen 2015-03-26 (regional intervention, preceded by internal crisis)
+- Syria 2011-03-15 (2011 uprising and ensuing conflict)
+
+### Render fallback (no dependencies)
+
+The app can be deployed to Render as a **Node web service** from repository `https://github.com/mariodinakus/world-faultline`, branch `main`, start command `node pax/server.js`, and build command `echo PAX ready`. The server serves assets from `pax/` and routes `/api/news` and `/api/markets` through the same Vercel-compatible handlers. Use the free tier only if suitable for usage and delay requirements. Configure optional FRED_API_KEY in Render environment, never in committed files. A Render workspace must be explicitly selected before provisioning. Creating a Render service does **not** migrate or alter the existing Vercel domain.
