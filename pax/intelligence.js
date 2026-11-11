@@ -99,7 +99,15 @@ async function paxMarketsLoad(){
 function paxIntelInit(){
  document.addEventListener("pax:selection",paxIntelRender);
  document.addEventListener("pax:data",paxIntelRender);
+ document.addEventListener("pax:progress",paxIntelRender);
  document.addEventListener("pax:language",()=>{paxIntelRender();paxMarketRender()});
- paxIntelRender();paxMarketRender();paxMarketsLoad();
+ paxIntelRender();paxMarketRender();
+ const market=document.getElementById("marketGrid");
+ if("IntersectionObserver" in window&&market){
+  const obs=new IntersectionObserver(entries=>{
+   if(entries.some(e=>e.isIntersecting)){obs.disconnect();paxMarketsLoad()}
+  },{rootMargin:"400px"});
+  obs.observe(market);
+ }else setTimeout(paxMarketsLoad,3500);
 }
 paxIntelInit();
