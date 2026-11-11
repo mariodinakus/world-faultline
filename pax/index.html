@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="el"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#171c1e">
+<meta name="description" content="PAX: Global Conflict Intelligence. Ζωντανό editorial dashboard συγκρούσεων, διπλωματίας και τεκμηριωμένων σημάτων αποκλιμάκωσης.">
+<title>PAX — Global Conflict Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="styles.css">
+<script defer src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"></script>
+<script defer src="app.js"></script>
+</head><body>
+<div class="issue-bar"><div class="shell issue-inner"><span><i class="live-dot"></i> PAX INTELLIGENCE / GLOBAL MONITOR</span><span id="clock">—</span><span>INDEPENDENT SIGNALS. TRACEABLE SOURCES.</span></div></div>
+<header class="site-header"><div class="shell header-inner">
+<a class="brand" href="./" aria-label="PAX Home"><span class="brand-icon">✳</span><span>PAX<span class="brand-period">.</span></span></a>
+<div class="brand-descriptor">GLOBAL CONFLICT<br>INTELLIGENCE</div>
+<nav class="top-nav" aria-label="Βασική πλοήγηση">
+<button class="nav-btn active" data-target="overview">Επισκόπηση</button><button class="nav-btn" data-target="detail">Peace monitor</button><button class="nav-btn" data-target="dispatch">Live dispatch</button><button class="nav-btn" data-target="methodology">Μεθοδολογία</button>
+</nav>
+<button class="refresh-button" id="refreshBtn" title="Ανανέωση δεδομένων"><span class="refresh-icon">↻</span> ΑΝΑΝΕΩΣΗ</button>
+</div></header>
+<main>
+<section class="hero shell" id="overview">
+<div class="eyebrow"><span class="eyebrow-rule"></span> THE WORLD, EXPLAINED <span class="eyebrow-index">ISSUE Nº 001</span></div>
+<div class="hero-grid"><div><h1>HOW CLOSE<br>TO <span class="highlight">PEACE?</span></h1><p class="hero-dek">Πόλεμος, διπλωματία και διαπραγματεύσεις. Όχι άλλη μία ροή τίτλων — αλλά ένας χάρτης του τι αλλάζει, γιατί αλλάζει και τι πραγματικά τεκμηριώνεται.</p><div class="hero-actions"><a class="primary-link" href="#detail">ΔΕΣ ΤΟ PEACE MONITOR <span>↗</span></a><a class="secondary-link" href="#methodology">ΠΩΣ ΥΠΟΛΟΓΙΖΕΤΑΙ ↗</a></div></div>
+<div class="hero-aside"><div class="aside-top"><span>THE EDITOR'S NOTE</span><span>01 / 03</span></div><div class="aside-title">THE GAP BETWEEN<br><em>TALKS</em> AND <em>PEACE.</em></div><p>Οι διπλωματικές επαφές δεν είναι το ίδιο με την κατάπαυση του πυρός. Το PAX παρακολουθεί τα δύο ξεχωριστά, με παραπομπές σε δημοσιεύματα.</p><div class="aside-foot"><span class="mono">PAX / ANALYSIS DESK</span><span>↗</span></div></div></div>
+</section>
+<section class="stats-band" aria-label="Στοιχεία κάλυψης"><div class="shell stats-grid">
+<div class="stat"><span class="stat-label">ΠΕΡΙΟΧΕΣ ΠΑΡΑΚΟΛΟΥΘΗΣΗΣ</span><strong id="statRegions">09</strong><span class="stat-note">επιλεγμένοι φάκελοι</span></div>
+<div class="stat"><span class="stat-label">ΔΗΜΟΣΙΕΥΜΑΤΑ 7 ΗΜΕΡΩΝ</span><strong id="statStories">—</strong><span class="stat-note">μόνο όσα ανακτήθηκαν</span></div>
+<div class="stat"><span class="stat-label">ΠΗΓΕΣ / ΕΚΔΟΤΕΣ</span><strong id="statSources">—</strong><span class="stat-note">δεν σημαίνει ανεξάρτητη επιβεβαίωση</span></div>
+<div class="stat"><span class="stat-label">ΤΕΛΕΥΤΑΙΟΣ ΕΛΕΓΧΟΣ</span><strong class="small-stat" id="statUpdated">—</strong><span class="stat-note">τοπική ώρα Ελλάδας</span></div>
+</div></section>
+<section class="shell section-main">
+<div class="section-heading"><div><span class="kicker">01 / GLOBAL SITUATION</span><h2>THE CONFLICT <span>MAP.</span></h2></div><p>Επιλεγμένες περιοχές παρακολούθησης. Οι δείκτες είναι γεωγραφικές αναφορές, όχι ζωντανές θέσεις στρατιωτικών επιχειρήσεων.</p></div>
+<div class="overview-grid">
+<div class="map-panel"><div class="panel-header"><span>GLOBAL MONITOR / TERRITORIES</span><span class="panel-status"><i class="live-dot"></i> INTERACTIVE</span></div><div class="map-wrap"><svg id="worldMap" viewBox="0 0 960 470" aria-label="Παγκόσμιος χάρτης επιλεγμένων συγκρούσεων" role="img"><text x="480" y="235" text-anchor="middle" fill="#777" font-size="14">Ο χάρτης φορτώνει…</text></svg></div><div class="map-footer"><span><i class="map-legend"></i> Επιλεγμένη περιοχή</span><span>ΕΠΙΛΕΞΕ ΣΗΜΕΙΟ ΓΙΑ ΑΝΑΛΥΣΗ ↗</span></div></div>
+<div class="radar-panel"><div class="panel-header"><span>PEACE RADAR</span><span>INDEX / 100</span></div><div id="radarList" class="radar-list" aria-live="polite"></div><div class="radar-footer">— Όπου δεν υπάρχουν αρκετά δημοσιεύματα, ο δείκτης παραμένει μη διαθέσιμος.</div></div>
+</div>
+</section>
+<section class="shell detail-section" id="detail">
+<div class="section-heading"><div><span class="kicker">02 / THE PEACE MONITOR</span><h2>READ THE <span>SIGNALS.</span></h2></div><p>Εξέτασε τις ενδείξεις πίσω από κάθε μεταβολή. Δεν δημοσιεύουμε υποτιθέμενες στατιστικές πιθανότητες για το τέλος ενός πολέμου.</p></div>
+<div class="region-picker" id="regionPicker" role="group" aria-label="Επιλογή γεωπολιτικού φακέλου"></div>
+<div class="detail-layout">
+<div class="peace-panel">
+<div class="peace-panel-head"><div><div class="mini-label">FOCUS / CONFLICT FILE</div><h3 id="selectedTitle">Ρωσία — Ουκρανία</h3><p id="selectedSubtitle">Διαπραγματεύσεις · Εκεχειρία · Εξέλιξη</p></div><span id="coverageBadge" class="coverage-badge">ΑΝΑΚΤΗΣΗ</span></div>
+<div class="score-area"><div><span class="mini-label">PEACE PROXIMITY / ΕΝΔΕΙΚΤΙΚΟΣ ΔΕΙΚΤΗΣ</span><div class="score-main"><strong id="peaceScore">—</strong><span>/100</span></div><div id="peaceDirection" class="score-message">Αναζήτηση επαρκούς κάλυψης…</div></div><div class="score-dial"><svg viewBox="0 0 182 110" aria-hidden="true"><path d="M18 92 A73 73 0 0 1 164 92" fill="none" stroke="#dedbd3" stroke-width="13" stroke-linecap="round"/><path id="gaugeArc" d="M18 92 A73 73 0 0 1 164 92" fill="none" stroke="#e1b928" stroke-width="13" stroke-linecap="round" stroke-dasharray="0 230"/><text x="91" y="94" text-anchor="middle" font-size="10" font-family="DM Sans" font-weight="700" fill="#666">SIGNAL INDEX</text></svg></div></div>
+<div class="two-track"><div><div class="track-label"><span>ΔΙΠΛΩΜΑΤΙΚΑ ΣΗΜΑΤΑ</span><strong id="talksCount">—</strong></div><div class="track"><span id="talksTrack" class="track-fill"></span></div><small>Συνομιλίες, προτάσεις, συμφωνίες, εφαρμογή</small></div><div><div class="track-label"><span>ΣΗΜΑΤΑ ΚΛΙΜΑΚΩΣΗΣ</span><strong id="setbacksCount">—</strong></div><div class="track"><span id="setbacksTrack" class="track-fill dark"></span></div><small>Επιθέσεις, παραβιάσεις, απόρριψη, αδιέξοδο</small></div></div>
+<div class="evidence-note"><span class="note-symbol">i</span><span>Ο αριθμός είναι <b>περιγραφικός δείκτης δημοσιευμάτων</b>, όχι πιθανότητα ειρήνης. Η απουσία μιας είδησης δεν αποδεικνύει απουσία γεγονότος. Κάθε κατηγορία προκύπτει από κανόνες λέξεων-κλειδιών και μπορεί να αστοχήσει.</span></div>
+</div>
+<div class="insight-panel"><div class="panel-header"><span>WHAT THE EVIDENCE SAYS</span><span id="evidenceWindow">LAST 7D</span></div><div id="insightContent" class="insight-content"><p>Φόρτωση τεκμηρίων…</p></div></div>
+</div>
+</section>
+<section class="shell feed-section" id="dispatch">
+<div class="section-heading"><div><span class="kicker">03 / DEVELOPMENTS WIRE</span><h2>THE LIVE <span>DISPATCH.</span></h2></div><p>Τίτλοι και σύνδεσμοι από πρωτότυπους εκδότες μέσω δημόσιων aggregators. Η εμφάνιση δεν συνιστά ανεξάρτητη επαλήθευση του περιεχομένου.</p></div>
+<div class="feed-toolbar"><div class="feed-filters" id="feedFilters"><button data-filter="all" class="active">ΟΛΑ</button><button data-filter="talks">ΔΙΑΠΡΑΓΜΑΤΕΥΣΕΙΣ</button><button data-filter="ceasefire">ΕΚΕΧΕΙΡΙΑ / ΣΥΜΦΩΝΙΕΣ</button><button data-filter="setback">ΚΛΙΜΑΚΩΣΗ</button></div><input type="search" id="feedSearch" aria-label="Αναζήτηση ειδήσεων" placeholder="Αναζήτηση τίτλων…"></div>
+<div class="feed-layout"><div id="storyList" class="story-list" aria-live="polite"></div><aside class="feed-aside"><span class="mini-label">SOURCE TRANSPARENCY</span><h3>WHAT CHANGED<br>SINCE LAST TIME?</h3><div id="deltaContent" class="delta-content">Το PAX συγκρίνει τις ενδείξεις με την προηγούμενη αποθηκευμένη επίσκεψή σου σε αυτόν τον browser.</div><div class="aside-rule"></div><span class="mini-label">NEWS VOLUME / LAST 7 DAYS</span><div id="volumeChart" class="volume-chart"></div><div class="aside-rule"></div><a href="#methodology" class="aside-read">READ THE METHODOLOGY ↗</a></aside></div>
+</section>
+<section class="methodology" id="methodology"><div class="shell method-grid"><div><span class="kicker">04 / A NOTE ON CERTAINTY</span><h2>NO FAKE<br><span>PRECISION.</span></h2></div><div class="method-text"><p>Ο <b>Peace Proximity Index</b> είναι μια πειραματική, μη βαθμονομημένη σύνοψη της ροής δημοσιευμάτων των τελευταίων επτά ημερών. <b>Δεν</b> μετρά την αντικειμενική πιθανότητα ειρήνης, δεν κάνει γεωπολιτική πρόβλεψη και δεν είναι εργαλείο ασφαλείας.</p><p>Οι τίτλοι ταξινομούνται με απλούς διαφανείς κανόνες: διάλογος/διαπραγματεύσεις (βάρος 1), σχέδια ή προτάσεις (2), ενεργή εκεχειρία ή συμφωνία (3), εφαρμογή μέτρων (4) και εμπόδια/εχθροπραξίες (−2,2). Ο δείκτης είναι η αναλογία των θετικών βαρών προς τα συνολικά θετικά και αρνητικά, με εξομάλυνση, στρογγυλοποίηση ανά 5 και απόκρυψη όταν η κάλυψη είναι ανεπαρκής. Ούτε πολλοί τίτλοι ούτε πολλοί εκδότες ισοδυναμούν με επαλήθευση.</p><p>Η ανάκτηση γίνεται από <a href="https://news.google.com/" target="_blank" rel="noopener noreferrer">Google News RSS</a> και, όταν αυτό αποτύχει, από <a href="https://www.gdeltproject.org/" target="_blank" rel="noopener noreferrer">GDELT</a>. Τα feeds μπορεί να είναι ελλιπή ή καθυστερημένα. Δεν υπάρχει συντακτική επιμέλεια ή χειροκίνητη επικύρωση και το σύστημα εμφανίζει ειλικρινώς την έλλειψη δεδομένων.</p><div class="method-foot">VERSION 1.0 / EDITORIAL MONITOR · EVIDENCE FIRST · NO CLAIM OF FORECAST ACCURACY</div></div></div></section>
+</main><footer class="footer"><div class="shell footer-grid"><div class="footer-logo">PAX<span>.</span></div><div>GLOBAL CONFLICT INTELLIGENCE<br><small>Observe. Compare. Question.</small></div><div>NOT A FORECAST / NOT A WAR TRACKER<br><small>Δεδομένα μόνο από διαθέσιμα δημόσια δημοσιεύματα.</small></div><a href="#overview">BACK TO TOP ↑</a></div></footer>
+</body></html>
