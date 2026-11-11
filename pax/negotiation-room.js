@@ -37,6 +37,32 @@ const PAX_ROOM_DATA={
  ["governance","Προστασία δικαιωμάτων και εκπροσώπηση","Rights protection and representation","Πώς εξασφαλίζεται ουσιαστική προστασία των κοινοτήτων;","How can meaningful community protections be ensured?",["syria-sdf-march","syria-sdf-jan"]],
  ["ceasefire","Αποφυγή νέων εχθροπραξιών","Preventing renewed fighting","Ποια πρακτικά βήματα θα έδειχναν πρόοδο αντί μόνο ανακοινώσεων;","What practical steps would indicate progress beyond announcements?",["syria-2026-stalled"]]]}
 };
+/* DATED POSITION / COMMITMENT LEDGER. Dated, attributed records ONLY.
+   A statement is not an assessment of present policy or implementation. */
+const PAX_ROOM_POSITIONS={
+ ukraine:[
+  {issue:0,actor:0,date:"2024-06-14",el:"Ο Βλαντίμιρ Πούτιν πρότεινε συνομιλίες εφόσον οι ουκρανικές δυνάμεις αποσύρονταν από τις τέσσερις περιφέρειες που διεκδικεί η Ρωσία. Πρόκειται για ρωσική διαπραγματευτική απαίτηση, όχι αναγνωρισμένο νομικό καθεστώς.",en:"Vladimir Putin proposed talks conditional on Ukrainian withdrawal from four regions claimed by Russia. This is a Russian negotiating demand, not an internationally accepted legal status.",source:"Interfax / Putin speech",url:"https://interfax.com/newsroom/top-stories/103363/"},
+  {issue:0,actor:1,date:"2024-06-16",el:"Ο Βολοντίμιρ Ζελένσκι επανέλαβε δημόσια τη θέση υπέρ ανεξαρτησίας, κυριαρχίας και εδαφικής ακεραιότητας της Ουκρανίας.",en:"Volodymyr Zelenskyy publicly reiterated the position supporting Ukraine's independence, sovereignty and territorial integrity.",source:"President of Ukraine",url:"https://www.president.gov.ua/en/news/nezalezhnist-teritorialnu-cilisnist-i-suverenitet-ukrayini-v-91609"},
+  {issue:1,actor:0,date:"2024-06-14",el:"Στην πρόταση του Ιουνίου 2024 ο Πούτιν ζήτησε επίσης να εγκαταλειφθεί η προοπτική ουκρανικής ένταξης στο ΝΑΤΟ. Πρόκειται για ιστορική απαίτηση που αναφέρθηκε δημόσια, όχι πιστοποιημένη σημερινή θέση.",en:"In his June 2024 proposal, Putin also called for Ukraine to abandon its NATO membership ambitions. This is a dated public demand, not a verified present-day position.",source:"Reuters",url:"https://www.reuters.com/world/europe/putin-says-west-needs-find-way-work-with-russia-2024-06-14/"}
+ ],
+ gaza:[
+  {issue:0,actor:0,date:"2024-06-10",el:"Το ψήφισμα 2735 του Συμβουλίου Ασφαλείας αναφέρει ότι το Ισραήλ είχε αποδεχθεί την πρόταση εκεχειρίας της 31ης Μαΐου 2024. Η αποδοχή ιστορικής πρότασης δεν αποδεικνύει τρέχουσα συμμόρφωση.",en:"UN Security Council resolution 2735 states that Israel accepted the 31 May 2024 ceasefire proposal. Past acceptance does not establish present compliance.",source:"UN Security Council / Resolution 2735",url:"https://www.un.org/unispal/document/sres2735-2024-10jun24/"},
+  {issue:1,actor:0,date:"2025-09-03",el:"Το Γραφείο του Ισραηλινού Πρωθυπουργού περιέγραψε την απελευθέρωση όλων των ομήρων ως μία από τις προϋποθέσεις τερματισμού του πολέμου.",en:"The Israeli Prime Minister's Office listed the release of all hostages among the conditions for ending the war.",source:"Israel Prime Minister's Office",url:"https://www.gov.il/en/pages/prime-minister-s-office-statement-3-sep-2025"},
+  {issue:2,actor:0,date:"2025-09-03",el:"Το Γραφείο του Ισραηλινού Πρωθυπουργού περιέγραψε ως προϋποθέσεις τον αφοπλισμό της Χαμάς, αποστρατιωτικοποίηση της Γάζας, ισραηλινό έλεγχο ασφάλειας και εναλλακτική πολιτική διοίκηση.",en:"The Israeli Prime Minister's Office listed Hamas disarmament, Gaza demilitarization, Israeli security control and alternative civilian administration as conditions.",source:"Israel Prime Minister's Office",url:"https://www.gov.il/en/pages/prime-minister-s-office-statement-3-sep-2025"}
+ ],
+ sudan:[
+  {issue:0,actor:0,date:"2023-05-11",el:"Οι SAF συνυπέγραψαν τη Διακήρυξη της Τζέντα με δεσμεύσεις για προστασία αμάχων. Η υπογραφή δεν τεκμηριώνει πλήρη εφαρμογή.",en:"SAF signed the Jeddah Declaration containing civilian-protection commitments. Signing does not establish implementation.",source:"UN Human Rights Council / Jeddah Declaration",url:"https://mandates.un.org/mandate/A/HRC/RES/54/2"},
+  {issue:0,actor:1,date:"2023-05-11",el:"Οι RSF συνυπέγραψαν τη Διακήρυξη της Τζέντα με δεσμεύσεις προστασίας αμάχων. Η υπογραφή δεν τεκμηριώνει πλήρη εφαρμογή.",en:"RSF signed the Jeddah Declaration containing civilian-protection commitments. Signing does not establish implementation.",source:"UN Human Rights Council / Jeddah Declaration",url:"https://mandates.un.org/mandate/A/HRC/RES/54/2"}
+ ],
+ yemen:[
+  {issue:0,actor:0,date:"2022-04-02",el:"Η πλευρά της διεθνώς αναγνωρισμένης κυβέρνησης συμμετείχε στην εκεχειρία υπό τον ΟΗΕ, με δεσμεύσεις παύσης επιθετικών επιχειρήσεων για ορισμένη περίοδο.",en:"The internationally recognized government took part in the UN-mediated truce with time-limited commitments to halt offensive operations.",source:"United Nations / Yemen truce",url:"https://www.un.org/sg/en/content/sg/notes-correspondents/2022-04-01/note-correspondents-press-statement-the-un-special-envoy-for-yemen-hans-grundberg-two-month-truce"},
+  {issue:0,actor:1,date:"2022-04-02",el:"Η πλευρά Ανσάρ Αλλάχ συμμετείχε στην εκεχειρία υπό τον ΟΗΕ, με δεσμεύσεις παύσης επιθετικών επιχειρήσεων για ορισμένη περίοδο.",en:"Ansar Allah took part in the UN-mediated truce with time-limited commitments to halt offensive operations.",source:"United Nations / Yemen truce",url:"https://www.un.org/sg/en/content/sg/notes-correspondents/2022-04-01/note-correspondents-press-statement-the-un-special-envoy-for-yemen-hans-grundberg-two-month-truce"}
+ ],
+ syria:[
+  {issue:0,actor:0,date:"2025-03-10",el:"Οι συριακές μεταβατικές αρχές συμφώνησαν σε πλαίσιο ενσωμάτωσης και ασφάλειας με τις SDF. Το ιστορικό ορόσημο δεν αποδεικνύει σημερινή εφαρμογή.",en:"Syrian transitional authorities agreed an integration and security framework with the SDF. The historical agreement does not establish current implementation.",source:"United Nations",url:"https://www.un.org/sg/en/content/sg/statements/2026-01-30/statement-attributable-the-spokesperson-for-the-secretary-general-syria"},
+  {issue:0,actor:1,date:"2025-03-10",el:"Οι SDF συμφώνησαν σε πλαίσιο ενσωμάτωσης και ασφάλειας με τις μεταβατικές συριακές αρχές. Απαιτείται ξεχωριστός έλεγχος τήρησης.",en:"The SDF agreed an integration and security framework with Syrian transitional authorities. Compliance requires separate verification.",source:"United Nations",url:"https://www.un.org/sg/en/content/sg/statements/2026-01-30/statement-attributable-the-spokesperson-for-the-secretary-general-syria"}
+ ]
+};
 const PAX_ROOM={tab:"positions",issue:0};
 const PAX_MECHANISMS={
  territory:["Διαδικασία καταγραφής διαφορετικών αξιώσεων, διαπραγματεύσεις σε φάσεις και ανεξάρτητη τεκμηρίωση χωρίς προεξόφληση αποτελέσματος.","Record each claim separately, negotiate in stages and document proposals independently without presuming an outcome."],
@@ -75,11 +101,20 @@ function paxRoomRender(){
   '<p class="pax-room-muted">'+(en?"No issue-specific curated source is currently indexed. Do not infer a stance or agreement.":"Δεν υπάρχει καταχωρισμένη πηγή ειδικά για αυτό το ζήτημα. Δεν συνάγεται θέση ή συμφωνία.")+'</p>';
  let body="";
  if(PAX_ROOM.tab==="positions"){
-  const notice=en?"No current, independently source-verified demand has been catalogued for this actor and issue.":
-   "Δεν έχει καταχωριστεί πρόσφατη, ανεξάρτητα τεκμηριωμένη επίσημη θέση γι’ αυτόν τον παίκτη και το συγκεκριμένο ζήτημα.";
-  body='<div class="pax-room-actors">'+[a,b].map(actor=>
-   '<article class="pax-room-actor"><span>'+(en?"ACTOR / CLAIMS AUDIT":"ΠΑΙΚΤΗΣ / ΕΛΕΓΧΟΣ ΘΕΣΕΩΝ")+'</span><h4>'+esc(en?actor[1]:actor[0])+'</h4><p>'+esc(notice)+'</p></article>').join("")+'</div>'+
-   '<p class="pax-room-muted">'+(en?"Missing documented demands here does not mean the actors have no public positions. Review the dated records below.":"Η έλλειψη καταχώρισης εδώ δεν σημαίνει ότι οι πλευρές δεν έχουν δημοσίως διατυπωμένες θέσεις. Δες τις χρονολογημένες πηγές.")+'</p>';
+  const notice=en?"No dated, source-linked statement is indexed for this actor and issue.":
+   "Δεν έχει καταχωριστεί χρονολογημένη, αποδιδόμενη δήλωση γι’ αυτή την πλευρά και το συγκεκριμένο ζήτημα.";
+  const all=PAX_ROOM_POSITIONS[state.selected]||[];
+  body='<div class="pax-room-analysis-label">'+
+   (en?"HISTORICAL STATEMENTS — NOT VERIFIED CURRENT DEMANDS":"ΙΣΤΟΡΙΚΕΣ ΔΗΛΩΣΕΙΣ — ΟΧΙ ΕΠΑΛΗΘΕΥΜΕΝΕΣ ΣΗΜΕΡΙΝΕΣ ΑΠΑΙΤΗΣΕΙΣ")+'</div>'+
+   '<div class="pax-room-actors">'+[a,b].map((actor,actorIndex)=>{
+    const found=all.filter(r=>r.issue===PAX_ROOM.issue&&r.actor===actorIndex).sort((x,y)=>y.date.localeCompare(x.date));
+    return '<article class="pax-room-actor"><span>'+(en?"ACTOR / DOCUMENTED RECORD":"ΠΑΙΚΤΗΣ / ΤΕΚΜΗΡΙΩΜΕΝΗ ΚΑΤΑΧΩΡΙΣΗ")+
+     '</span><h4>'+esc(en?actor[1]:actor[0])+'</h4>'+
+     (found.length?found.map(r=>'<div class="pax-room-position"><time>'+esc(PAX_DATE(r.date))+'</time>'+
+       '<p>'+esc(en?r.en:r.el)+'</p><a href="'+esc(validLink(r.url))+'" target="_blank" rel="noopener noreferrer">'+esc(r.source)+' ↗</a></div>').join(""):
+       '<p>'+esc(notice)+'</p>')+'</article>';
+   }).join("")+'</div>'+
+   '<p class="pax-room-muted">'+(en?"These dated declarations and commitments may have changed since publication. They do not verify present positions, legal status or compliance.":"Οι χρονολογημένες θέσεις ή δεσμεύσεις μπορεί να έχουν μεταβληθεί. Δεν τεκμηριώνουν σημερινές θέσεις, νομικό καθεστώς ή συμμόρφωση.")+'</p>';
  }else if(PAX_ROOM.tab==="obstacles"){
   body='<div class="pax-room-analysis-label">'+(en?"OPEN NEGOTIATING QUESTION · NOT A VERIFIED DEALBREAKER":"ΑΝΟΙΧΤΟ ΕΡΩΤΗΜΑ · ΟΧΙ ΕΠΙΒΕΒΑΙΩΜΕΝΟ ΑΔΙΕΞΟΔΟ")+'</div>'+
   '<p class="pax-room-maincopy">'+esc(en?issue[4]:issue[3])+'</p>'+
