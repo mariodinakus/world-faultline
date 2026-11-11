@@ -1,0 +1,124 @@
+/* PAX 2.2 — editorial command desk. Zero extra fonts or JS frameworks. */
+html{scroll-padding-top:108px}
+.pax-desk-section{padding-top:66px;padding-bottom:66px;scroll-margin-top:100px}
+.pax-desk-panel{border:1px solid #171d1f;background:#fff;color:#171d1f;overflow:hidden}
+.pax-desk-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#171d1f;color:#f8f7f2;padding:14px 20px}
+.pax-desk-overline{display:block;font-size:10px;letter-spacing:.12em;font-weight:800;line-height:1.5}
+.pax-desk-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.pax-desk-actions button{font-size:10px;font-weight:800;letter-spacing:.04em;border:1px solid #999b96;background:transparent;color:inherit;padding:8px 11px;white-space:nowrap}
+.pax-desk-actions button:hover,.pax-desk-actions button.active{background:#f1cb36;border-color:#f1cb36;color:#171d1f}
+.pax-bar-separator{height:21px;border-left:1px solid #858784;margin:0 5px}
+.pax-brief-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);padding:25px;gap:23px;align-items:center}
+.pax-brief-num{font-family:"Archivo Black",sans-serif;font-size:clamp(64px,8vw,106px);letter-spacing:-.095em;line-height:1}
+.pax-brief-label{font-weight:800;letter-spacing:.03em;font-size:11px;margin-top:10px;line-height:1.6}
+.pax-brief-footnote{font-size:11px;color:#777b74;margin:7px 0 0}
+.pax-brief-counters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.pax-brief-counters>div{border-left:1px solid #dddcd6;padding:14px;min-width:0}
+.pax-brief-counters strong{display:block;font-family:"Archivo Black",sans-serif;font-size:clamp(24px,4vw,43px);letter-spacing:-.05em;font-weight:400}
+.pax-brief-counters span{font-size:10px;font-weight:800;color:#7a7e78;line-height:1.5;display:block;margin-top:8px}
+.pax-brief-summary{background:#f7f0d7;padding:17px 25px;font-size:12px;line-height:1.6;border-top:1px solid #e3dbbc;border-bottom:1px solid #e3dbbc}
+.pax-desk-subheading{padding:20px 25px 12px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.pax-desk-subheading strong,.pax-desk-subheading span{font-size:10px;letter-spacing:.09em}
+.pax-desk-subheading span{color:#8a8e85}
+.pax-brief-stories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px;padding:0 25px 14px}
+.pax-brief-story{border-top:1px solid #e6e5dc;padding:16px 0 18px;min-width:0}
+.pax-brief-meta{display:flex;gap:9px;align-items:center;flex-wrap:wrap;color:#8b8c85;font-weight:700;font-size:10px}
+.pax-brief-tag{font-size:9px;font-weight:800;padding:4px 6px;background:#eceae1;color:#171d1f}
+.pax-brief-tag.diplomacy{background:#f1e3ac}.pax-brief-tag.escalation{background:#dfe3e2}
+.pax-brief-story>a{display:block;font-family:Georgia,serif;font-weight:700;font-size:clamp(16px,2vw,20px);line-height:1.32;margin:11px 0 10px}
+.pax-brief-story>a:hover,.pax-process-copy a:hover{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px}
+.pax-brief-byline{color:#80847f;font-size:10px;line-height:1.5}
+.pax-desk-empty{padding:26px;color:#747971;font-size:12px;line-height:1.6;grid-column:1/-1}
+.pax-desk-disclaimer{font-size:10px;line-height:1.65;color:#777a76;margin:0;padding:14px 25px;border-top:1px solid #e6e5df}
+.pax-process-head{display:flex;align-items:center;justify-content:space-between;gap:20px;background:#171d1f;color:#f8f7f2;padding:24px 25px}
+.pax-process-head h3{font-family:"Archivo Black",sans-serif;font-size:clamp(21px,3.4vw,37px);font-weight:400;letter-spacing:-.06em;margin:8px 0}
+.pax-process-head>div:first-child>span:last-child{font-size:11px;color:#c3c6c1}
+.pax-process-total{text-align:right;flex-shrink:0}
+.pax-process-total strong{font-family:"Archivo Black";display:block;font-weight:400;color:#f1cb36;font-size:46px;letter-spacing:-.08em}
+.pax-process-total small{font-size:9px;font-weight:800;letter-spacing:.09em}
+.pax-process-stages{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-bottom:1px solid #deded6}
+.pax-stage{border:0;border-right:1px solid #deded6;padding:18px;min-width:0;background:#faf9f4;text-align:left;display:flex;flex-direction:column;gap:5px}
+.pax-stage:last-child{border-right:0}
+.pax-stage:hover,.pax-stage.active{background:#f1e4b4}
+.pax-stage-label{font-size:10px;line-height:1.45;font-weight:800;letter-spacing:.05em;min-height:31px}
+.pax-stage strong{font-family:"Archivo Black";font-weight:400;font-size:36px;letter-spacing:-.06em}
+.pax-stage-bottom{font-size:9px;color:#777b74}
+.pax-process-highlight{padding:24px 25px;background:#f8f4e4;border-bottom:1px solid #deded6}
+.pax-latest-kicker{font-size:10px;color:#666b64;letter-spacing:.08em;font-weight:800}
+.pax-process-highlight h3{font-family:Georgia,serif;font-size:clamp(21px,2.6vw,29px);line-height:1.3;margin:10px 0}
+.pax-process-highlight p{font-size:13px;line-height:1.7;margin:8px 0}
+.pax-process-highlight a{font-size:11px;font-weight:800;display:inline-block;text-decoration:underline;margin-top:9px}
+.pax-process-highlight small{display:block;color:#7b7c76;font-size:10px;line-height:1.6;margin-top:12px}
+.pax-process-tools{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:17px 25px}
+.pax-process-tools .pax-desk-actions button{border-color:#171d1f}
+.pax-process-tools input{padding:10px 12px;border:1px solid #b7b9b1;font-size:11px;flex:1;min-width:180px;border-radius:0;background:#fff;color:#171d1f}
+.pax-process-tools small{font-size:11px;font-weight:800;color:#71736d}
+.pax-process-rows{padding:0 25px}
+.pax-process-row{border-top:1px solid #e1e2dc;display:grid;grid-template-columns:160px minmax(0,1fr);gap:20px;padding:19px 0}
+.pax-process-date{font-size:12px;font-weight:800;padding-top:4px}
+.pax-process-type{display:inline-block;background:#eee9d6;font-size:9px;font-weight:800;letter-spacing:.07em;padding:5px 8px}
+.pax-process-copy h4{font-family:Georgia,serif;font-size:19px;line-height:1.4;margin:10px 0}
+.pax-process-copy p{font-size:12px;line-height:1.65;margin:0 0 10px;color:#646861}
+.pax-process-copy a{font-size:10px;font-weight:800}
+.pax-desk-more{display:block;margin:14px 25px 24px;padding:11px 18px;border:1px solid #171d1f;background:#171d1f;color:#f1cb36;font-weight:800;font-size:10px}
+.pax-desk-more[hidden]{display:none}
+.pax-desk-timeline-link{display:inline-block;margin:0 25px 22px;font-size:10px;font-weight:800;text-decoration:underline;text-underline-offset:4px}
+.pax-game-details>summary{cursor:pointer;padding:26px;display:flex;align-items:center;justify-content:space-between;gap:14px;list-style:none;user-select:none}
+.pax-game-details>summary::-webkit-details-marker{display:none}
+.pax-game-details>summary strong{display:block;font-family:"Archivo Black";font-size:clamp(19px,3.2vw,32px);letter-spacing:-.05em;margin:10px 0}
+.pax-game-details>summary small{display:block;color:#777c76;font-size:11px;line-height:1.5}
+.pax-game-open{flex-shrink:0;background:#f1cb36;display:grid;place-items:center;width:39px;height:39px;border:1px solid #171d1f;font-size:28px;line-height:1}
+.pax-game-details[open] .pax-game-open{transform:rotate(45deg)}
+.pax-game-content{border-top:1px solid #e4e4df;display:grid;grid-template-columns:minmax(220px,.8fr) minmax(0,1.2fr);gap:26px;padding:26px}
+.pax-game-inputs{display:grid;align-content:start;gap:19px}
+.pax-game-inputs label{font-weight:800;font-size:11px;display:block;line-height:1.5}
+.pax-game-inputs output{float:right;color:#aa8b1d;font-family:"Archivo Black";font-size:23px}
+.pax-game-inputs input{display:block;width:100%;margin-top:12px;accent-color:#171d1f}
+.pax-game-table{display:grid;grid-template-columns:minmax(95px,.8fr) repeat(2,minmax(0,1fr));border:1px solid #171d1f}
+.pax-game-col,.pax-game-blank,.pax-game-rowlabel{background:#171d1f;color:#f8f7f2;font-size:10px;font-weight:800;padding:11px;line-height:1.5}
+.pax-game-col{text-align:center;border-left:1px solid #626560}
+.pax-game-rowlabel{display:flex;align-items:center}
+.pax-game-cell{border-left:1px solid #dbddd6;border-top:1px solid #dbddd6;display:flex;flex-direction:column;gap:9px;justify-content:center;min-height:108px;text-align:center;padding:11px;background:#f9f9f6}
+.pax-game-cell.nash{background:#f3e5b7}
+.pax-game-cell-top{font-size:9px;color:#626660;font-weight:800}
+.pax-game-cell strong{font-family:"Archivo Black";font-size:clamp(17px,2vw,24px);letter-spacing:-.05em}
+.pax-game-nash{font-size:9px;font-weight:800}
+.pax-game-result{margin-top:18px;font-size:13px;font-weight:800;line-height:1.6}
+.pax-game-scenario{padding:0 26px 18px;color:#666b65;font-size:12px;line-height:1.7;margin:0}
+.pax-alert-region{display:flex!important;gap:8px;align-items:center;flex-wrap:wrap}
+.pax-alert-region select{padding:8px;min-width:140px;max-width:100%;border:1px solid #777;background:#fff;font-size:11px}
+.header-inner{gap:13px}
+.top-nav{max-width:min(100%,730px);min-width:0;overflow-x:auto;scrollbar-width:none;white-space:nowrap;flex-shrink:1}
+.top-nav::-webkit-scrollbar{display:none}
+.top-nav .nav-btn{padding:10px 8px;white-space:nowrap;font-size:11px}
+.brand-descriptor{font-size:9px;padding-left:12px}
+@media(max-width:1080px){.top-nav{max-width:45vw}.brand-descriptor{display:none}.header-inner{gap:10px}}
+@media(max-width:750px){
+ .pax-desk-section{padding-top:42px;padding-bottom:42px}
+ .pax-desk-bar{flex-wrap:wrap;padding:12px 14px}
+ .pax-brief-top{grid-template-columns:1fr;padding:19px 16px}
+ .pax-brief-counters>div{padding:9px}
+ .pax-desk-subheading{padding:16px;align-items:start}
+ .pax-desk-subheading span{display:none}
+ .pax-brief-stories{grid-template-columns:1fr;padding:0 16px 12px}
+ .pax-brief-summary{padding:15px 16px}
+ .pax-desk-disclaimer{padding:15px 16px}
+ .pax-process-head{padding:17px}
+ .pax-process-stages{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .pax-stage{border-bottom:1px solid #deded6;padding:13px}
+ .pax-stage-label{min-height:auto}
+ .pax-process-highlight{padding:18px 16px}
+ .pax-process-tools{padding:15px 16px}
+ .pax-process-rows{padding:0 16px}
+ .pax-process-row{grid-template-columns:1fr;gap:7px;padding:15px 0}
+ .pax-desk-more,.pax-desk-timeline-link{margin-left:16px}
+ .pax-game-content{grid-template-columns:1fr;padding:18px}
+ .pax-game-details>summary{padding:18px}
+ .pax-game-table{grid-template-columns:minmax(79px,.8fr) repeat(2,minmax(0,1fr))}
+ .pax-game-col,.pax-game-blank,.pax-game-rowlabel,.pax-game-cell{padding:7px}
+ .pax-game-cell{min-height:95px}
+ .pax-game-scenario{padding:0 18px 18px}
+ .top-nav{max-width:calc(100vw - 180px);margin-left:0;overflow-x:auto}
+ .top-nav .nav-btn{font-size:10px;padding:9px 7px}
+ .header-inner{gap:6px}
+}
