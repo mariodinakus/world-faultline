@@ -20,15 +20,19 @@ const PAX_MILESTONES=[
  {id:"yemen-renew",region:"yemen",date:"2022-06-02",type:"implemented",title:"Ανανέωση εκεχειρίας Υεμένης για επιπλέον δύο μήνες",detail:"Οι πλευρές συμφώνησαν παράταση των αρχικών όρων. Ο ΟΗΕ κατέγραψε μείωση της βίας και επανέναρξη εμπορικών πτήσεων.",source:"United Nations",url:"https://www.un.org/sg/en/content/sg/statements/2022-06-02/secretary-generals-statement-extension-of-nationwide-truce-yemen"},
  {id:"syria-sdf-march",region:"syria",date:"2025-03-10",type:"agreement",title:"Συμφωνία μεταξύ μεταβατικών αρχών της Συρίας και SDF",detail:"Ο ΟΗΕ χαιρέτισε συμφωνία της 10ης Μαρτίου και ζήτησε να συμβάλει σε μια ευρύτερη, χωρίς αποκλεισμούς πολιτική μετάβαση. Δεν επιβεβαιώνεται ότι εφαρμόστηκαν όλες οι δεσμεύσεις.",source:"United Nations",url:"https://www.un.org/sg/en/content/highlight/2025-03-11.html"},
  {id:"syria-sdf-jan",region:"syria",date:"2026-01-30",type:"agreement",title:"Νέα συμφωνία κυβέρνησης–SDF για τη βορειοανατολική Συρία",detail:"Ο ΟΗΕ χαιρέτισε τη συμφωνία και κάλεσε σε ταχεία, ειρηνική εφαρμογή της ένταξης, προστασία των αμάχων και σεβασμό δικαιωμάτων. Η ανακοίνωση δεν αποδεικνύει πλήρη εφαρμογή.",source:"United Nations",url:"https://www.un.org/sg/en/content/sg/statements/2026-01-30/statement-attributable-the-spokesperson-for-the-secretary-general-syria"},
-];
+]; 
+PAX_MILESTONES.push(...PAX_HISTORY_EXTRA);
 const PAX_LABELS={agreement:"ΣΥΜΦΩΝΙΑ",implemented:"ΕΦΑΡΜΟΓΗ",talks:"ΣΥΝΟΜΙΛΙΕΣ",proposal:"ΠΡΟΤΑΣΗ",setback:"ΑΔΙΕΞΟΔΟ / ΕΝΤΑΣΗ",other:"ΕΙΔΗΣΗ"};
 const PAX_GROUP={talks:"talks",proposal:"talks",agreement:"deal",implemented:"deal",ceasefire:"deal",setback:"setback",other:"other"};
 const PAX_TODAY=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Europe/Athens"});
-const PAX_DATE=s=>{const d=new Date(s+"T12:00:00Z");return new Intl.DateTimeFormat("el-GR",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"}).format(d)};
-const PAX_TIMELINE={from:"2015-01-01",to:PAX_TODAY(),quick:"all",includePress:true};
+const PAX_DATE=s=>{const d=new Date(s+"T12:00:00Z");return new Intl.DateTimeFormat(paxLang()==="en"?"en-GB":"el-GR",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"}).format(d)};
+const PAX_TIMELINE={from:paxConflictStart("ukraine"),to:PAX_TODAY(),quick:"all",includePress:true,includeContext:false};
 function paxTimelineEvents(){
  const id=state.selected;
- const curated=PAX_MILESTONES.filter(x=>x.region===id).map(x=>({...x,verified:true,sortDate:x.date}));
+ const curated=PAX_MILESTONES.filter(x=>x.region===id).map(x=>{
+ const pair=PAX_HISTORY_TRANSLATIONS[x.id]||[];
+ return {...x,title:paxLang()==="en"?(x.titleEn||pair[0]||x.title):(x.title),detail:paxLang()==="en"?(x.detailEn||pair[1]||x.detail):(x.detail),verified:true,sortDate:x.date};
+ });
  const live=(state.rows[id]?.articles||[]).filter(x=>x.type!=="other").slice(0,14).map((a,i)=>({
   id:"press-"+id+"-"+i,region:id,date:a.publishedAt?.slice(0,10)||"",type:a.type==="ceasefire"?"agreement":a.type==="implemented"?"implemented":a.type==="proposal"?"proposal":a.type==="talks"?"talks":"setback",title:a.title,detail:"Αυτόματη ταξινόμηση ειδησεογραφικού τίτλου. Δεν έχει επικυρωθεί η πραγματοποίηση του γεγονότος. Η ίδια εξέλιξη ενδέχεται να καλύπτεται από περισσότερους εκδότες.",source:a.source,url:a.url,verified:false,sortDate:a.publishedAt?.slice(0,10)||""
  }));
@@ -37,13 +41,16 @@ function paxTimelineEvents(){
 function paxRenderTimeline(){
  if(!document.getElementById("timelineList"))return;
  const region=REGIONS.find(r=>r.id===state.selected),ev=paxTimelineEvents();
- const cutoff=s=>s>=PAX_TIMELINE.from&&s<=PAX_TIMELINE.to;
+ const onset=paxConflictStart(state.selected),cutoff=s=>s>=PAX_TIMELINE.from&&s<=PAX_TIMELINE.to&&(PAX_TIMELINE.includeContext||s>=onset);
  const curated=ev.curated.filter(x=>cutoff(x.date));
- const press=PAX_TIMELINE.includePress?ev.live.filter(x=>cutoff(x.date)):[];
+ const press=PAX_TIMELINE.includePress?ev.live.filter(x=>x.date>=onset&&cutoff(x.date)):[];
  const all=curated.concat(press).sort((a,b)=>b.date.localeCompare(a.date)||Number(b.verified)-Number(a.verified));
  const count=type=>curated.filter(x=>PAX_GROUP[x.type]===type).length;
  document.getElementById("timelineRegionName").textContent=region.name;
- document.getElementById("timelineTotal").textContent=ev.curated.length.toString().padStart(2,"0");
+ document.getElementById("timelineTotal").textContent=ev.curated.filter(x=>PAX_TIMELINE.includeContext||x.date>=onset).length.toString().padStart(2,"0");
+ document.getElementById("timelineFrom").min=PAX_TIMELINE.includeContext?"2011-01-01":onset;
+ document.getElementById("timelineStartMeta").textContent=(paxLang()==="en"?"CONFLICT PHASE: ":"ΕΝΑΡΞΗ ΦΑΣΗΣ: ")+PAX_DATE(onset);
+ document.getElementById("timelineStartDescription").textContent=PAX_CONFLICT_START[state.selected][paxLang()];
  document.getElementById("timelineFrom").value=PAX_TIMELINE.from;
  document.getElementById("timelineTo").value=PAX_TIMELINE.to;
  document.getElementById("timelineTalks").textContent=count("talks");
@@ -51,15 +58,21 @@ function paxRenderTimeline(){
  document.getElementById("timelineSetbacks").textContent=count("setback");
  document.getElementById("timelineShown").textContent=curated.length;
  const earliest=curated.length?curated[0]:null,latest=curated.length?curated[curated.length-1]:null;
- let summary='<b>ΣΥΓΚΡΙΣΗ '+esc(PAX_DATE(PAX_TIMELINE.from))+' — '+esc(PAX_DATE(PAX_TIMELINE.to))+'</b> · ';
- if(PAX_TIMELINE.from>PAX_TIMELINE.to)summary+="Η ημερομηνία έναρξης πρέπει να προηγείται της λήξης.";
- else if(!curated.length)summary+="Δεν υπάρχουν επιμελημένα ορόσημα μέσα στο επιλεγμένο διάστημα. Το ιστορικό είναι επιλεκτικό, όχι ολοκληρωμένο.";
- else summary+='Καταγράφονται '+curated.length+' τεκμηριωμένα ορόσημα: '+count("talks")+' συνομιλίες/προτάσεις, '+count("deal")+' συμφωνίες/ενέργειες εφαρμογής και '+count("setback")+' εμπόδια/κλιμακώσεις. Πρώτο: «'+esc(earliest.title)+'». Πιο πρόσφατο: «'+esc(latest.title)+'».';
- if(press.length)summary+=' Επίσης εμφανίζονται '+press.length+' πρόσφατοι ανεπιβεβαίωτοι τίτλοι, οι οποίοι δεν μετρούν στα ιστορικά ορόσημα.';
+ const en=paxLang()==="en";
+ let summary='<b>'+(en?"COMPARISON ":"ΣΥΓΚΡΙΣΗ ")+esc(PAX_DATE(PAX_TIMELINE.from))+' — '+esc(PAX_DATE(PAX_TIMELINE.to))+'</b> · ';
+ if(PAX_TIMELINE.from>PAX_TIMELINE.to)summary+=en?"The start date must be earlier than the end date.":"Η ημερομηνία έναρξης πρέπει να προηγείται της λήξης.";
+ else if(!curated.length)summary+=en?"No curated milestones in this period. The archive is selective, not comprehensive.":"Δεν υπάρχουν επιμελημένα ορόσημα μέσα στο επιλεγμένο διάστημα. Το ιστορικό είναι επιλεκτικό, όχι ολοκληρωμένο.";
+ else summary+=en?
+   curated.length+' documented milestones: '+count("talks")+' talks/proposals, '+count("deal")+' agreements/implementation measures and '+count("setback")+' setbacks. First: “'+esc(earliest.title)+'”. Latest: “'+esc(latest.title)+'”.':
+   'Καταγράφονται '+curated.length+' τεκμηριωμένα ορόσημα: '+count("talks")+' συνομιλίες/προτάσεις, '+count("deal")+' συμφωνίες/ενέργειες εφαρμογής και '+count("setback")+' εμπόδια/κλιμακώσεις. Πρώτο: «'+esc(earliest.title)+'». Πιο πρόσφατο: «'+esc(latest.title)+'».';
+ if(press.length)summary+=en?' Also '+press.length+' recent unverified headlines are shown; they are not included in milestone counts.':
+  ' Επίσης εμφανίζονται '+press.length+' πρόσφατοι ανεπιβεβαίωτοι τίτλοι, οι οποίοι δεν μετρούν στα ιστορικά ορόσημα.';
+ if(!PAX_TIMELINE.includeContext)summary+=en?' Events before the defined phase start are excluded.':' Γεγονότα πριν από την έναρξη της επιλεγμένης φάσης εξαιρούνται.';
+
  document.getElementById("timelineComparison").innerHTML=summary;
  document.getElementById("timelineList").innerHTML=all.length?all.map(x=>
   '<article class="timeline-event"><div class="timeline-event-time">'+esc(PAX_DATE(x.date))+
-  '<small>'+(x.verified?"CURATED RECORD":"LIVE NEWS")+'</small></div>'+
+  '<small>'+(x.datePrecision==="month"?(paxLang()==="en"?"MONTH / APPROX.":"ΜΗΝΑΣ / ΕΝΔΕΙΚΤΙΚΗ ΗΜΕΡΟΜΗΝΙΑ"):(x.verified?"CURATED RECORD":"LIVE NEWS"))+'</small></div>'+
   '<div class="timeline-event-body"><h4>'+esc(x.title)+'</h4><p>'+esc(x.detail)+'</p>'+
   '<a target="_blank" rel="noopener noreferrer" href="'+esc(validLink(x.url))+'">ΠΗΓΗ: '+esc(x.source||"Δημοσίευμα")+' ↗</a></div>'+
   '<div class="timeline-event-status"><span class="marker '+(x.verified?"positive":"press")+'">'+esc(PAX_LABELS[x.type]||"ΑΝΑΦΟΡΑ")+'</span><small>'+(x.verified?"Καταγεγραμμένο με πηγή":"Αυτόματος τίτλος · μη διασταυρωμένος")+'</small></div></article>').join("")
@@ -68,17 +81,28 @@ function paxRenderTimeline(){
 }
 function paxTimelineInit(){
  const from=document.getElementById("timelineFrom"),to=document.getElementById("timelineTo"),press=document.getElementById("timelinePress");
- from.max=PAX_TODAY();to.max=PAX_TODAY();to.value=PAX_TODAY();
+ from.max=PAX_TODAY();to.max=PAX_TODAY();to.value=PAX_TODAY();from.min=paxConflictStart(state.selected);
  from.addEventListener("change",()=>{PAX_TIMELINE.from=from.value;PAX_TIMELINE.quick="";paxRenderTimeline()});
  to.addEventListener("change",()=>{PAX_TIMELINE.to=to.value;PAX_TIMELINE.quick="";paxRenderTimeline()});
  press.addEventListener("change",()=>{PAX_TIMELINE.includePress=press.checked;paxRenderTimeline()});
  document.querySelectorAll(".timeline-actions button").forEach(button=>button.addEventListener("click",()=>{
    const n=button.dataset.window;PAX_TIMELINE.quick=n;PAX_TIMELINE.to=PAX_TODAY();
-   if(n==="all")PAX_TIMELINE.from="2015-01-01";
+   if(n==="all")PAX_TIMELINE.from=PAX_TIMELINE.includeContext?"2011-01-01":paxConflictStart(state.selected);
    else {const date=new Date(PAX_TIMELINE.to+"T12:00:00Z");date.setUTCDate(date.getUTCDate()-Number(n));PAX_TIMELINE.from=date.toISOString().slice(0,10);}
    paxRenderTimeline();
  }));
- document.addEventListener("pax:selection",paxRenderTimeline);
+ document.getElementById("timelineContext").addEventListener("change",event=>{
+ PAX_TIMELINE.includeContext=event.target.checked;
+ if(PAX_TIMELINE.quick==="all")PAX_TIMELINE.from=PAX_TIMELINE.includeContext?"2011-01-01":paxConflictStart(state.selected);
+ else if(!PAX_TIMELINE.includeContext&&PAX_TIMELINE.from<paxConflictStart(state.selected))PAX_TIMELINE.from=paxConflictStart(state.selected);
+ paxRenderTimeline();
+ });
+ document.addEventListener("pax:selection",()=>{
+  if(PAX_TIMELINE.quick==="all")PAX_TIMELINE.from=PAX_TIMELINE.includeContext?"2011-01-01":paxConflictStart(state.selected);
+  else if(!PAX_TIMELINE.includeContext&&PAX_TIMELINE.from<paxConflictStart(state.selected))PAX_TIMELINE.from=paxConflictStart(state.selected);
+  paxRenderTimeline()
+ });
+ document.addEventListener("pax:language",paxRenderTimeline);
  document.addEventListener("pax:data",paxRenderTimeline);
  paxRenderTimeline();
 }
