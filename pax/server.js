@@ -22,6 +22,13 @@ const handlers={'/api/news':require('./api/news.js'),'/api/markets':require('./a
 const server=http.createServer(async(req,res)=>{
  res.setHeader('X-Content-Type-Options','nosniff');
  res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');
+ // Public read-only metadata APIs are called by the separate Render static front-end.
+ if(req.url?.startsWith('/api/')){
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.setHeader('Access-Control-Allow-Methods','GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers','Accept, Content-Type');
+  if(req.method==='OPTIONS'){res.writeHead(204);res.end();return}
+ }
  try{
   const parsed=new URL(req.url,'http://localhost');
   const pathname=decodeURIComponent(parsed.pathname);
