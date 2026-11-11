@@ -64,11 +64,16 @@ function paxBriefRender(){
   b.classList.toggle("active",b.dataset.briefScope===PAX_BRIEF.scope);
   b.setAttribute("aria-pressed",String(b.dataset.briefScope===PAX_BRIEF.scope));
  });
+ const picker=$("briefRegionSelect");if(picker)picker.value=state.selected;
  $("briefRangeText").textContent=paxBriefCopy("Τελευταίες "+PAX_BRIEF.window+" ώρες","Last "+PAX_BRIEF.window+" hours");
 }
 function paxBriefInit(){
  const root=$("briefing");if(!root)return;
- root.addEventListener("click",e=>{
+ const picker=$("briefRegionSelect");
+ picker.innerHTML=REGIONS.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>').join("");
+ picker.value=state.selected;
+ picker.addEventListener("change",e=>{PAX_BRIEF.scope="selected";setSelected(e.target.value,false)});
+  root.addEventListener("click",e=>{
   const hours=e.target.closest("[data-brief-hours]"),scope=e.target.closest("[data-brief-scope]");
   if(hours)PAX_BRIEF.window=Number(hours.dataset.briefHours);
   if(scope)PAX_BRIEF.scope=scope.dataset.briefScope;
