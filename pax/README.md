@@ -52,3 +52,7 @@ The original numerical 0–100 Peace Proximity Index was retired. It was an unca
 **Push status:** Background push when the browser is closed is not available: it needs a protected push-subscription service, web push credentials, a service worker, and controls against spoofed or low-confidence alerts. The current browser notifications are opt-in and page-open only.
 
 Future work: editorial event verification with primary documents and source-of-source attribution, persistent versioned evidence timelines, calibrated quantitative research with backtests, user-managed notification subscriptions, and robust historical conflict-linked market event studies.
+
+**Market-provider availability (Nov 2026):** Unauthenticated FRED CSV fetches can be rejected by FRED. The API therefore accepts optional `FRED_API_KEY` configured **only** in Vercel environment settings, never committed to GitHub; an ECB public XML fallback is used for EUR/USD. Unavailable commodities remain blank rather than inferred or made up.
+
+**Release note:** Code changes must be deployed by the connected Vercel project. A GitHub commit does not imply that production updated successfully; always verify active deployment SHA and website before announcing a release.
