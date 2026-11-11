@@ -78,8 +78,8 @@ function renderStats(){
  const rows=Object.values(state.rows),items=rows.flatMap(x=>x.articles||[]);
  const sources=new Set(items.map(x=>x.source?.toLowerCase()).filter(Boolean));
  $('statRegions').textContent=String(REGIONS.length).padStart(2,'0');
- $('statStories').textContent=state.loading?'…':String(items.length);
- $('statSources').textContent=state.loading?'…':String(sources.size);
+ $('statStories').textContent=state.loading&&!items.length?'…':String(items.length);
+ $('statSources').textContent=state.loading&&!items.length?'…':String(sources.size);
  $('statUpdated').textContent=state.lastUpdated?timeLocal(state.lastUpdated):'—';
 }
 function headlineCard(a,type){return '<div class="insight-card"><span>'+esc(TYPES[type].label)+' · '+esc(a.source||'—')+'</span><a href="'+esc(validLink(a.url))+'" target="_blank" rel="noopener noreferrer">'+esc(a.title)+'</a><small>'+dateLong(a.publishedAt)+'</small></div>'}
@@ -156,31 +156,68 @@ function setupUI(){
  clock();setInterval(clock,60000);
  try{const saved=JSON.parse(localStorage.getItem('pax-observation-v2')||'null');if(saved&&saved.at&&saved.values)state.prior=saved;}catch{}
 }
+let paxLoadSequence=0;
 async function load(manual=false){
- state.loading=true;$('refreshBtn').disabled=true;$('refreshBtn').textContent='↻ ΑΝΑΚΤΗΣΗ';
+ const seq=++paxLoadSequence;
+ state.loading=true;
+ $('refreshBtn').disabled=true;$('refreshBtn').textContent=paxLang()==="en"?"↻ LOADING":"↻ ΑΝΑΚΤΗΣΗ";
  if(manual)state.prior=readSaved();
  render();
- const results=await Promise.allSettled(REGIONS.map(async region=>{
-  const response=await fetch('/api/news?region='+encodeURIComponent(region.id),{headers:{'Accept':'application/json'}});
-  const payload=await response.json().catch(()=>({error:'Invalid response',articles:[]}));
-  if(!response.ok)throw Error(payload.error||'Server error '+response.status);
-  return {id:region.id,data:payload};
- }));
- for(let i=0;i<results.length;i++){
-   const {id}=REGIONS[i],result=results[i];
-   if(result.status==='fulfilled'){
-     const data=result.value.data;
-     state.rows[id]={articles:(Array.isArray(data.articles)?data.articles:[]).map(a=>({...a,type:classify(a.title)})),provider:data.provider||'—',sourceFeeds:data.sourceFeeds||[],publishers:data.publishers||[],stats:data.stats||null,error:null};
-   }else state.rows[id]={articles:[],provider:null,error:'Δεν είναι διαθέσιμη η ροή ειδήσεων'};
+ const ordered=[REGIONS.find(r=>r.id===state.selected),...REGIONS.filter(r=>r.id!==state.selected)].filter(Boolean);
+ let cursor=0,finished=0;
+ async function worker(){
+  while(cursor<ordered.length&&seq===paxLoadSequence){
+   const region=ordered[cursor++];
+   const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),12000);
+   try{
+    const response=await fetch('/api/news?region='+encodeURIComponent(region.id),{
+     signal:ctrl.signal,headers:{Accept:'application/json'}
+    });
+    const payload=await response.json();
+    if(!response.ok)throw Error(payload.error||'Server error '+response.status);
+    state.rows[region.id]={articles:(Array.isArray(payload.articles)?payload.articles:[]).map(a=>({...a,type:classify(a.title)})),
+     provider:payload.provider||'—',sourceFeeds:payload.sourceFeeds||[],publishers:payload.publishers||[],
+     stats:payload.stats||null,error:null,stale:payload.stale===true};
+   }catch{
+    state.rows[region.id]={articles:[],provider:null,error:'News feed temporarily unavailable'};
+   }finally{clearTimeout(timer)}
+   if(seq!==paxLoadSequence)return;
+   finished++;
+   // Updating visible data as it arrives is better than waiting on all nine sources.
+   render();
+   document.dispatchEvent(new CustomEvent('pax:progress',{detail:{region:region.id,finished,total:ordered.length}}));
+  }
  }
- state.loading=false;state.lastUpdated=new Date().toISOString();$('refreshBtn').disabled=false;$('refreshBtn').innerHTML='<span class="refresh-icon">↻</span> ΑΝΑΝΕΩΣΗ';
+ await Promise.all(Array.from({length:3},()=>worker()));
+ if(seq!==paxLoadSequence)return;
+ state.loading=false;state.lastUpdated=new Date().toISOString();
+ $('refreshBtn').disabled=false;
+ $('refreshBtn').innerHTML='<span class="refresh-icon">↻</span> '+(paxLang()==='en'?'REFRESH':'ΑΝΑΝΕΩΣΗ');
  const snap={at:state.lastUpdated,values:Object.fromEntries(REGIONS.map(r=>[r.id,regionAnalysis(r.id).label]))};
  try{localStorage.setItem('pax-observation-v2',JSON.stringify(snap))}catch{}
- render();document.dispatchEvent(new CustomEvent("pax:data",{detail:{updatedAt:state.lastUpdated}}));
+ render();
+ document.dispatchEvent(new CustomEvent('pax:data',{detail:{updatedAt:state.lastUpdated}}));
 }
 function readSaved(){try{return JSON.parse(localStorage.getItem('pax-observation-v2')||'null')}catch{return null}}
 async function drawWorldMap(){
- const svg=document.getElementById('worldMap');if(!window.d3||!window.topojson){svg.innerHTML='<text x="480" y="235" text-anchor="middle">Δεν φορτώθηκαν οι βιβλιοθήκες του χάρτη.</text>';return}
+ const svg=document.getElementById('worldMap');
+ if(!window.d3||!window.topojson){
+  svg.innerHTML='<text x="480" y="235" text-anchor="middle" fill="#777" font-size="14">Loading map…</text>';
+  if(!window.paxMapRetryTimer){
+   let attempts=0;
+   window.paxMapRetryTimer=setInterval(()=>{
+    attempts++;
+    if(window.d3&&window.topojson){
+     clearInterval(window.paxMapRetryTimer);window.paxMapRetryTimer=null;drawWorldMap();
+    }else if(attempts>25){
+     clearInterval(window.paxMapRetryTimer);window.paxMapRetryTimer=null;
+     svg.innerHTML='<text x="480" y="235" text-anchor="middle" fill="#666" font-size="13">'+
+      (paxLang()==="en"?"Map unavailable; use the region list.":"Ο χάρτης δεν είναι διαθέσιμος — επίλεξε περιοχή από τη λίστα.")+'</text>';
+    }
+   },400);
+  }
+  return;
+ }
  try{
   const response=await fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json',{cache:'force-cache'});
   if(!response.ok)throw Error('map source unavailable');
