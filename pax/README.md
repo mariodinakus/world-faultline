@@ -99,3 +99,5 @@ Four new UI capabilities added in `pax/index.html`, `desk.css` and small depende
 Performance: `pax-intelligence-fast.onrender.com` is still the preferred static Render homepage; `pax-conflict-intelligence.onrender.com` is the JSON API service. No new server-side news calls, chart frameworks or heavyweight modeling libraries were introduced for 2.2. English and Greek are maintained in `i18n.js` and the new scripts.
 
 Validation notes: all JavaScript syntax checks passed; new section controls, unique HTML IDs and matched structural tags checked; logical Nash equilibrium test passed for default and modified assumptions; all nine region phase start-date constraints checked. These checks do not substitute for a live browser end-to-end test or independent verification of all curated historical source URLs.
+
+Map performance optimization: D3, TopoJSON and country geometry are now loaded only when the map panel approaches the viewport (IntersectionObserver); the first paint does not request the large world-map libraries. The region list remains accessible if an external map CDN is unavailable.
