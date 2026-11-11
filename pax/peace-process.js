@@ -20,6 +20,7 @@ function paxProcessRender(){
  const en=paxLang()==="en",records=paxProcessRecords(state.selected),recent=records[0]||null;
  const region=REGIONS.find(r=>r.id===state.selected);
  $("processRegion").textContent=region?.name||"—";
+ $("processRegionSelect").value=state.selected;
  $("processStart").textContent=(en?"MONITORED PHASE FROM ":"ΕΝΑΡΞΗ ΠΑΡΑΚΟΛΟΥΘΗΣΗΣ ")+
   dateLong(paxConflictStart(state.selected)+"T12:00:00Z");
  $("processCount").textContent=String(records.length).padStart(2,"0");
@@ -65,7 +66,11 @@ function paxProcessRender(){
 }
 function paxProcessInit(){
  const root=$("process");if(!root)return;
- root.addEventListener("click",e=>{
+ const picker=$("processRegionSelect");
+ picker.innerHTML=REGIONS.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>').join("");
+ picker.value=state.selected;
+ picker.addEventListener("change",e=>setSelected(e.target.value,false));
+  root.addEventListener("click",e=>{
   const filter=e.target.closest("[data-process-filter]");
   if(filter){PAX_PROCESS.filter=filter.dataset.processFilter;PAX_PROCESS.expanded=false;paxProcessRender()}
  });
