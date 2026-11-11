@@ -25,6 +25,7 @@ PAX_MILESTONES.push(...PAX_HISTORY_EXTRA);
 const PAX_LABELS={agreement:"ΣΥΜΦΩΝΙΑ",implemented:"ΕΦΑΡΜΟΓΗ",talks:"ΣΥΝΟΜΙΛΙΕΣ",proposal:"ΠΡΟΤΑΣΗ",setback:"ΑΔΙΕΞΟΔΟ / ΕΝΤΑΣΗ",other:"ΕΙΔΗΣΗ"};
 const PAX_GROUP={talks:"talks",proposal:"talks",agreement:"deal",implemented:"deal",ceasefire:"deal",setback:"setback",other:"other"};
 const PAX_TODAY=()=>new Date().toLocaleDateString("en-CA",{timeZone:"Europe/Athens"});
+const PAX_EVENT_DATE=e=>e.datePrecision==="month"?new Intl.DateTimeFormat(paxLang()==="en"?"en-GB":"el-GR",{month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(e.date+"T12:00:00Z")):PAX_DATE(e.date);
 const PAX_DATE=s=>{const d=new Date(s+"T12:00:00Z");return new Intl.DateTimeFormat(paxLang()==="en"?"en-GB":"el-GR",{day:"2-digit",month:"short",year:"numeric",timeZone:"UTC"}).format(d)};
 const PAX_TIMELINE={from:paxConflictStart("ukraine"),to:PAX_TODAY(),quick:"all",includePress:true,includeContext:false};
 function paxTimelineEvents(){
@@ -57,7 +58,8 @@ function paxRenderTimeline(){
  document.getElementById("timelineDeals").textContent=count("deal");
  document.getElementById("timelineSetbacks").textContent=count("setback");
  document.getElementById("timelineShown").textContent=curated.length;
- const earliest=curated.length?curated[0]:null,latest=curated.length?curated[curated.length-1]:null;
+ const sortedCurated=[...curated].sort((a,b)=>a.date.localeCompare(b.date));
+ const earliest=sortedCurated[0]||null,latest=sortedCurated.at(-1)||null;
  const en=paxLang()==="en";
  let summary='<b>'+(en?"COMPARISON ":"ΣΥΓΚΡΙΣΗ ")+esc(PAX_DATE(PAX_TIMELINE.from))+' — '+esc(PAX_DATE(PAX_TIMELINE.to))+'</b> · ';
  if(PAX_TIMELINE.from>PAX_TIMELINE.to)summary+=en?"The start date must be earlier than the end date.":"Η ημερομηνία έναρξης πρέπει να προηγείται της λήξης.";
@@ -71,7 +73,7 @@ function paxRenderTimeline(){
 
  document.getElementById("timelineComparison").innerHTML=summary;
  document.getElementById("timelineList").innerHTML=all.length?all.map(x=>
-  '<article class="timeline-event"><div class="timeline-event-time">'+esc(PAX_DATE(x.date))+
+  '<article class="timeline-event"><div class="timeline-event-time">'+esc(PAX_EVENT_DATE(x))+
   '<small>'+(x.datePrecision==="month"?(paxLang()==="en"?"MONTH / APPROX.":"ΜΗΝΑΣ / ΕΝΔΕΙΚΤΙΚΗ ΗΜΕΡΟΜΗΝΙΑ"):(x.verified?"CURATED RECORD":"LIVE NEWS"))+'</small></div>'+
   '<div class="timeline-event-body"><h4>'+esc(x.title)+'</h4><p>'+esc(x.detail)+'</p>'+
   '<a target="_blank" rel="noopener noreferrer" href="'+esc(validLink(x.url))+'">ΠΗΓΗ: '+esc(x.source||"Δημοσίευμα")+' ↗</a></div>'+
