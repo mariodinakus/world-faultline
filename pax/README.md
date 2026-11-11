@@ -77,3 +77,12 @@ Conflict phase start dates (not claims that the entire dispute began then):
 ### Render fallback (no dependencies)
 
 The app can be deployed to Render as a **Node web service** from repository `https://github.com/mariodinakus/world-faultline`, branch `main`, start command `node pax/server.js`, and build command `echo PAX ready`. The server serves assets from `pax/` and routes `/api/news` and `/api/markets` through the same Vercel-compatible handlers. Use the free tier only if suitable for usage and delay requirements. Configure optional FRED_API_KEY in Render environment, never in committed files. A Render workspace must be explicitly selected before provisioning. Creating a Render service does **not** migrate or alter the existing Vercel domain.
+
+
+## Performance and static-first production (11 Nov 2026)
+
+The primary user-facing Render URL is `https://pax-intelligence-fast.onrender.com` (static CDN, `pax/` publish directory). This renders the interface without waiting for the free Node service to wake. It uses `https://pax-conflict-intelligence.onrender.com` for read-only `/api/news` and `/api/markets` endpoints and checks `/health` before loading the first batch of reports. The former Node-only UI URL remains functional for comparison and diagnostics, but free instances can sleep; do not confuse UI availability with feed availability.
+
+News processing now uses 3-client-request concurrency, prioritizes the currently selected region, progressively renders available coverage, shares cached publisher RSS across all conflict dossiers, limits upstream concurrency, uses short source timeouts, and invokes GDELT only for sparse results. Initial or subsequent refreshes may be delayed by upstream publisher availability. Observed source errors are not treated as proof that no event occurred.
+
+All production services are intended to track GitHub main. Verify each new commit's actual Render deployment; in the 11 Nov 2026 deployment inspection, the original Node service did not automatically redeploy despite its `autoDeploy=yes` flag, so an explicit deployment was required. Do not assume its webhook is reliable without checking.
