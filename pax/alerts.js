@@ -1,6 +1,6 @@
 /* PAX WATCH / in-app alert bell + consent-based page-open browser notifications.
    No service-worker push, no live military tracking, no verification of individual incident claims. */
-const PAX_ALERT_KEY="pax-alert-center-v1";
+const PAX_ALERT_KEY="pax-alert-center-v2";
 const PAX_ALERT_OPTIONS_KEY="pax-alert-preferences-v1";
 const PAX_ALERT_MAX_AGE=72*3600000;
 const PAX_WATCH={known:[],items:[],initialized:false,open:false,permission:"default",timer:null,settings:{strikes:true,diplomacy:true,milestones:true,region:"all"},previousFocus:null};
@@ -44,7 +44,7 @@ function paxAlertsIngest(){
      const key=paxSimpleKey(article,region.id);
      if(seen.has(key))continue;
      seen.add(key);
-     const item={id:key,region:region.id,type,title:article.title,source:article.source||"Άγνωστη πηγή",url:article.url,publishedAt:article.publishedAt,firstObservedAt:new Date().toISOString(),read:isFirst||!paxAlertMatches({type})};
+     const item={id:key,region:region.id,type,title:article.title,source:article.source||"Άγνωστη πηγή",url:article.url,publishedAt:article.publishedAt,firstObservedAt:new Date().toISOString(),read:isFirst||!paxAlertMatches({type,region:region.id})};
      fresh.push(item);
    }
  }
