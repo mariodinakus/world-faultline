@@ -10,6 +10,7 @@ const QUERIES={
  yemen:'Yemen (Houthis OR Houthi) (ceasefire OR strikes OR diplomacy)',
  syria:'Syria (SDF OR Damascus OR ceasefire OR clashes OR negotiations)'
 };
+const CONFLICT_START={ukraine:"2022-02-24",gaza:"2023-10-07",iranisrael:"2024-04-13",usiran:"2025-06-22",sudan:"2023-04-15",drc:"2022-03-28",myanmar:"2021-02-01",yemen:"2015-03-26",syria:"2011-03-15"};
 const RELEVANCE={
  ukraine:/\b(ukrain\w*|russi\w*|kyiv|kiev|zelensk\w*|putin|donbas|crimea)\b/i,
  gaza:/\b(gaza|palestini\w*|hamas|israel\w*|west bank|rafah|netanyahu)\b/i,
@@ -67,7 +68,7 @@ async function get(url){
 }
 function google(query){return "https://news.google.com/rss/search?q="+encodeURIComponent(query+" when:7d")+"&hl=en-US&gl=US&ceid=US:en"}
 function unique(all,region){
- const now=Date.now(),cutoff=now-8*86400000,seen=new Set();
+ const now=Date.now(),phase=Date.parse(CONFLICT_START[region]+"T00:00:00Z"),cutoff=Math.max(now-7*86400000,phase),seen=new Set();
  return all.filter(a=>{
  const t=Date.parse(a.publishedAt);if(!a.title||!a.url||!Number.isFinite(t)||t<cutoff||t>now+3600000)return false;
  const canonical=a.title.toLocaleLowerCase().replace(/[\p{P}\p{S}]/gu," ").replace(/\s+/g," ").trim();
@@ -97,7 +98,7 @@ module.exports=async(req,res)=>{
  const publishers=[...new Set(articles.map(a=>a.source))].sort();
  const ok=sourceFeeds.filter(s=>s.status==="ok").length;
  res.setHeader("Cache-Control",ok?"s-maxage=900, stale-while-revalidate=1800":"no-store");
- return res.status(ok?200:503).json({region,updatedAt:new Date().toISOString(),windowDays:7,articles,provider:"Multi-source",publishers,sourceFeeds,
+ return res.status(ok?200:503).json({region,updatedAt:new Date().toISOString(),windowDays:7,conflictStart:CONFLICT_START[region],archiveMode:"curated-timeline",articles,provider:"Multi-source",publishers,sourceFeeds,
   stats:{articles:articles.length,publishers:publishers.length,feedsOk:ok,feedsTotal:jobs.length},
   caution:"Publisher-count measures diversity of coverage, not independent confirmation.",
   ...(ok?{}:{error:"All news providers unavailable"})});
