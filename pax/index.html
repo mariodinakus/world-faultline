@@ -7,10 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="extras.css"><link rel="stylesheet" href="intelligence.css"><link rel="stylesheet" href="bilingual.css"><link rel="stylesheet" href="desk.css">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="extras.css"><link rel="stylesheet" href="intelligence.css"><link rel="stylesheet" href="bilingual.css"><link rel="stylesheet" href="desk.css"><link rel="stylesheet" href="negotiation.css">
 
 
-<script defer src="history.js"></script><script defer src="i18n.js"></script><script defer src="app.js"></script><script defer src="timeline.js"></script><script defer src="alerts.js"></script><script defer src="intelligence.js"></script><script defer src="briefing.js"></script><script defer src="peace-process.js"></script><script defer src="game-theory.js"></script>
+<script defer src="history.js"></script><script defer src="i18n.js"></script><script defer src="app.js"></script><script defer src="timeline.js"></script><script defer src="alerts.js"></script><script defer src="intelligence.js"></script><script defer src="briefing.js"></script><script defer src="peace-process.js"></script><script defer src="game-theory.js"></script><script defer src="negotiation-room.js"></script><script defer src="time-machine.js"></script><script defer src="narrative.js"></script>
 </head><body>
 <div id="paxStartupNotice" class="pax-startup-notice" role="status" aria-live="polite" hidden>
  <span class="pax-spinner" aria-hidden="true"></span>
@@ -21,7 +21,7 @@
 <a class="brand" href="./" aria-label="PAX Home"><span class="brand-icon">✳</span><span>PAX<span class="brand-period">.</span></span></a>
 <div class="brand-descriptor">GLOBAL CONFLICT<br>INTELLIGENCE</div>
 <nav class="top-nav" aria-label="Βασική πλοήγηση">
-<button class="nav-btn active" data-target="overview">Επισκόπηση</button><button class="nav-btn" data-target="briefing">Daily brief</button><button class="nav-btn" data-target="detail">Evidence</button><button class="nav-btn" data-target="process">Peace process</button><button class="nav-btn" data-target="strategy">Game theory</button><button class="nav-btn" data-target="dispatch">Live wire</button><button class="nav-btn" data-target="intelligence">Sources</button>
+<button class="nav-btn active" data-target="overview">Επισκόπηση</button><button class="nav-btn" data-target="briefing">Daily brief</button><button class="nav-btn" data-target="detail">Evidence</button><button class="nav-btn" data-target="process">Peace process</button><button class="nav-btn" data-target="negotiationRoom">Dealbreakers</button><button class="nav-btn" data-target="timeMachine">Time machine</button><button class="nav-btn" data-target="strategy">Game theory</button><button class="nav-btn" data-target="dispatch">Live wire</button><button class="nav-btn" data-target="intelligence">Sources</button>
 </nav>
 <button id="languageSwitch" type="button" class="language-switch" aria-label="Switch to English" title="English version">EN</button>
 <button class="alert-bell" id="alertBell" type="button" aria-label="Άνοιγμα ειδοποιήσεων" aria-expanded="false" aria-controls="alertsPanel"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></svg><span id="alertBadge" class="alert-badge" hidden>0</span></button><button class="refresh-button" id="refreshBtn" title="Ανανέωση δεδομένων"><span class="refresh-icon">↻</span> ΑΝΑΝΕΩΣΗ</button>
@@ -82,6 +82,24 @@
 <div class="timeline-ledger-head"><span>DATE</span><span>DEVELOPMENT / EVIDENCE</span><span>STATUS</span></div><div id="timelineList" class="timeline-list" aria-live="polite"></div>
 <div class="timeline-disclaimer"><strong>Μόνο δημοσιεύματα μετά την έναρξη της τρέχουσας φάσης.</strong> Τα επιμελημένα ιστορικά γεγονότα έχουν ξεχωριστή πηγή. Οι πρόσφατοι τίτλοι προέρχονται αυτόματα από τις ειδησεογραφικές ροές, χωρίς διασταύρωση. Το αρχείο είναι επιλεκτικό και όχι πλήρης ιστορία της σύγκρουσης.</div></div></section>
 
+
+<section class="shell pax-desk-section" id="timeMachine">
+ <div class="section-heading"><div><span class="kicker">PAX / HISTORICAL EXPLORER</span><h2>THE TIME <span>MACHINE.</span></h2></div>
+  <p>Δες πώς αυξάνονται τα καταχωρισμένα ορόσημα ανά ημερομηνία και τι ακολούθησε. Ιστορική αναπαραγωγή, όχι πραγματική ειδησεογραφική κάλυψη της εποχής.</p></div>
+ <div class="pax-desk-panel pax-machine">
+  <div class="pax-machine-banner"><div><span class="pax-desk-overline">DATED CONFLICT CHRONOLOGY / SOURCE LINKS</span><h3 id="paxMachineRegion">—</h3></div>
+   <select id="paxMachineRegionSelect" aria-label="Επιλογή σύγκρουσης για ιστορική αναπαραγωγή"></select></div>
+  <div class="pax-machine-controls"><div class="pax-machine-date"><label for="paxMachineDate">ΕΠΙΛΟΓΗ ΗΜΕΡΟΜΗΝΙΑΣ</label><input id="paxMachineDate" type="date"></div>
+   <div class="pax-machine-quick"><button data-machine-period="onset" type="button">ΕΝΑΡΞΗ ΦΑΣΗΣ</button><button data-machine-period="year" type="button">ΠΡΙΝ 12 ΜΗΝΕΣ</button><button data-machine-period="now" type="button">ΣΗΜΕΡΑ</button></div>
+  </div>
+  <div class="pax-machine-scrub"><div class="pax-desk-overline" id="paxMachineAsOf">—</div><input id="paxMachineRange" type="range" min="0" max="100" value="100" step="1" aria-label="Μετακίνηση στον ιστορικό χρόνο"><span id="paxMachineCurrent">—</span></div>
+  <div class="pax-machine-metrics"><div><strong id="paxMachineCount">—</strong><span>ΚΑΤΑΧΩΡΙΣΕΙΣ ΕΩΣ ΤΗΝ ΗΜΕΡΟΜΗΝΙΑ</span></div><div><strong id="paxMachineAfter">—</strong><span>ΚΑΤΑΧΩΡΙΣΕΙΣ ΜΕΤΑ ΤΗΝ ΗΜΕΡΟΜΗΝΙΑ</span></div></div>
+  <div class="pax-machine-compare"><article><div class="pax-desk-overline">AT THE CHOSEN DATE</div><div id="paxMachineBeforeCard"></div></article>
+   <article><div class="pax-desk-overline">WHAT THE ARCHIVE RECORDS NEXT</div><div id="paxMachineAfterCard"></div></article></div>
+  <div class="pax-machine-ledger"><strong>DATED MILESTONES / UP TO SELECTED DATE</strong><div id="paxMachineList"></div></div>
+  <p class="pax-desk-disclaimer">Η ταξινόμηση γίνεται με ημερομηνία γεγονότος, όχι υποχρεωτικά με ημερομηνία πρώτης δημοσίευσης. Πηγές μπορεί να γράφτηκαν αργότερα: δεν πρόκειται για πραγματική ανασύσταση του τι γνώριζαν τότε οι άνθρωποι. Το αρχείο είναι επιλεκτικό.</p>
+ </div>
+</section>
 <section class="shell pax-desk-section" id="process">
 <div class="section-heading"><div><span class="kicker">PEACE PROCESS / EVIDENCE LEDGER</span><h2>FROM TALKS <span>TO ACTION.</span></h2></div><p>Από τις διαπραγματεύσεις στις συμφωνίες, την εφαρμογή και τα αδιέξοδα: διαφορετικά, τεκμηριωμένα ορόσημα.</p></div>
 <div class="pax-desk-panel">
@@ -91,6 +109,29 @@
 <div class="pax-process-rows" id="processRows" aria-live="polite"></div><button class="pax-desk-more" id="processMore" type="button" hidden>ΟΛΑ ΤΑ ΟΡΟΣΗΜΑ</button>
 <p class="pax-desk-disclaimer">Επιλεκτικό αρχείο με συνδέσμους πηγών. Η ανακοίνωση μιας συμφωνίας δεν αποδεικνύει ότι εφαρμόζεται σήμερα.</p><a class="pax-desk-timeline-link" href="#timeline">OPEN FULL DIPLOMACY TIMELINE ↗</a>
 </div></section>
+
+<section class="shell pax-desk-section" id="negotiationRoom">
+ <div class="section-heading"><div><span class="kicker">PAX / NEGOTIATION INTELLIGENCE</span><h2>THE BARGAINING <span>GAP.</span></h2></div>
+  <p>Τι χρειάζεται να εξεταστεί για μια βιώσιμη συμφωνία; Τεκμηριωμένα ιστορικά ορόσημα, έλεγχος θέσεων και υποθετικά βήματα — όχι αυθαίρετες εκτιμήσεις.</p></div>
+ <div class="pax-desk-panel pax-room">
+  <div class="pax-room-header"><div><span class="pax-desk-overline">NEGOTIATION ROOM / OPEN RESEARCH QUESTIONS</span><h3 id="paxRoomRegion">—</h3><small id="paxRoomIssueCount">—</small></div>
+   <select id="paxRoomSelect" aria-label="Επιλογή σύγκρουσης στο Negotiation Room"></select></div>
+  <div class="pax-room-layout">
+   <div class="pax-room-sidebar"><div class="pax-room-mini">ISSUES TO INVESTIGATE</div><div id="paxRoomIssues"></div>
+    <div class="pax-room-sidebar-foot">Διαπραγματευτικό ζήτημα ≠ διαπιστωμένο αδιέξοδο.</div></div>
+   <div class="pax-room-main"><span class="pax-desk-overline">SELECTED NEGOTIATING QUESTION</span><h3 id="paxRoomIssueTitle">—</h3><p id="paxRoomQuestion"></p>
+    <div class="pax-room-tabs" id="paxRoomTabs" role="tablist" aria-label="Negotiation Room views">
+     <button type="button" role="tab" data-room-tab="positions" class="active" aria-selected="true" aria-controls="paxRoomBody">POSITIONS</button>
+     <button type="button" role="tab" data-room-tab="obstacles" aria-selected="false" aria-controls="paxRoomBody">OBSTACLES</button>
+     <button type="button" role="tab" data-room-tab="compromises" aria-selected="false" aria-controls="paxRoomBody">COMPROMISES</button>
+     <button type="button" role="tab" data-room-tab="next" aria-selected="false" aria-controls="paxRoomBody">NEXT MOVE</button>
+    </div>
+    <div id="paxRoomBody" class="pax-room-body" role="tabpanel" aria-live="polite"></div>
+   </div>
+  </div>
+  <p class="pax-desk-disclaimer">Δεν αποδίδουμε «επίσημες θέσεις» χωρίς πρωτογενή, χρονολογημένη πηγή. Όπου δεν υπάρχει τεκμηρίωση εμφανίζεται έλλειμμα δεδομένων. Οι συμβιβασμοί και οι επιλογές είναι υποθετικοί, όχι προτάσεις των μερών.</p>
+ </div>
+</section>
 <section class="shell intel-section" id="intelligence">
 <div class="section-heading"><div><span class="kicker">04 / SOURCE INTELLIGENCE</span><h2>BEHIND THE <span>HEADLINES.</span></h2></div><p>Πηγές, ομοιότητες δημοσιευμάτων και ανοιχτά ερωτήματα διπλωματίας. Η επανάληψη δεν είναι επιβεβαίωση.</p></div>
 <div class="intel-note"><div class="mini-label">THE VERIFICATION PROBLEM</div><div><strong id="intelConflict">—</strong><p id="credibilityIntro">Ανακτώνται δημοσιεύματα…</p></div><div class="intel-count"><span id="clusterCount">—</span><small>ΟΜΑΔΕΣ ΤΙΤΛΩΝ</small></div></div>
@@ -102,6 +143,20 @@
 <div id="clusterList" class="cluster-list"></div>
 <div class="sub-headline market-headline"><div><span class="kicker">04B / CONFLICT ECONOMICS</span><h3>THE ECONOMIC <span>RIPPLE.</span></h3></div><div><span id="marketStamp">Δεδομένα FRED</span><p>Πραγματικές ιστορικές τιμές. Μια συσχέτιση χρονικά με τον πόλεμο δεν αποδεικνύει αιτιότητα.</p></div></div>
 <div id="marketGrid" class="market-grid"></div><div class="market-disclaimer">Οι οικονομικές σειρές διαφέρουν σε συχνότητα και ημερομηνία ενημέρωσης. Τα ποσοστά μεταβολής συγκρίνουν διαθέσιμες παρατηρήσεις της ίδιας σειράς, όχι πάντα ίσα ημερολογιακά διαστήματα. Δεν αποτελούν επενδυτικό σήμα.</div>
+</section>
+
+<section class="shell pax-desk-section" id="narrative">
+ <div class="section-heading"><div><span class="kicker">PAX / MEDIA COMPARISON</span><h2>ONE STORY. <span>DIFFERENT WORDS.</span></h2></div>
+  <p>Συγκριτική ανάγνωση τίτλων διαφορετικών εκδοτών, με ετικέτες λέξεων και πηγές. Δεν βαφτίζουμε την ποικιλία περιγραφών «παραπληροφόρηση».</p></div>
+ <div class="pax-desk-panel pax-narrative">
+  <div class="pax-narrative-header"><div><span class="pax-desk-overline">NARRATIVE DIVERGENCE / HEADLINE COMPARISON</span><h3 id="paxNarrativeRegion">—</h3></div>
+   <select id="paxNarrativeRegionSelect" aria-label="Επιλογή σύγκρουσης για σύγκριση ειδήσεων"></select></div>
+  <div class="pax-narrative-tools"><div><strong id="paxNarrativeCount">—</strong><span>ΟΜΑΔΕΣ ΠΑΡΟΜΟΙΩΝ ΤΙΤΛΩΝ ΣΕ ΠΟΛΛΟΥΣ ΕΚΔΟΤΕΣ</span></div>
+   <div class="pax-desk-actions"><button class="active" data-narrative-mode="match" type="button">SAME-TOPIC CLUSTERS</button><button data-narrative-mode="sample" type="button">COVERAGE SAMPLE</button></div></div>
+  <p id="paxNarrativeNote" class="pax-narrative-note">Η ομοιότητα τίτλων δεν αποδεικνύει ότι δύο εκδότες επιβεβαίωσαν το ίδιο γεγονός.</p>
+  <div id="paxNarrativeResults" class="pax-narrative-results" aria-live="polite"><div class="pax-desk-empty">Ανάκτηση πρόσφατων δημοσιευμάτων…</div></div>
+  <p class="pax-desk-disclaimer">Συγκρίνουμε τίτλους, όχι ολόκληρα άρθρα ή αξιοπιστία εκδοτών. Οι ετικέτες προκύπτουν από λέξεις και δεν αποδεικνύουν προπαγάνδα, μεροληψία ή αντίφαση. Οι σύνδεσμοι ανοίγουν τους εκδότες.</p>
+ </div>
 </section>
 <section class="shell feed-section" id="dispatch">
 <div class="section-heading"><div><span class="kicker">05 / DEVELOPMENTS WIRE</span><h2>THE LIVE <span>DISPATCH.</span></h2></div><p>Τίτλοι και σύνδεσμοι από πρωτότυπους εκδότες μέσω δημόσιων aggregators. Η εμφάνιση δεν συνιστά ανεξάρτητη επαλήθευση του περιεχομένου.</p></div>
@@ -123,6 +178,6 @@
 <p class="pax-game-scenario" id="paxGameScenario"></p>
 <p class="pax-desk-disclaimer">Αυθαίρετες μονάδες χρησιμότητας, όχι μετρήσεις πραγματικών κυβερνήσεων. Η ισορροπία Nash δεν είναι πιθανότητα ειρήνης.</p>
 </details></section>
-<section class="methodology" id="methodology"><div class="shell method-grid"><div><span class="kicker">06 / A NOTE ON CERTAINTY</span><h2>NO FAKE<br><span>PRECISION.</span></h2></div><div class="method-text"><p>Οι ημερομηνίες ιστορικού αρχείου αντιστοιχούν σε επιλεγμένες, ορισμένες φάσεις των συγκρούσεων. Για την Ουκρανία χρησιμοποιούμε την 24/02/2022 (πλήρης εισβολή), αν και ο ευρύτερος πόλεμος άρχισε το 2014. Η ζωντανή ροή διατηρεί μόνο δημοσιεύσεις των τελευταίων επτά ημερών και ποτέ προγενέστερες της εκκίνησης του επιλεγμένου φακέλου. Το αρχείο είναι επιμελημένο και επιλεκτικό, όχι πλήρης αναζήτηση όλων των ιστορικών ειδήσεων.</p><p>Το bell panel εντοπίζει νέους τίτλους και — μόνο μετά από άδεια χρήστη — εμφανίζει ειδοποιήσεις browser όσο η σελίδα είναι ανοιχτή. Δεν υπάρχει background push όταν κλείσει το site, ούτε αυτόματη επιβεβαίωση χτυπήματος.</p><p>Το παλιό αριθμητικό Peace Proximity Index αποσύρθηκε επειδή μετρούσε λέξεις και τίτλους χωρίς επιστημονική βαθμονόμηση. Το νέο <b>Evidence Monitor</b> παρουσιάζει περιγραφικά σήματα με βάση ομάδες παρόμοιων τίτλων. Δεν υπολογίζει πιθανότητες ούτε βαθμολογεί πολιτικούς δρώντες.</p><p>Το <b>Source Intelligence</b> συγκρίνει δημοσιεύματα από πολλαπλές δημόσιες ροές. Η ομαδοποίηση βασίζεται σε ομοιότητα κειμένου και χρονική εγγύτητα και μπορεί να ομαδοποιήσει διαφορετικά γεγονότα ή να μην ενώσει διπλά άρθρα. Δύο εκδότες μπορούν να αναπαράγουν το ίδιο πρακτορείο· επομένως η πολλαπλή κάλυψη δεν αποδεικνύει ανεξάρτητη διασταύρωση. Τα ερωτήματα διαπραγμάτευσης είναι γενικά σημεία προς διερεύνηση.</p><p>Η ανάκτηση συνδυάζει <a href="https://news.google.com/" target="_blank" rel="noopener noreferrer">Google News RSS</a>, <a href="https://www.gdeltproject.org/" target="_blank" rel="noopener noreferrer">GDELT</a> και απευθείας feeds BBC, Guardian, Al Jazeera και DW, ανάλογα με τη διαθεσιμότητα. Τα feeds μπορεί να είναι ελλιπή ή καθυστερημένα. Δεν υπάρχει συντακτική επιμέλεια ή χειροκίνητη επικύρωση και το σύστημα εμφανίζει ειλικρινώς την έλλειψη δεδομένων.</p><div class="method-foot">VERSION 2.2 / EDITORIAL MONITOR · EVIDENCE FIRST · NO CLAIM OF FORECAST ACCURACY</div></div></div></section>
+<section class="methodology" id="methodology"><div class="shell method-grid"><div><span class="kicker">06 / A NOTE ON CERTAINTY</span><h2>NO FAKE<br><span>PRECISION.</span></h2></div><div class="method-text"><p>Οι ημερομηνίες ιστορικού αρχείου αντιστοιχούν σε επιλεγμένες, ορισμένες φάσεις των συγκρούσεων. Για την Ουκρανία χρησιμοποιούμε την 24/02/2022 (πλήρης εισβολή), αν και ο ευρύτερος πόλεμος άρχισε το 2014. Η ζωντανή ροή διατηρεί μόνο δημοσιεύσεις των τελευταίων επτά ημερών και ποτέ προγενέστερες της εκκίνησης του επιλεγμένου φακέλου. Το αρχείο είναι επιμελημένο και επιλεκτικό, όχι πλήρης αναζήτηση όλων των ιστορικών ειδήσεων.</p><p>Το bell panel εντοπίζει νέους τίτλους και — μόνο μετά από άδεια χρήστη — εμφανίζει ειδοποιήσεις browser όσο η σελίδα είναι ανοιχτή. Δεν υπάρχει background push όταν κλείσει το site, ούτε αυτόματη επιβεβαίωση χτυπήματος.</p><p>Το παλιό αριθμητικό Peace Proximity Index αποσύρθηκε επειδή μετρούσε λέξεις και τίτλους χωρίς επιστημονική βαθμονόμηση. Το νέο <b>Evidence Monitor</b> παρουσιάζει περιγραφικά σήματα με βάση ομάδες παρόμοιων τίτλων. Δεν υπολογίζει πιθανότητες ούτε βαθμολογεί πολιτικούς δρώντες.</p><p>Το <b>Source Intelligence</b> συγκρίνει δημοσιεύματα από πολλαπλές δημόσιες ροές. Η ομαδοποίηση βασίζεται σε ομοιότητα κειμένου και χρονική εγγύτητα και μπορεί να ομαδοποιήσει διαφορετικά γεγονότα ή να μην ενώσει διπλά άρθρα. Δύο εκδότες μπορούν να αναπαράγουν το ίδιο πρακτορείο· επομένως η πολλαπλή κάλυψη δεν αποδεικνύει ανεξάρτητη διασταύρωση. Τα ερωτήματα διαπραγμάτευσης είναι γενικά σημεία προς διερεύνηση.</p><p>Η ανάκτηση συνδυάζει <a href="https://news.google.com/" target="_blank" rel="noopener noreferrer">Google News RSS</a>, <a href="https://www.gdeltproject.org/" target="_blank" rel="noopener noreferrer">GDELT</a> και απευθείας feeds BBC, Guardian, Al Jazeera και DW, ανάλογα με τη διαθεσιμότητα. Τα feeds μπορεί να είναι ελλιπή ή καθυστερημένα. Δεν υπάρχει συντακτική επιμέλεια ή χειροκίνητη επικύρωση και το σύστημα εμφανίζει ειλικρινώς την έλλειψη δεδομένων.</p><p>Το Negotiation Room διακρίνει ερωτήματα, τεκμηριωμένες ιστορικές αναφορές και υποθετικά σενάρια. Το Time Machine είναι αναπαραγωγή ανά ημερομηνία ιστορικού γεγονότος, όχι πλήρης ανακατασκευή της πληροφόρησης της εποχής. Το Narrative Divergence συγκρίνει διατύπωση τίτλων, όχι το περιεχόμενο άρθρων ή την αλήθεια των ισχυρισμών.</p><div class="method-foot">VERSION 2.3 / EDITORIAL MONITOR · EVIDENCE FIRST · NO CLAIM OF FORECAST ACCURACY</div></div></div></section>
 </main><footer class="footer"><div class="shell footer-grid"><div class="footer-logo">PAX<span>.</span></div><div>GLOBAL CONFLICT INTELLIGENCE<br><small>Observe. Compare. Question.</small></div><div>NOT A FORECAST / NOT A WAR TRACKER<br><small>Δεδομένα μόνο από διαθέσιμα δημόσια δημοσιεύματα.</small></div><a href="#overview">BACK TO TOP ↑</a></div></footer>
 </body></html>
