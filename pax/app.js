@@ -277,4 +277,36 @@ async function drawWorldMap(){
   state.mapReady=true;
  }catch(e){svg.innerHTML='<text x="480" y="235" text-anchor="middle" fill="#666">Ο γεωγραφικός χάρτης δεν είναι προσωρινά διαθέσιμος.</text>';}
 }
-setupUI();render();drawWorldMap();load();
+let paxMapStarted=false;
+async function paxStartMap(){
+ if(paxMapStarted)return;
+ paxMapStarted=true;
+ const map=$("worldMap");
+ const urls=[
+  "https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js",
+  "https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js"
+ ];
+ function script(url){
+  return new Promise((resolve,reject)=>{
+   const node=document.createElement("script");
+   node.src=url;node.async=true;node.onload=resolve;node.onerror=()=>reject(Error("Map library unavailable"));
+   document.head.appendChild(node);
+  });
+ }
+ try{
+  if(!window.d3||!window.topojson)await Promise.all(urls.map((url,i)=>(i===0&&window.d3)||(i===1&&window.topojson)?Promise.resolve():script(url)));
+  await drawWorldMap();
+ }catch{
+  map.innerHTML='<text x="480" y="235" text-anchor="middle" fill="#666">'+
+   (paxLang()==="en"?"Map unavailable; choose a conflict from the list.":"Ο χάρτης δεν είναι διαθέσιμος· επίλεξε σύγκρουση από τη λίστα.")+'</text>';
+ }
+}
+function paxMapWhenVisible(){
+ const panel=document.querySelector(".map-wrap");
+ if(!panel||!("IntersectionObserver" in window)){paxStartMap();return}
+ const watcher=new IntersectionObserver(entries=>{
+  if(entries.some(e=>e.isIntersecting)){watcher.disconnect();paxStartMap()}
+ },{rootMargin:"350px"});
+ watcher.observe(panel);
+}
+setupUI();render();paxMapWhenVisible();load();
