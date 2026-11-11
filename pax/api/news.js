@@ -104,13 +104,12 @@ async function collect(region){
  const q=QUERIES[region];
  // The four publisher RSS feeds are shared across all nine conflict dossiers.
  const jobs=[
-  {name:"Google News · broad",run:()=>parseRSS(awaitableGoogle(q),null,"Google News")},
-  {name:"Google News · wire",run:()=>parseRSS(awaitableGoogle(q+" (site:reuters.com OR site:apnews.com OR site:france24.com OR site:politico.eu OR site:euronews.com)"),null,"Google News")},
+  {name:"Google News · broad",run:()=>get(google(q)).then(xml=>parseRSS(xml,null,"Google News"))},
+  {name:"Google News · wire",run:()=>get(google(q+" (site:reuters.com OR site:apnews.com OR site:france24.com OR site:politico.eu OR site:euronews.com)")).then(xml=>parseRSS(xml,null,"Google News"))},
   ...RSS.map(f=>({name:f.name,run:()=>get(f.url).then(xml=>parseRSS(xml,f,"Publisher RSS"))}))
  ];
- function awaitableGoogle(query){return get(google(query))}
  // Explicitly settle all six feeds and do not make GDELT calls unless coverage is scant.
- const results=await Promise.allSettled(jobs.map(x=>Promise.resolve().then(x.run).then(async x=>typeof x?.then==="function"?parseRSS(await x,null,"Google News"):x)));
+ const results=await Promise.allSettled(jobs.map(x=>Promise.resolve().then(x.run)));
  const sources=results.map((v,i)=>({feed:jobs[i].name,status:v.status==="fulfilled"?"ok":"unavailable",count:v.status==="fulfilled"?v.value.length:0}));
  let all=results.flatMap(r=>r.status==="fulfilled"?r.value:[]);
  const initial=unique(all,region);
