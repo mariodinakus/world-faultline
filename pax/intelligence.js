@@ -92,7 +92,7 @@ function paxMarketRender(){
  document.getElementById("marketStamp").textContent=paxMarketData.available+" / "+paxMarketData.seriesTotal+(paxLang()==="en"?" series available":" χρονοσειρές διαθέσιμες");
 }
 async function paxMarketsLoad(){
- try{const result=await fetch("/api/markets",{headers:{Accept:"application/json"}});if(!result.ok)throw Error("Markets unavailable");
+ try{const result=await fetch(PAX_API_ORIGIN+"/api/markets",{headers:{Accept:"application/json"}});if(!result.ok)throw Error("Markets unavailable");
  paxMarketData=await result.json()}catch{paxMarketData={available:0,seriesTotal:5,indicators:[]}};
  paxMarketRender();
 }
