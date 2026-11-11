@@ -122,3 +122,8 @@ html{scroll-padding-top:108px}
  .top-nav .nav-btn{font-size:10px;padding:9px 7px}
  .header-inner{gap:6px}
 }
+
+.pax-brief-region-select{border:1px solid #b0b2a6;max-width:185px;min-width:115px;background:#f8f7f2;color:#171d1f;padding:8px 8px;font-size:10px;font-weight:800;cursor:pointer}
+.pax-brief-region-select:focus-visible,.pax-process-select:focus-visible{outline:3px solid #d69c20;outline-offset:2px}
+.pax-process-select{display:block;max-width:340px;width:100%;padding:10px 12px;margin-top:14px;border:1px solid #777e79;background:#f6f4ea;font-size:12px;font-weight:800;color:#171d1f;cursor:pointer}
+@media(max-width:750px){.pax-brief-region-select{max-width:100%;min-width:160px}.pax-process-select{margin-top:12px}}
