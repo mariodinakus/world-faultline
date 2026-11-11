@@ -52,7 +52,7 @@ function regionRow(id){return state.rows[id]||{articles:[],provider:null,error:n
 function regionAnalysis(id){return analyse(regionRow(id))}
 function setSelected(id,scroll=false){
  if(!REGIONS.some(r=>r.id===id))return;
- state.selected=id;render();
+ state.selected=id;render();document.dispatchEvent(new CustomEvent("pax:selection",{detail:{id}}));
  if(scroll)$('detail').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function renderPicker(){
@@ -172,7 +172,7 @@ async function load(manual=false){
  state.loading=false;state.lastUpdated=new Date().toISOString();$('refreshBtn').disabled=false;$('refreshBtn').innerHTML='<span class="refresh-icon">↻</span> ΑΝΑΝΕΩΣΗ';
  const snap={at:state.lastUpdated,values:Object.fromEntries(REGIONS.map(r=>[r.id,regionAnalysis(r.id).score]))};
  try{localStorage.setItem('pax-observation-v1',JSON.stringify(snap))}catch{}
- render();
+ render();document.dispatchEvent(new CustomEvent("pax:data",{detail:{updatedAt:state.lastUpdated}}));
 }
 function readSaved(){try{return JSON.parse(localStorage.getItem('pax-observation-v1')||'null')}catch{return null}}
 async function drawWorldMap(){
