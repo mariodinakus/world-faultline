@@ -106,6 +106,7 @@ function paxAlertsInit(){
    paxAlertsRender();
  });
  document.addEventListener("pax:data",paxAlertsIngest);
+ document.addEventListener("pax:language",paxAlertsRender);
  // Refresh only while page is visible; never trigger noisy background polling.
  PAX_WATCH.timer=setInterval(()=>{
   if(document.visibilityState!=="visible"||state.loading||PAX_WATCH.open)return;
