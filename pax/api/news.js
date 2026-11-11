@@ -1,74 +1,104 @@
-// PAX data proxy. The upstream news aggregator is not a verification service.
-// Vercel Node.js serverless route: /api/news?region=ukraine
-const QUERIES = {
-  ukraine: '"Ukraine" "Russia" (peace OR ceasefire OR talks OR strikes) when:7d',
-  gaza: '"Gaza" (Israel OR Hamas) (ceasefire OR negotiations OR fighting) when:7d',
-  iranisrael: '"Iran" "Israel" (diplomacy OR attack OR ceasefire OR tension) when:7d',
-  usiran: '"United States" "Iran" (nuclear OR negotiations OR strikes OR sanctions) when:7d',
-  sudan: '"Sudan" (RSF OR army) (war OR talks OR ceasefire) when:7d',
-  drc: '"Congo" "M23" (peace OR ceasefire OR fighting) when:7d',
-  myanmar: '"Myanmar" (junta OR resistance) (fighting OR ceasefire OR talks) when:7d',
-  yemen: '"Yemen" (Houthi OR Houthis) (strikes OR negotiations OR ceasefire) when:7d',
-  syria: '"Syria" (clashes OR peace OR ceasefire OR negotiations) when:7d'
+/* PAX 2.0 multi-source feed: metadata only. */
+const QUERIES={
+ ukraine:'"Russia" "Ukraine" (talks OR peace OR ceasefire OR missiles OR diplomacy)',
+ gaza:'("Gaza" OR "Palestine") (Israel OR Hamas) (ceasefire OR talks OR attacks OR aid)',
+ iranisrael:'"Israel" "Iran" (strikes OR diplomacy OR ceasefire OR nuclear)',
+ usiran:'"United States" "Iran" (talks OR nuclear OR sanctions OR attack)',
+ sudan:'Sudan (RSF OR SAF OR army) (peace OR ceasefire OR violence)',
+ drc:'(Congo OR DRC) (M23 OR Rwanda) (ceasefire OR negotiations OR fighting)',
+ myanmar:'Myanmar (junta OR resistance) (ceasefire OR strikes OR talks)',
+ yemen:'Yemen (Houthis OR Houthi) (ceasefire OR strikes OR diplomacy)',
+ syria:'Syria (SDF OR Damascus OR ceasefire OR clashes OR negotiations)'
 };
-const GDELT_QUERIES = {
-  ukraine:'Ukraine Russia',gaza:'Gaza Israel',iranisrael:'Iran Israel',usiran:'United States Iran',
-  sudan:'Sudan RSF',drc:'Congo M23',myanmar:'Myanmar junta',yemen:'Yemen Houthi',syria:'Syria ceasefire'
+const RELEVANCE={
+ ukraine:/\b(ukrain\w*|russi\w*|kyiv|kiev|zelensk\w*|putin|donbas|crimea)\b/i,
+ gaza:/\b(gaza|palestini\w*|hamas|israel\w*|west bank|rafah|netanyahu)\b/i,
+ iranisrael:/\b(iran\w*|israel\w*|tehran|tel aviv)\b/i,
+ usiran:/\b(iran\w*|tehran|nuclear talks|washington)\b/i,
+ sudan:/\b(sudan\w*|khartoum|darfur|rsf\b)\b/i,
+ drc:/\b(congo|congol\w*|kinshasa|goma|m23\b|kivu|drc\b)\b/i,
+ myanmar:/\b(myanmar|burma|yangon|naypyidaw|junta)\b/i,
+ yemen:/\b(yemen\w*|houthi\w*|sanaa|red sea)\b/i,
+ syria:/\b(syria\w*|damascus|aleppo|sdf\b|kurdis\w*)\b/i
 };
-function entities(text='') {
-  const named={amp:'&',quot:'"',apos:"'",lt:'<',gt:'>',nbsp:' ',ndash:'–',mdash:'—',rsquo:"'",lsquo:"'",ldquo:'"',rdquo:'"'};
-  return text.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi,(_,key)=>{
-    if(key[0]==='#'){const n=key[1].toLowerCase()==='x'?parseInt(key.slice(2),16):parseInt(key.slice(1),10);return Number.isInteger(n)&&n>0&&n<=0x10ffff?String.fromCodePoint(n):'';}
-    return named[key.toLowerCase()]??'&'+key+';';
-  }).replace(/<[^>]*>/g,'').trim();
+const RSS=[
+ {id:"bbc",name:"BBC World",url:"https://feeds.bbci.co.uk/news/world/rss.xml",publisher:"BBC News"},
+ {id:"guardian",name:"The Guardian World",url:"https://www.theguardian.com/world/rss",publisher:"The Guardian"},
+ {id:"aljazeera",name:"Al Jazeera",url:"https://www.aljazeera.com/xml/rss/all.xml",publisher:"Al Jazeera"},
+ {id:"dw",name:"DW",url:"https://rss.dw.com/xml/rss-en-all",publisher:"DW"}
+];
+function decode(s=""){return String(s).replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,"$1").replace(/&(#x[0-9a-f]+|#\d+|amp|quot|apos|lt|gt|nbsp|ndash|mdash|rsquo|lsquo);/gi,(_,x)=>{
+ if(x[0]==="#"){const n=x[1]?.toLowerCase()==="x"?parseInt(x.slice(2),16):parseInt(x.slice(1),10);return Number.isFinite(n)&&n>0&&n<1114112?String.fromCodePoint(n):""}
+ return {amp:"&",quot:'"',apos:"'",lt:"<",gt:">",nbsp:" ",ndash:"–",mdash:"—",rsquo:"'",lsquo:"'"}[x.toLowerCase()]||"";
+}).replace(/<[^>]*>/g,"").replace(/\s+/g," ").trim()}
+function tag(item,name){const safe=name.replace(/[^a-z]/gi,"");const m=item.match(new RegExp("<(?:\\w+:)?"+safe+"(?:\\s[^>]*)?>([\\s\\S]*?)<\\/(?:\\w+:)?"+safe+">","i"));return m?decode(m[1]):""}
+function entries(xml){return xml.match(/<(?:item|entry)(?:\s[^>]*)?>[\s\S]*?<\/(?:item|entry)>/gi)||[]}
+function safeUrl(s){try{const u=new URL(s);return u.protocol==="https:"?u.href:null}catch{return null}}
+function date(s){const t=Date.parse(s);return Number.isFinite(t)?new Date(t).toISOString():null}
+function publisher(source){
+ const s=String(source||"Unknown").trim(),t=s.toLowerCase();
+ if(/reuters/.test(t))return "Reuters";if(/associated press|ap news/.test(t))return "AP News";
+ if(/bbc/.test(t))return "BBC News";if(/guardian/.test(t))return "The Guardian";
+ if(/al jazeera/.test(t))return "Al Jazeera";if(/deutsche welle|^dw\b|dw.com/.test(t))return "DW";
+ if(/france.?24/.test(t))return "France 24";if(/euronews/.test(t))return "Euronews";
+ if(/politico/.test(t))return "POLITICO";
+ return s.slice(0,60)
 }
-function tag(xml,name){const m=xml.match(new RegExp('<'+name+'(?:\\s[^>]*)?>([\\s\\S]*?)<\\/'+name+'>','i'));return m?entities(m[1]):'';}
-function fromGoogle(xml){
-  const items=xml.match(/<item(?:\s[^>]*)?>[\s\S]*?<\/item>/gi)||[];
-  return items.map(item=>{
-    const title=tag(item,'title'), url=tag(item,'link'), source=tag(item,'source')||'Αδιευκρίνιστη πηγή';
-    const publishedAt=new Date(tag(item,'pubDate')).toISOString();
-    return {title:title.replace(new RegExp('\\s[-–]\\s'+source.replace(/[.*+?^\x24{}()|[\]\\]/g,'\\$&')+'\\s*$','i'),''),url,source,publishedAt};
-  }).filter(x=>x.title&&x.url.startsWith('https://')&&x.publishedAt).slice(0,35);
+function parseRSS(xml,feed,via){
+ return entries(xml).map(item=>{
+ const title=tag(item,"title"),source=publisher(feed?.publisher||tag(item,"source"));
+ const link=item.match(/<link\b[^>]*href=["']([^"']+)["']/i);
+ const url=safeUrl(tag(item,"link")||link?.[1]);
+ const publishedAt=date(tag(item,"pubDate")||tag(item,"published")||tag(item,"updated")||tag(item,"date"));
+ return {title:title.endsWith(" - "+source)?title.slice(0,-source.length-3):title,url,source,publishedAt,via};
+ }).filter(a=>a.title&&a.url&&a.publishedAt)
 }
-function fromGdelt(json){return (json.articles||[]).map(a=>({
-  title:a.title||'',url:a.url||'',source:a.domain||a.sourcecountry||'Unknown',
-  publishedAt:/^\d{8}T\d{6}Z$/.test(a.seendate||'')?a.seendate.slice(0,4)+'-'+a.seendate.slice(4,6)+'-'+a.seendate.slice(6,8)+'T'+a.seendate.slice(9,11)+':'+a.seendate.slice(11,13)+':'+a.seendate.slice(13,15)+'Z':a.seendate||''
-}));}
+function parseGDELT(data){return (data.articles||[]).map(a=>{
+ const d=String(a.seendate||"");
+ const parsed=/^\d{8}T\d{6}Z$/.test(d)?d.slice(0,4)+"-"+d.slice(4,6)+"-"+d.slice(6,8)+"T"+d.slice(9,11)+":"+d.slice(11,13)+":"+d.slice(13,15)+"Z":d;
+ return {title:decode(a.title),url:safeUrl(a.url),source:publisher(a.domain||a.sourcecountry),publishedAt:date(parsed),via:"GDELT"}
+}).filter(a=>a.title&&a.url&&a.publishedAt)}
 async function get(url){
- const ctrl=new AbortController(),timeout=setTimeout(()=>ctrl.abort(),7500);
- try {const r=await fetch(url,{signal:ctrl.signal,headers:{'User-Agent':'PAX-Conflict-Monitor/1.0 (public news metadata aggregator)','Accept':'application/rss+xml,application/xml,application/json,text/xml,*/*'}});if(!r.ok)throw new Error('upstream '+r.status);return r;}finally{clearTimeout(timeout);}
+ const ctl=new AbortController(),timeout=setTimeout(()=>ctl.abort(),5600);
+ try{const response=await fetch(url,{signal:ctl.signal,headers:{"User-Agent":"PAX Global Conflict Intelligence 2.0","Accept":"application/rss+xml,application/xml,text/xml,application/json,*/*"}});
+ if(!response.ok)throw Error("HTTP "+response.status);
+ const text=await response.text();if(text.length>1700000)throw Error("oversize");return text
+ }finally{clearTimeout(timeout)}
 }
-async function news(region){
- let lastError='';
- try{
-   const u='https://news.google.com/rss/search?q='+encodeURIComponent(QUERIES[region])+'&hl=en-US&gl=US&ceid=US:en';
-   const response=await get(u), items=fromGoogle(await response.text());
-   if(items.length)return {provider:'Google News RSS',items};
-   lastError='Google News feed returned no articles';
- }catch(e){lastError=String(e.message||e);}
- try{
-   const p=new URLSearchParams({query:GDELT_QUERIES[region],mode:'ArtList',maxrecords:'35',timespan:'7d',format:'json',sort:'DateDesc'});
-   const response=await get('https://api.gdeltproject.org/api/v2/doc/doc?'+p.toString());
-   const items=fromGdelt(await response.json());
-   if(items.length)return {provider:'GDELT DOC 2.0',items};
- }catch(e){lastError+='; GDELT: '+String(e.message||e);}
- throw new Error(lastError||'No current articles available');
+function google(query){return "https://news.google.com/rss/search?q="+encodeURIComponent(query+" when:7d")+"&hl=en-US&gl=US&ceid=US:en"}
+function unique(all,region){
+ const now=Date.now(),cutoff=now-8*86400000,seen=new Set();
+ return all.filter(a=>{
+ const t=Date.parse(a.publishedAt);if(!a.title||!a.url||!Number.isFinite(t)||t<cutoff||t>now+3600000)return false;
+ const canonical=a.title.toLocaleLowerCase().replace(/[\p{P}\p{S}]/gu," ").replace(/\s+/g," ").trim();
+ if(!RELEVANCE[region].test(canonical))return false;
+ const key=canonical.slice(0,180)+"|"+a.source.toLowerCase();
+ if(seen.has(key))return false;seen.add(key);return true
+ }).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)).slice(0,90)
 }
-module.exports=async function handler(req,res){
- if(req.method!=='GET'){res.setHeader('Allow','GET');return res.status(405).json({error:'Method not allowed'});}
- const region=String(req.query.region||'').toLowerCase();
- if(!Object.prototype.hasOwnProperty.call(QUERIES,region))return res.status(400).json({error:'Unknown region'});
- try{
-   const result=await news(region);
-   const seen=new Set(),cutoff=Date.now()-8*86400000;
-   const articles=result.items.filter(a=>{
-     if(!a.title||!a.url?.startsWith('https://'))return false;
-     const time=Date.parse(a.publishedAt);if(!Number.isFinite(time)||time<cutoff||time>Date.now()+3600000)return false;
-     const key=a.title.toLowerCase().replace(/[^a-z0-9α-ω]+/g,' ').trim().slice(0,90);
-     if(seen.has(key))return false;seen.add(key);return true;
-   }).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)).slice(0,30);
-   res.setHeader('Cache-Control','s-maxage=900, stale-while-revalidate=1800');
-   return res.status(200).json({region,provider:result.provider,updatedAt:new Date().toISOString(),windowDays:7,articles});
- }catch(err){res.setHeader('Cache-Control','no-store');return res.status(503).json({region,articles:[],updatedAt:new Date().toISOString(),error:'News providers unavailable; no scores can be calculated.',detail:String(err.message||err).slice(0,160)});}
+module.exports=async(req,res)=>{
+ if(req.method!=="GET")return res.status(405).json({error:"Method not allowed"});
+ const region=String(req.query.region||"").toLowerCase();
+ if(!Object.prototype.hasOwnProperty.call(QUERIES,region))return res.status(400).json({error:"Unknown region"});
+ const q=QUERIES[region];
+ const jobs=[
+  {name:"Google News · broad",run:async()=>parseRSS(await get(google(q)),null,"Google News")},
+  {name:"Google News · wire",run:async()=>parseRSS(await get(google(q+" (site:reuters.com OR site:apnews.com OR site:france24.com OR site:politico.eu OR site:euronews.com)")),null,"Google News")},
+  ...RSS.map(f=>({name:f.name,run:async()=>parseRSS(await get(f.url),f,"Publisher RSS")})),
+  {name:"GDELT",run:async()=>{
+   const base=({ukraine:"Ukraine Russia",gaza:"Gaza Israel",iranisrael:"Iran Israel",usiran:"Iran United States",sudan:"Sudan RSF",drc:"Congo M23",myanmar:"Myanmar junta",yemen:"Yemen Houthi",syria:"Syria Damascus"})[region];
+   const p=new URLSearchParams({query:base,mode:"ArtList",maxrecords:"50",timespan:"7d",format:"json",sort:"DateDesc"});
+   return parseGDELT(JSON.parse(await get("https://api.gdeltproject.org/api/v2/doc/doc?"+p)))
+  }}
+ ];
+ const done=await Promise.allSettled(jobs.map(x=>x.run()));
+ const sourceFeeds=done.map((v,i)=>({feed:jobs[i].name,status:v.status==="fulfilled"?"ok":"unavailable",count:v.status==="fulfilled"?v.value.length:0}));
+ const articles=unique(done.flatMap(x=>x.status==="fulfilled"?x.value:[]),region);
+ const publishers=[...new Set(articles.map(a=>a.source))].sort();
+ const ok=sourceFeeds.filter(s=>s.status==="ok").length;
+ res.setHeader("Cache-Control",ok?"s-maxage=900, stale-while-revalidate=1800":"no-store");
+ return res.status(ok?200:503).json({region,updatedAt:new Date().toISOString(),windowDays:7,articles,provider:"Multi-source",publishers,sourceFeeds,
+  stats:{articles:articles.length,publishers:publishers.length,feedsOk:ok,feedsTotal:jobs.length},
+  caution:"Publisher-count measures diversity of coverage, not independent confirmation.",
+  ...(ok?{}:{error:"All news providers unavailable"})});
 };
