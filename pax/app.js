@@ -158,6 +158,32 @@ function setupUI(){
 }
 const PAX_API_ORIGIN=(location.hostname.endsWith('.onrender.com')&&location.hostname!=='pax-conflict-intelligence.onrender.com')
  ? 'https://pax-conflict-intelligence.onrender.com' : '';
+let paxWakePromise=null;
+function paxWakeNewsServer(){
+ if(!PAX_API_ORIGIN)return Promise.resolve(true);
+ if(paxWakePromise)return paxWakePromise;
+ const notice=$('paxStartupNotice'),message=$('paxStartupText');
+ if(notice)notice.hidden=false;
+ if(message)message.textContent=paxLang()==="en"?
+  "The interface is ready. The free news server is starting; articles will load progressively.":
+  "Η εφαρμογή φορτώθηκε. Ο δωρεάν server ειδήσεων ενεργοποιείται· οι ειδήσεις θα εμφανιστούν σταδιακά.";
+ paxWakePromise=(async()=>{
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),65000);
+  try{
+   const response=await fetch(PAX_API_ORIGIN+'/health',{signal:ctrl.signal,cache:'no-store'});
+   if(!response.ok)throw Error('Server warming');
+   window.paxApiReady=true;
+   if(notice)notice.hidden=true;
+   return true;
+  }catch{
+   if(message)message.textContent=paxLang()==="en"?
+    "The news server is taking longer than expected. The interface works; try Refresh for new articles.":
+    "Ο server ειδήσεων αργεί περισσότερο από το αναμενόμενο. Η εφαρμογή λειτουργεί· δοκίμασε Ανανέωση για τις ειδήσεις.";
+   return false;
+  }finally{clearTimeout(timer)}
+ })();
+ return paxWakePromise;
+}
 let paxLoadSequence=0;
 async function load(manual=false){
  const seq=++paxLoadSequence;
@@ -165,6 +191,8 @@ async function load(manual=false){
  $('refreshBtn').disabled=true;$('refreshBtn').textContent=paxLang()==="en"?"↻ LOADING":"↻ ΑΝΑΚΤΗΣΗ";
  if(manual)state.prior=readSaved();
  render();
+ if(PAX_API_ORIGIN&&!window.paxApiReady)await paxWakeNewsServer();
+ if(seq!==paxLoadSequence)return;
  const ordered=[REGIONS.find(r=>r.id===state.selected),...REGIONS.filter(r=>r.id!==state.selected)].filter(Boolean);
  let cursor=0,finished=0;
  async function worker(){
