@@ -25,6 +25,10 @@ const server=http.createServer(async(req,res)=>{
  try{
   const parsed=new URL(req.url,'http://localhost');
   const pathname=decodeURIComponent(parsed.pathname);
+  if(pathname==='/health'){
+   res.writeHead(200,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});
+   res.end(JSON.stringify({status:'ok',service:'pax',uptimeSeconds:Math.floor(process.uptime())}));return;
+  }
   if(pathname.startsWith('/api/')){
    const endpoint=handlers[pathname];if(!endpoint){res.writeHead(404,{'Content-Type':'application/json'});res.end('{"error":"Unknown endpoint"}');return}
    const request={method:req.method,query:Object.fromEntries(parsed.searchParams)};
@@ -39,7 +43,7 @@ const server=http.createServer(async(req,res)=>{
   }
   let data;try{data=await fs.readFile(target)}catch{res.writeHead(404);res.end('Not found');return}
   res.statusCode=200;res.setHeader('Content-Type',MIME[path.extname(target)]||'application/octet-stream');
-  res.setHeader('Cache-Control',relative==='index.html'?'public, max-age=120':'public, max-age=600');
+  res.setHeader('Cache-Control',relative==='index.html'?'public, max-age=60, must-revalidate':'public, max-age=1800');
   res.end(req.method==='HEAD'?undefined:data);
  }catch(error){
   if(!res.headersSent)res.writeHead(500,{'Content-Type':'application/json; charset=utf-8'});
