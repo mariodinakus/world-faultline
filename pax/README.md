@@ -26,6 +26,14 @@ Conflicts are represented by generalized regional map markers, not live military
 
 `npx vercel dev` in `pax/` (with a linked Vercel project) serves the API; for a static layout preview, `python -m http.server` works but not live API routes.
 
+## Negotiation Timeline (v1.1)
+
+Historical curated milestones in `timeline.js` have explicit event dates, source links and careful descriptions of the limits of each agreement. The user can select the conflict and compare two dates or choose 7 days, 30 days, one year or the entire archive. The historical cards remain distinctly separated from *unverified recent news headlines*. The counters summarize only curated historical milestones. No implied claim of complete historical coverage or direct peace forecast.
+
+## Watch Bell and Strike Reports (v1.1)
+
+`alerts.js` gives a 72-hour in-app alert feed focused on reported strikes and diplomatic developments. Categories are conservative headline regex matches, not verified incidents. Initial load creates a baseline (no notification storm); newly observed headlines on later fetches are unread and persist on the browser. Per-category toggles, read/unread state and 5-minute refresh when the page is visible. Browser notifications are **opt-in through the Permissions API and work only while the website remains open**; background push after the page is closed is **not implemented** and would require a push subscription service, service worker and server-side event processing. Personal settings are stored locally, not sent to a server.
+
 ## Evolution
 
 Suggested next steps: persistent server-side timeseries, corroboration grouping for independent publisher chains, ACLED-authenticated event integration, manually curated treaty milestones, an explainable calibrated event model evaluated with historical ground truth and expert review.
