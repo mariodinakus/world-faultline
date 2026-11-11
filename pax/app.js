@@ -36,17 +36,23 @@ function classify(title){
  return 'other';
 }
 function analyse(row){
- const items=row?.articles||[];
- const sources=new Set(items.map(x=>x.source?.toLowerCase()).filter(Boolean));
+ const originals=row?.articles||[];
+ const groups=typeof PAX_INTEL!=="undefined"?PAX_INTEL.cluster(originals):originals.map(x=>({lead:x,articles:[x],publishers:[x.source]}));
+ const unique=groups.map(g=>g.lead),publishers=new Set(originals.map(x=>String(x.source||"").toLowerCase()).filter(Boolean));
  const counts={talks:0,proposal:0,ceasefire:0,implemented:0,setback:0,other:0};
- items.forEach(x=>counts[x.type]++);
- const positives=counts.talks+counts.proposal+counts.ceasefire+counts.implemented;
- const negative=counts.setback;
- const positiveWeight=counts.talks+counts.proposal*2+counts.ceasefire*3+counts.implemented*4;
- const negativeWeight=negative*2.2;
- const enough=items.length>=5&&sources.size>=3;
- const score=enough?Math.max(0,Math.min(100,Math.round((100*positiveWeight/(positiveWeight+negativeWeight+1))/5)*5)):null;
- return {counts,positives,negative,score,enough,sources:sources.size,articles:items.length};
+ unique.forEach(x=>{counts[x.type||"other"]++});
+ const positives=counts.talks+counts.proposal+counts.ceasefire+counts.implemented,negative=counts.setback;
+ const enough=unique.length>=3&&publishers.size>=2;
+ let label="ΜΗ ΔΙΑΘΕΣΙΜΟ",status="insufficient";
+ if(enough){
+  if((counts.ceasefire+counts.implemented)>0&&negative>0){label="ΜΕΙΚΤΑ ΣΗΜΑΤΑ";status="mixed"}
+  else if((counts.ceasefire+counts.implemented)>0){label="ΑΝΑΦΟΡΕΣ ΣΥΜΦΩΝΙΑΣ";status="agreement"}
+  else if(positives>0&&negative>0){label="ΠΑΡΑΛΛΗΛΕΣ ΕΞΕΛΙΞΕΙΣ";status="mixed"}
+  else if(positives>0){label="ΔΙΠΛΩΜΑΤΙΚΗ ΚΙΝΗΣΗ";status="talks"}
+  else if(negative>0){label="ΑΝΑΦΟΡΕΣ ΕΝΤΑΣΗΣ";status="setback"}
+  else{label="ΧΩΡΙΣ ΣΑΦΕΣ ΣΗΜΑ";status="unknown"}
+ }
+ return {counts,positives,negative,score:null,enough,sources:publishers.size,articles:originals.length,events:unique.length,groups,label,status};
 }
 function regionRow(id){return state.rows[id]||{articles:[],provider:null,error:null}}
 function regionAnalysis(id){return analyse(regionRow(id))}
@@ -61,11 +67,10 @@ function renderPicker(){
 }
 function renderRadar(){
  $('radarList').innerHTML=REGIONS.map(r=>{
-  const row=regionRow(r.id),an=analyse(row),available=an.score!==null;
-  return '<button type="button" class="radar-item '+(r.id===state.selected?'active':'')+'" data-id="'+esc(r.id)+'">'+
-   '<span class="radar-item-head"><span class="radar-name">'+esc(r.name)+'</span><span class="radar-number">'+(available?an.score:'—')+'</span></span>'+
-   '<span class="radar-metadata"><span>'+(row.error?'Αδυναμία ανάκτησης':state.loading&&!an.articles?'Ανάκτηση…':available?'Σήματα δημοσιευμάτων':'Μη επαρκής κάλυψη')+'</span><span>'+an.articles+' άρθρα</span></span>'+
-   '<div class="mini-track"><span style="width:'+(available?an.score:0)+'%"></span></div></button>';
+ const row=regionRow(r.id),an=analyse(row);
+ return '<button type="button" class="radar-item '+(r.id===state.selected?'active':'')+'" data-id="'+esc(r.id)+'">'+
+ '<span class="radar-item-head"><span class="radar-name">'+esc(r.name)+'</span><span class="radar-state">'+esc(an.label)+'</span></span>'+
+ '<span class="radar-metadata"><span>'+(row.error?'Η ανάκτηση απέτυχε':state.loading&&!an.articles?'Ανάκτηση…':an.events+' ομάδες τίτλων')+'</span><span>'+an.sources+' εκδότες</span></span></button>';
  }).join('');
  $('radarList').querySelectorAll('button').forEach(el=>el.addEventListener('click',()=>setSelected(el.dataset.id,true)));
 }
@@ -81,28 +86,28 @@ function headlineCard(a,type){return '<div class="insight-card"><span>'+esc(TYPE
 function renderDetail(){
  const region=REGIONS.find(r=>r.id===state.selected),row=regionRow(region.id),an=analyse(row);
  $('selectedTitle').textContent=region.name;$('selectedSubtitle').textContent=region.subtitle;
- $('coverageBadge').textContent=row.error?'ΣΦΑΛΜΑ ΠΗΓΗΣ':state.loading&&!an.articles?'ΑΝΑΚΤΗΣΗ':an.enough?'ΕΠΑΡΚΕΣ ΔΕΙΓΜΑ*':'ΠΕΡΙΟΡΙΣΜΕΝΟ ΔΕΙΓΜΑ';
- $('peaceScore').textContent=an.score===null?'—':an.score;
- const prior=state.prior?.values?.[region.id],hasPrior=Number.isFinite(prior)&&an.score!==null;
- const delta=hasPrior?an.score-prior:null;
- $('peaceDirection').textContent=row.error?'Δεν ανακτήθηκαν δεδομένα. Δεν παράγεται βαθμολογία.':an.score===null?
-  'Χρειάζονται τουλάχιστον 5 τίτλοι από 3 εκδότες. Δεν προκύπτει βαθμολογία.':
-  (delta===null?'Πρώτη παρατήρηση στο πρόγραμμα περιήγησης':delta===0?'Σταθερό σε σχέση με την προηγούμενη επίσκεψη':
-   (delta>0?'+':'')+delta+' μονάδες σε σχέση με προηγούμενη επίσκεψη');
- $('gaugeArc').setAttribute('stroke-dasharray',(an.score===null?0:(an.score/100)*230)+' 230');
- $('talksCount').textContent=an.positives.toString();$('setbacksCount').textContent=an.negative.toString();
- $('talksTrack').style.width=an.articles?Math.min(100,100*an.positives/an.articles)+'%':'0%';
- $('setbacksTrack').style.width=an.articles?Math.min(100,100*an.negative/an.articles)+'%':'0%';
- const annotated=row.articles.filter(x=>x.type!=='other'),strong=annotated.filter(x=>x.type!=='setback');
- const negative=annotated.filter(x=>x.type==='setback');
- const intro=row.error?'LIVE DATA UNAVAILABLE':!an.articles?'NOT ENOUGH EVIDENCE':an.positives&&an.negative?'DIPLOMACY ≠ DE-ESCALATION':an.positives?'DIPLOMATIC SIGNALS IN THE FEED':an.negative?'MILITARY SIGNALS DOMINATE':'NO CLASSIFIED SIGNALS';
- const text=row.error?'Ο πάροχος δημοσιευμάτων δεν απάντησε. Τα στοιχεία διατηρούνται κενά.':
-  'Στους '+an.articles+' ανακτημένους τίτλους βρέθηκαν '+an.positives+' διπλωματικά σήματα και '+an.negative+' σήματα κλιμάκωσης. Αυτή είναι ταξινόμηση τίτλων, όχι διασταύρωση πραγματικών γεγονότων.';
- const evidence=[...strong.slice(0,2),...negative.slice(0,2)].sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)).slice(0,3);
- $('insightContent').innerHTML='<span class="mini-label">WHAT WE CAN ACTUALLY OBSERVE</span>'+
-  '<div class="insight-callout">'+esc(intro)+'</div><p class="insight-text">'+esc(text)+'</p>'+
-  (evidence.length?evidence.map(a=>headlineCard(a,a.type)).join(''):'<div class="insight-empty">Δεν υπάρχουν διαθέσιμοι τίτλοι με αναγνωρίσιμα διπλωματικά ή στρατιωτικά σήματα. Αυτό δεν σημαίνει ότι δεν εξελίσσεται η σύγκρουση.</div>')+
-  '<p class="insight-text" style="margin-top:22px;font-size:10px">Πάροχος: '+esc(row.provider||'—')+'. Το *επαρκές δείγμα αφορά μόνο το ελάχιστο πλήθος/διασπορά εκδοτών, όχι την ποιότητα ή την ακρίβεια των πληροφοριών.</p>';
+ $('coverageBadge').textContent=row.error?'ΣΦΑΛΜΑ ΠΗΓΗΣ':state.loading&&!an.articles?'ΑΝΑΚΤΗΣΗ':an.enough?'ΠΟΛΛΑΠΛΗ ΚΑΛΥΨΗ':'ΠΕΡΙΟΡΙΣΜΕΝΗ ΚΑΛΥΨΗ';
+ $('peaceScore').textContent=an.label;$('peaceScore').classList.add('editorial-status');
+ document.querySelector('.score-main>span').textContent="";
+ const dial=document.querySelector('.score-dial');if(dial)dial.style.display="none";
+ $('peaceDirection').textContent=row.error?'Δεν ανακτήθηκαν δημοσιεύματα — καμία ερμηνεία δεν είναι διαθέσιμη.':
+ an.enough?'Περιγραφή τάσεων σε τίτλους της εβδομάδας· όχι βαθμολογία ειρήνης ή πρόβλεψη.':
+ 'Λίγες διακριτές ειδήσεις ή εκδότες — δεν εξάγεται αξιόπιστη ένδειξη.';
+ $('talksCount').textContent=String(an.positives);$('setbacksCount').textContent=String(an.negative);
+ $('talksTrack').style.width=an.events?Math.min(100,100*an.positives/an.events)+'%':'0%';
+ $('setbacksTrack').style.width=an.events?Math.min(100,100*an.negative/an.events)+'%':'0%';
+ const good=an.groups.filter(x=>["talks","proposal","ceasefire","implemented"].includes(x.lead.type)),
+ bad=an.groups.filter(x=>x.lead.type==="setback");
+ const headline=an.status==="mixed"?"TALKS AND TENSIONS COEXIST":an.status==="agreement"?"AGREEMENT CLAIMS REQUIRE REVIEW":
+ an.status==="talks"?"DIPLOMATIC HEADLINES":an.status==="setback"?"ESCALATION IN THE NEWS":
+ an.status==="insufficient"?"LIMITED EVIDENCE":"NO CLEAR SIGNAL";
+ const text=row.error?'Δεν ανακτήθηκαν δεδομένα και δεν υπολογίζεται δείκτης.':
+ 'Ανακτήθηκαν '+an.articles+' δημοσιεύματα από '+an.sources+' εκδότες, οργανωμένα σε περίπου '+an.events+' ομάδες παρόμοιων τίτλων. Από αυτές, '+an.positives+' αφορούν διπλωματία και '+an.negative+' κλιμάκωση. Η ομαδοποίηση είναι ενδεικτική· δεν αποδεικνύει ανεξάρτητη επιβεβαίωση γεγονότων.';
+ const evidence=[...good.slice(0,2),...bad.slice(0,2)].map(g=>g.lead).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)).slice(0,3);
+ $('insightContent').innerHTML='<span class="mini-label">EVIDENCE, NOT A PREDICTION</span><div class="insight-callout">'+esc(headline)+'</div>'+
+ '<p class="insight-text">'+esc(text)+'</p>'+
+ (evidence.length?evidence.map(a=>headlineCard(a,a.type)).join(''):'<p class="insight-empty">Δεν βρέθηκαν σαφείς τίτλοι που να υποστηρίζουν συμπέρασμα.</p>')+
+ '<p class="insight-text" style="margin-top:20px;font-size:10px">Τροφοδοσία: '+esc(row.provider||"—")+'. Το ιστορικό διπλωματικών οροσήμων φαίνεται στο Timeline και δεν συγχέεται με την τρέχουσα ειδησεογραφία.</p>';
 }
 function renderStories(){
  const list=REGIONS.flatMap(r=>(regionRow(r.id).articles||[]).map(a=>({...a,regionName:r.short,regionId:r.id})))
@@ -125,12 +130,10 @@ function renderVolume(){
  $('volumeChart').innerHTML=days.map((d,i)=>'<div class="volume-item" title="'+counts[i]+' δημοσιεύματα"><div class="volume-bar" style="height:'+Math.max(2,counts[i]/max*98)+'px"></div><span>'+d.slice(8)+'</span></div>').join('');
 }
 function renderDelta(){
- const id=state.selected,old=state.prior?.values?.[id],now=regionAnalysis(id).score;
- let message='Δεν υπάρχει προηγούμενη παρατήρηση σε αυτόν τον browser. Οι μελλοντικές επισκέψεις θα συγκρίνονται με το τωρινό διαθέσιμο δείγμα.';
- if(state.prior&&Number.isFinite(old)&&Number.isFinite(now)){
-  const diff=now-old,change=diff===0?'αμετάβλητος':diff>0?'αυξήθηκε':'μειώθηκε';
-  message='Ο δείκτης '+change+(diff===0?'':' κατά '+Math.abs(diff)+' μονάδες')+' από τις '+timeLocal(state.prior.at)+'. Αιτία δεν τεκμαίρεται αυτόματα: η μεταβολή μπορεί να οφείλεται σε νέα δημοσιεύματα, αλλαγή κάλυψης ή ταξινομητικά σφάλματα.';
- }
+ const id=state.selected,an=regionAnalysis(id),prior=state.prior?.values?.[id];
+ let message="Η τωρινή εικόνα βασίζεται σε πρόσφατους τίτλους. Το PAX δεν μετατρέπει περισσότερη ειδησεογραφία σε μεγαλύτερη «πιθανότητα ειρήνης».";
+ if(prior&&typeof prior==="string"&&prior!==an.label)message='Κατά την προηγούμενη επίσκεψη: «'+prior+'». Σήμερα: «'+an.label+'». Η αλλαγή περιγράφει τον τύπο των δημοσιευμάτων, όχι τεκμηριωμένη πρόοδο ή αναστροφή της σύγκρουσης.';
+ else if(prior&&typeof prior==="string")message='Το περιγραφικό σήμα παραμένει «'+an.label+'» από την προηγούμενη επίσκεψη. Αυτό δεν αποδεικνύει σταθερή κατάσταση επί του πεδίου.';
  $('deltaContent').textContent=message;
 }
 function render(){
@@ -150,7 +153,7 @@ function setupUI(){
  $('refreshBtn').addEventListener('click',()=>load(true));
  const clock=()=>{$('clock').textContent=new Intl.DateTimeFormat('el-GR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Athens'}).format(new Date()).toUpperCase()+' / ATHENS';};
  clock();setInterval(clock,60000);
- try{const saved=JSON.parse(localStorage.getItem('pax-observation-v1')||'null');if(saved&&saved.at&&saved.values)state.prior=saved;}catch{}
+ try{const saved=JSON.parse(localStorage.getItem('pax-observation-v2')||'null');if(saved&&saved.at&&saved.values)state.prior=saved;}catch{}
 }
 async function load(manual=false){
  state.loading=true;$('refreshBtn').disabled=true;$('refreshBtn').textContent='↻ ΑΝΑΚΤΗΣΗ';
@@ -166,15 +169,15 @@ async function load(manual=false){
    const {id}=REGIONS[i],result=results[i];
    if(result.status==='fulfilled'){
      const data=result.value.data;
-     state.rows[id]={articles:(Array.isArray(data.articles)?data.articles:[]).map(a=>({...a,type:classify(a.title)})),provider:data.provider||'—',error:null};
+     state.rows[id]={articles:(Array.isArray(data.articles)?data.articles:[]).map(a=>({...a,type:classify(a.title)})),provider:data.provider||'—',sourceFeeds:data.sourceFeeds||[],publishers:data.publishers||[],stats:data.stats||null,error:null};
    }else state.rows[id]={articles:[],provider:null,error:'Δεν είναι διαθέσιμη η ροή ειδήσεων'};
  }
  state.loading=false;state.lastUpdated=new Date().toISOString();$('refreshBtn').disabled=false;$('refreshBtn').innerHTML='<span class="refresh-icon">↻</span> ΑΝΑΝΕΩΣΗ';
- const snap={at:state.lastUpdated,values:Object.fromEntries(REGIONS.map(r=>[r.id,regionAnalysis(r.id).score]))};
- try{localStorage.setItem('pax-observation-v1',JSON.stringify(snap))}catch{}
+ const snap={at:state.lastUpdated,values:Object.fromEntries(REGIONS.map(r=>[r.id,regionAnalysis(r.id).label]))};
+ try{localStorage.setItem('pax-observation-v2',JSON.stringify(snap))}catch{}
  render();document.dispatchEvent(new CustomEvent("pax:data",{detail:{updatedAt:state.lastUpdated}}));
 }
-function readSaved(){try{return JSON.parse(localStorage.getItem('pax-observation-v1')||'null')}catch{return null}}
+function readSaved(){try{return JSON.parse(localStorage.getItem('pax-observation-v2')||'null')}catch{return null}}
 async function drawWorldMap(){
  const svg=document.getElementById('worldMap');if(!window.d3||!window.topojson){svg.innerHTML='<text x="480" y="235" text-anchor="middle">Δεν φορτώθηκαν οι βιβλιοθήκες του χάρτη.</text>';return}
  try{
