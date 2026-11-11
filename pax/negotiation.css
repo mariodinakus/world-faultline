@@ -146,3 +146,7 @@
 @media(prefers-reduced-motion:reduce){
  .pax-room-issue,.pax-machine-quick button{transition:none}
 }
+.pax-room-position{padding-top:10px;border-top:1px solid #e1e1d9;margin-top:12px}
+.pax-room-position time{display:block;font-size:10px;color:#998028;font-weight:800;letter-spacing:.08em}
+.pax-room-position p{font-size:12px;line-height:1.7;color:#4c524d;margin:10px 0}
+.pax-room-position a{font-size:10px;font-weight:800;text-decoration:underline;text-underline-offset:4px;line-height:1.65}
