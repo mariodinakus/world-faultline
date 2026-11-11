@@ -71,7 +71,7 @@ function paxMarketRender(){
  const items=paxMarketData.indicators||[];
  dest.innerHTML=items.map(item=>{
   const ok=Number.isFinite(item.value),change=Number.isFinite(item.changePct);
-  return'<article class="market-card"><div class="market-card-head"><span>'+esc(item.category)+'</span><a href="'+esc(validLink(item.url))+'" target="_blank" rel="noopener noreferrer">FRED ↗</a></div>'+
+  return'<article class="market-card"><div class="market-card-head"><span>'+esc(item.category)+'</span><a href="'+esc(validLink(item.url))+'" target="_blank" rel="noopener noreferrer">'+esc(item.source||"FRED")+' ↗</a></div>'+
    '<h4>'+esc(item.name)+'</h4><div class="market-value">'+(ok?Number(item.value).toLocaleString("el-GR",{maximumFractionDigits:3}):'—')+'</div><div class="market-unit">'+esc(item.unit)+'</div>'+
    '<div class="market-spark">'+paxSparkline(item.points)+'</div>'+
    '<div class="market-bottom"><span>'+(change?(item.changePct>0?"+":"")+item.changePct+"%":"—")+'</span><small>'+esc(item.updatedAt||"Μη διαθέσιμο")+' · μη real-time</small></div></article>';
