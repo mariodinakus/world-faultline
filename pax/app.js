@@ -14,8 +14,8 @@ const state={selected:'ukraine',filter:'all',search:'',rows:{},loading:true,last
 const $=id=>document.getElementById(id);
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const validLink=url=>{try{const u=new URL(url);return u.protocol==='https:'?u.href:'#'}catch{return '#'}};
-const dateLong=iso=>{const d=new Date(iso);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('el-GR',{day:'numeric',month:'short',year:'numeric',timeZone:'Europe/Athens'}).format(d):'—'};
-const timeLocal=iso=>{const d=new Date(iso);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat('el-GR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Athens'}).format(d):'—'};
+const dateLong=iso=>{const d=new Date(iso);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat(paxLang()==='en'?'en-GB':'el-GR',{day:'numeric',month:'short',year:'numeric',timeZone:'Europe/Athens'}).format(d):'—'};
+const timeLocal=iso=>{const d=new Date(iso);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat(paxLang()==='en'?'en-GB':'el-GR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Athens'}).format(d):'—'};
 const TYPES={
  talks:{label:'ΔΙΑΠΡΑΓΜΑΤΕΥΣΕΙΣ',weight:1},
  proposal:{label:'ΕΙΡΗΝΕΥΤΙΚΗ ΠΡΟΤΑΣΗ',weight:2},
@@ -141,6 +141,7 @@ function render(){
  document.querySelectorAll('.hotspot').forEach(el=>el.classList.toggle('selected',el.dataset.id===state.selected));
 }
 function setupUI(){
+ document.addEventListener('pax:language',()=>{render()});
  document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{
    document.querySelectorAll('.nav-btn').forEach(x=>x.classList.toggle('active',x===btn));
    $(btn.dataset.target)?.scrollIntoView({behavior:'smooth',block:'start'});
@@ -151,7 +152,7 @@ function setupUI(){
  });
  $('feedSearch').addEventListener('input',e=>{state.search=e.target.value;renderStories()});
  $('refreshBtn').addEventListener('click',()=>load(true));
- const clock=()=>{$('clock').textContent=new Intl.DateTimeFormat('el-GR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Athens'}).format(new Date()).toUpperCase()+' / ATHENS';};
+ const clock=()=>{$('clock').textContent=new Intl.DateTimeFormat(paxLang()==='en'?'en-GB':'el-GR',{weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Athens'}).format(new Date()).toUpperCase()+' / ATHENS';};
  clock();setInterval(clock,60000);
  try{const saved=JSON.parse(localStorage.getItem('pax-observation-v2')||'null');if(saved&&saved.at&&saved.values)state.prior=saved;}catch{}
 }
