@@ -86,6 +86,7 @@ async function paxMarketsLoad(){
 function paxIntelInit(){
  document.addEventListener("pax:selection",paxIntelRender);
  document.addEventListener("pax:data",paxIntelRender);
+ document.addEventListener("pax:language",()=>{paxIntelRender();paxMarketRender()});
  paxIntelRender();paxMarketRender();paxMarketsLoad();
 }
 paxIntelInit();
