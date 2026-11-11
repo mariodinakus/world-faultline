@@ -3,20 +3,35 @@
 const PAX_ALERT_KEY="pax-alert-center-v1";
 const PAX_ALERT_OPTIONS_KEY="pax-alert-preferences-v1";
 const PAX_ALERT_MAX_AGE=72*3600000;
-const PAX_WATCH={known:[],items:[],initialized:false,open:false,permission:"default",timer:null,settings:{strikes:true,diplomacy:true},previousFocus:null};
+const PAX_WATCH={known:[],items:[],initialized:false,open:false,permission:"default",timer:null,settings:{strikes:true,diplomacy:true,milestones:true,region:"all"},previousFocus:null};
 try{const saved=JSON.parse(localStorage.getItem(PAX_ALERT_KEY)||"null");if(saved&&Array.isArray(saved.known)&&Array.isArray(saved.items)){PAX_WATCH.known=saved.known.slice(-550);PAX_WATCH.items=saved.items.slice(0,75);PAX_WATCH.initialized=saved.initialized===true}}catch{}
-try{const saved=JSON.parse(localStorage.getItem(PAX_ALERT_OPTIONS_KEY)||"null");if(saved&&typeof saved==="object"){PAX_WATCH.settings.strikes=saved.strikes!==false;PAX_WATCH.settings.diplomacy=saved.diplomacy!==false}}catch{}
+try{const saved=JSON.parse(localStorage.getItem(PAX_ALERT_OPTIONS_KEY)||"null");if(saved&&typeof saved==="object"){PAX_WATCH.settings.strikes=saved.strikes!==false;PAX_WATCH.settings.diplomacy=saved.diplomacy!==false;PAX_WATCH.settings.milestones=saved.milestones!==false;PAX_WATCH.settings.region=REGIONS.some(r=>r.id===saved.region)?saved.region:"all"}}catch{}
 function paxAlertsSave(){try{localStorage.setItem(PAX_ALERT_KEY,JSON.stringify({known:PAX_WATCH.known.slice(-550),items:PAX_WATCH.items.slice(0,75),initialized:PAX_WATCH.initialized}))}catch{}}
 function paxPrefsSave(){try{localStorage.setItem(PAX_ALERT_OPTIONS_KEY,JSON.stringify(PAX_WATCH.settings))}catch{}}
-function paxSimpleKey(a,r){return r+"|"+String(a.title||"").toLocaleLowerCase().replace(/\s+/g," ").replace(/[^\p{L}\p{N} ]/gu,"").trim()+"|"+String(a.source||"").toLocaleLowerCase().trim()}
+function paxSimpleKey(a,r){return r+"|"+String(a.title||"").toLocaleLowerCase().replace(/\s+/g," ").replace(/[^\p{L}\p{N} ]/gu,"").trim()+"|"+String(a.publishedAt||"").slice(0,10)}
 function paxAlertType(a){
  const t=String(a.title||"").toLowerCase();
+ // A declared agreement and a reported breakdown are distinct headline types, not verified events.
+ if(/(?:cease.?fire|truce|peace deal|peace agreement).{0,55}(?:collaps|breakdown|broken|violat|fails|failed|rejected|unravels)|(?:collaps|breakdown|broken|violat|failed).{0,55}(?:cease.?fire|truce|peace deal|peace agreement)/i.test(t))return "breakdown";
  // Strong headline-level kinetic terms. 'strike a deal' should not trigger an attack alert.
  if(/air[\s-]?strik|bombard|shelling|missile[\s-]?(?:attack|strike|barrage|launch)|missile strikes?|rocket (?:attacks?|fire|strikes?)|drone[\s-]?(?:attacks?|strikes?)|explosion|bomb(?:ing|ardment)|(?:military|aerial|deadly|overnight|fresh|new|large-scale) strikes?|(?:strikes?|attacks?) (?:hit|kill|wound|target|injure)|(?:launch(?:ed|es)?|carry(?:ing)? out|carried out) (?:a |new |fresh )?(?:strikes?|attacks?)|(?:strike|attack) on (?:the |a )?(?:city|capital|port|airbase|town|village|hospital)/i.test(t))return "strike";
- if(a.type==="ceasefire"||a.type==="implemented"||a.type==="proposal"||a.type==="talks")return "diplomacy";
+ if(a.type==="ceasefire"||a.type==="implemented")return "milestone";
+ if(a.type==="proposal"||a.type==="talks")return "diplomacy";
  return null;
 }
-function paxAlertMatches(a){return a.type==="strike"?PAX_WATCH.settings.strikes:PAX_WATCH.settings.diplomacy}
+function paxAlertMatches(a){
+ if(PAX_WATCH.settings.region!=="all"&&a.region!==PAX_WATCH.settings.region)return false;
+ return a.type==="strike"?PAX_WATCH.settings.strikes:
+ a.type==="milestone"||a.type==="breakdown"?PAX_WATCH.settings.milestones:
+ PAX_WATCH.settings.diplomacy;
+}
+function paxAlertLabel(type){
+ const en=paxLang()==="en";
+ return {strike:en?"REPORTED STRIKE":"ΑΝΑΦΟΡΑ ΧΤΥΠΗΜΑΤΟΣ",
+  diplomacy:en?"TALKS / PROPOSAL":"ΣΥΝΟΜΙΛΙΕΣ / ΠΡΟΤΑΣΗ",
+  milestone:en?"REPORTED AGREEMENT":"ΑΝΑΦΟΡΑ ΣΥΜΦΩΝΙΑΣ",
+  breakdown:en?"REPORTED BREAKDOWN":"ΑΝΑΦΟΡΑ ΑΔΙΕΞΟΔΟΥ"}[type]||(en?"REPORT":"ΑΝΑΦΟΡΑ");
+}
 function paxAlertsIngest(){
  const now=Date.now(),isFirst=!PAX_WATCH.initialized,seen=new Set(PAX_WATCH.known);
  const fresh=[];
@@ -38,10 +53,12 @@ function paxAlertsIngest(){
   .filter(x=>Date.parse(x.publishedAt)>now-PAX_ALERT_MAX_AGE).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)).slice(0,75);
  PAX_WATCH.initialized=true;paxAlertsSave();paxAlertsRender();
  if(!isFirst&&fresh.length&&PAX_WATCH.permission==="granted"&&typeof Notification!=="undefined"){
-   const visible=fresh.filter(paxAlertMatches).filter(x=>!x.read).slice(0,3);
+   const priority={breakdown:0,milestone:1,strike:2,diplomacy:3};
+   const visible=fresh.filter(paxAlertMatches).filter(x=>!x.read)
+    .sort((a,b)=>(priority[a.type]??4)-(priority[b.type]??4)).slice(0,3);
    for(const a of visible){
      try{
-       const n=new Notification(a.type==="strike"?"PAX / Νέα αναφορά χτυπήματος":"PAX / Νέα διπλωματική εξέλιξη",{
+       const n=new Notification("PAX / "+paxAlertLabel(a.type),{
          body:a.title.slice(0,140)+" · "+a.source,tag:"pax-"+a.region+"-"+a.type,icon:"/favicon.svg",silent:true,
        });
        n.onclick=()=>{window.focus();paxOpenAlerts();n.close()};
@@ -54,11 +71,13 @@ function paxAlertsRender(){
  badge.textContent=unread>99?"99+":unread.toString();badge.hidden=unread===0;
  const rows=PAX_WATCH.items.filter(paxAlertMatches).slice(0,45);
  document.getElementById("alertItems").innerHTML=rows.length?rows.map(a=>
-  '<article class="alert-item'+(a.read?"":" unread")+'"><div class="alert-pip"></div><div><div class="alert-meta"><span class="alert-tag'+(a.type==="strike"?"":" diplomacy")+'">'+(a.type==="strike"?"ΑΝΑΦΟΡΑ ΧΤΥΠΗΜΑΤΟΣ":"ΔΙΠΛΩΜΑΤΙΑ / ΣΥΜΦΩΝΙΑ")+'</span><span>'+esc(REGIONS.find(r=>r.id===a.region)?.short||a.region)+'</span></div><h4><a href="'+esc(validLink(a.url))+'" target="_blank" rel="noopener noreferrer" data-alert-id="'+esc(a.id)+'">'+esc(a.title)+'</a></h4><div class="alert-meta"><span>'+esc(a.source)+'</span><span>·</span><span>'+timeLocal(a.publishedAt)+'</span><span>· Δημοσίευμα, όχι επιβεβαιωμένο συμβάν</span></div></div></article>').join("")+
+  '<article class="alert-item'+(a.read?"":" unread")+'"><div class="alert-pip"></div><div><div class="alert-meta"><span class="alert-tag'+(a.type==="strike"?"":" diplomacy")+'">'+esc(paxAlertLabel(a.type))+'</span><span>'+esc(REGIONS.find(r=>r.id===a.region)?.short||a.region)+'</span></div><h4><a href="'+esc(validLink(a.url))+'" target="_blank" rel="noopener noreferrer" data-alert-id="'+esc(a.id)+'">'+esc(a.title)+'</a></h4><div class="alert-meta"><span>'+esc(a.source)+'</span><span>·</span><span>'+timeLocal(a.publishedAt)+'</span><span>· Δημοσίευμα, όχι επιβεβαιωμένο συμβάν</span></div></div></article>').join("")+
   '<div class="alert-empty" style="font-size:10px">Η πρώτη επίσκεψη διαμορφώνει σημείο αναφοράς. Νέοι τίτλοι εμφανίζονται με μη αναγνωσμένο σήμα σε επόμενες ανακτήσεις.</div>':
   '<div class="alert-empty">Δεν υπάρχουν πρόσφατοι τίτλοι ειδοποιήσεων στα επιλεγμένα φίλτρα. Δεν αποτελεί ένδειξη ότι δεν υπήρξαν γεγονότα.</div>';
  document.getElementById("alertStrikeToggle").checked=PAX_WATCH.settings.strikes;
  document.getElementById("alertTalkToggle").checked=PAX_WATCH.settings.diplomacy;
+ document.getElementById("alertMilestoneToggle").checked=PAX_WATCH.settings.milestones;
+ document.getElementById("alertRegionFilter").value=PAX_WATCH.settings.region;
  const btn=document.getElementById("notifyOptin"),note=document.getElementById("alertPermissionNote");
  const supported="Notification" in window&&window.isSecureContext;
  const permission=supported?Notification.permission:"unsupported";
@@ -96,6 +115,12 @@ function paxAlertsInit(){
  document.getElementById("markAllRead").addEventListener("click",paxMarkAllRead);
  document.getElementById("alertStrikeToggle").addEventListener("change",e=>{PAX_WATCH.settings.strikes=e.target.checked;paxPrefsSave();paxAlertsRender()});
  document.getElementById("alertTalkToggle").addEventListener("change",e=>{PAX_WATCH.settings.diplomacy=e.target.checked;paxPrefsSave();paxAlertsRender()});
+ document.getElementById("alertMilestoneToggle").addEventListener("change",e=>{PAX_WATCH.settings.milestones=e.target.checked;paxPrefsSave();paxAlertsRender()});
+ const regionFilter=document.getElementById("alertRegionFilter");
+ regionFilter.innerHTML='<option value="all">'+(paxLang()==="en"?"All conflicts":"Όλες οι συγκρούσεις")+'</option>'+
+   REGIONS.map(r=>'<option value="'+esc(r.id)+'">'+esc(r.name)+'</option>').join("");
+ regionFilter.value=PAX_WATCH.settings.region;
+ regionFilter.addEventListener("change",e=>{PAX_WATCH.settings.region=e.target.value;paxPrefsSave();paxAlertsRender()});
  document.getElementById("alertItems").addEventListener("click",event=>{
   const a=event.target.closest("a[data-alert-id]");if(!a)return;
   const item=PAX_WATCH.items.find(x=>x.id===a.dataset.alertId);if(item){item.read=true;paxAlertsSave();paxAlertsRender()}
@@ -106,7 +131,12 @@ function paxAlertsInit(){
    paxAlertsRender();
  });
  document.addEventListener("pax:data",paxAlertsIngest);
- document.addEventListener("pax:language",paxAlertsRender);
+ document.addEventListener("pax:language",()=>{
+  const select=document.getElementById("alertRegionFilter"),value=select.value;
+  select.options[0].textContent=paxLang()==="en"?"All conflicts":"Όλες οι συγκρούσεις";
+  select.value=value;
+  paxAlertsRender()
+ });
  // Refresh only while page is visible; never trigger noisy background polling.
  PAX_WATCH.timer=setInterval(()=>{
   if(document.visibilityState!=="visible"||state.loading||PAX_WATCH.open)return;
