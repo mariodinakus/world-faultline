@@ -86,3 +86,16 @@ The primary user-facing Render URL is `https://pax-intelligence-fast.onrender.co
 News processing now uses 3-client-request concurrency, prioritizes the currently selected region, progressively renders available coverage, shares cached publisher RSS across all conflict dossiers, limits upstream concurrency, uses short source timeouts, and invokes GDELT only for sparse results. Initial or subsequent refreshes may be delayed by upstream publisher availability. Observed source errors are not treated as proof that no event occurred.
 
 All production services are intended to track GitHub main. Verify each new commit's actual Render deployment; in the 11 Nov 2026 deployment inspection, the original Node service did not automatically redeploy despite its `autoDeploy=yes` flag, so an explicit deployment was required. Do not assume its webhook is reliable without checking.
+
+## PAX 2.2 — lightweight evidence-first features
+
+Four new UI capabilities added in `pax/index.html`, `desk.css` and small dependency-free scripts:
+
+1. **What Changed / Daily Brief** (`briefing.js`): configurable 24h and 72h windows; global or conflict-specific source-linked headlines; category counts reflect **similar-headline clusters**, not verified events. The previous equally sized period is a reporting-volume baseline, not a battlefield or diplomatic trend. Reporting appears incrementally as regions finish loading.
+2. **Peace Process Tracker** (`peace-process.js`): four descriptive stages (talks/proposals, agreements, reported implementation, setbacks), selectable dossier, sourced milestones, search, show-more. The latest source-linked historical entry is NOT asserted to be the current ceasefire or negotiation status. The broader timeline remains separately available.
+3. **Smart Watch Desk** (`alerts.js`): configurable strike, negotiation/proposal and agreement/implementation/breakdown reporting. Region filters, normalized same-headline/date dedup, and prioritized browser alerts while the site is open; no persistent remote push, automatic event confirmation or attack-location tracking. Watch storage is versioned to avoid marking old initial reports as newly discovered in the updated classification.
+4. **Game Theory Lab** (`game-theory.js`): expandable on demand; transparent 2x2 hypothetical utilities for talks versus hardline strategies. Includes individual sliders, both actors' payoff matrix and exhaustive pure-strategy Nash checks. Utility units are illustrative and **never estimates of any actual government's preferences, forecast, or peace probability**.
+
+Performance: `pax-intelligence-fast.onrender.com` is still the preferred static Render homepage; `pax-conflict-intelligence.onrender.com` is the JSON API service. No new server-side news calls, chart frameworks or heavyweight modeling libraries were introduced for 2.2. English and Greek are maintained in `i18n.js` and the new scripts.
+
+Validation notes: all JavaScript syntax checks passed; new section controls, unique HTML IDs and matched structural tags checked; logical Nash equilibrium test passed for default and modified assumptions; all nine region phase start-date constraints checked. These checks do not substitute for a live browser end-to-end test or independent verification of all curated historical source URLs.
