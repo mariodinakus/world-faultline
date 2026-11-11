@@ -138,6 +138,28 @@ for(const [gr,en] of [
  ["ΑΝΑΦΟΡΑ ΑΔΙΕΞΟΔΟΥ","REPORTED BREAKDOWN"],
  ["Η εφαρμογή φορτώθηκε. Ο δωρεάν server ειδήσεων ενεργοποιείται· οι ειδήσεις θα εμφανιστούν σταδιακά.","The interface has loaded. The free news server is waking up and articles will appear progressively."]
 ])PAX_EN_TEXT.set(gr,en);
+/* PAX 2.3 additions: user-facing static labels (dynamic sections translate themselves). */
+for(const [el,en] of [
+ ["Δες πώς αυξάνονται τα καταχωρισμένα ορόσημα ανά ημερομηνία και τι ακολούθησε. Ιστορική αναπαραγωγή, όχι πραγματική ειδησεογραφική κάλυψη της εποχής.","Browse dated historical milestones and what was recorded next. Event-date replay, not a comprehensive contemporaneous news archive."],
+ ["ΕΠΙΛΟΓΗ ΗΜΕΡΟΜΗΝΙΑΣ","SELECT DATE"],
+ ["ΕΝΑΡΞΗ ΦΑΣΗΣ","PHASE START"],["ΠΡΙΝ 12 ΜΗΝΕΣ","12 MONTHS AGO"],["ΣΗΜΕΡΑ","TODAY"],
+ ["Μετακίνηση στον ιστορικό χρόνο","Move through historical dates"],
+ ["Επιλογή σύγκρουσης για ιστορική αναπαραγωγή","Select conflict for historical replay"],
+ ["ΚΑΤΑΧΩΡΙΣΕΙΣ ΕΩΣ ΤΗΝ ΗΜΕΡΟΜΗΝΙΑ","ENTRIES BY SELECTED DATE"],
+ ["ΚΑΤΑΧΩΡΙΣΕΙΣ ΜΕΤΑ ΤΗΝ ΗΜΕΡΟΜΗΝΙΑ","ENTRIES AFTER SELECTED DATE"],
+ ["Η ταξινόμηση γίνεται με ημερομηνία γεγονότος, όχι υποχρεωτικά με ημερομηνία πρώτης δημοσίευσης. Πηγές μπορεί να γράφτηκαν αργότερα: δεν πρόκειται για πραγματική ανασύσταση του τι γνώριζαν τότε οι άνθρωποι. Το αρχείο είναι επιλεκτικό.","Items are ordered by event date, not necessarily original publication date. Some sources were published later: this is NOT a reconstruction of what was known at that time. The archive is selective."],
+ ["Τι χρειάζεται να εξεταστεί για μια βιώσιμη συμφωνία; Τεκμηριωμένα ιστορικά ορόσημα, έλεγχος θέσεων και υποθετικά βήματα — όχι αυθαίρετες εκτιμήσεις.","What questions matter for a durable agreement? Dated sources, actor-position audits and hypothetical steps — without invented probabilities."],
+ ["Διαπραγματευτικό ζήτημα ≠ διαπιστωμένο αδιέξοδο.","A negotiating question is not proof of an impasse."],
+ ["Επιλογή σύγκρουσης στο Negotiation Room","Select conflict for the Negotiation Room"],
+ ["Δεν αποδίδουμε «επίσημες θέσεις» χωρίς πρωτογενή, χρονολογημένη πηγή. Όπου δεν υπάρχει τεκμηρίωση εμφανίζεται έλλειμμα δεδομένων. Οι συμβιβασμοί και οι επιλογές είναι υποθετικοί, όχι προτάσεις των μερών.","We do not attribute official positions without dated primary-source evidence. Missing evidence is explicitly shown. Compromises and decisions are hypothetical, not proposals from the actual actors."],
+ ["Συγκριτική ανάγνωση τίτλων διαφορετικών εκδοτών, με ετικέτες λέξεων και πηγές. Δεν βαφτίζουμε την ποικιλία περιγραφών «παραπληροφόρηση».","Compare headlines from different publishers using source links and keyword tags. Differences in wording are not automatically misinformation."],
+ ["Επιλογή σύγκρουσης για σύγκριση ειδήσεων","Select conflict for news comparison"],
+ ["ΟΜΑΔΕΣ ΠΑΡΟΜΟΙΩΝ ΤΙΤΛΩΝ ΣΕ ΠΟΛΛΟΥΣ ΕΚΔΟΤΕΣ","SIMILAR-HEADLINE CLUSTERS ACROSS PUBLISHERS"],
+ ["Η ομοιότητα τίτλων δεν αποδεικνύει ότι δύο εκδότες επιβεβαίωσαν το ίδιο γεγονός.","Similar headlines do not mean two outlets independently confirmed an event."],
+ ["Ανάκτηση πρόσφατων δημοσιευμάτων…","Retrieving recent reports…"],
+ ["Συγκρίνουμε τίτλους, όχι ολόκληρα άρθρα ή αξιοπιστία εκδοτών. Οι ετικέτες προκύπτουν από λέξεις και δεν αποδεικνύουν προπαγάνδα, μεροληψία ή αντίφαση. Οι σύνδεσμοι ανοίγουν τους εκδότες.","We compare titles, not full article text or publisher reliability. Keyword tags do not establish propaganda, bias or contradictions. Links open the original publishers."],
+ ["Το Negotiation Room διακρίνει ερωτήματα, τεκμηριωμένες ιστορικές αναφορές και υποθετικά σενάρια. Το Time Machine είναι αναπαραγωγή ανά ημερομηνία ιστορικού γεγονότος, όχι πλήρης ανακατασκευή της πληροφόρησης της εποχής. Το Narrative Divergence συγκρίνει διατύπωση τίτλων, όχι το περιεχόμενο άρθρων ή την αλήθεια των ισχυρισμών.","The Negotiation Room distinguishes research questions, dated records and hypothetical scenarios. Time Machine is an event-date replay, not a reconstruction of all information available at that time. Narrative Divergence compares headline wording, not article content or the truth of their claims."]
+])PAX_EN_TEXT.set(el,en);
 const PAX_ORIGINAL_TEXT=new WeakMap(),PAX_ORIGINAL_ATTR=new WeakMap();
 function paxTranslateText(value){
  const raw=String(value),trim=raw.trim();if(!trim)return raw;
