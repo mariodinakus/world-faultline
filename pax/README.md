@@ -37,3 +37,18 @@ Historical curated milestones in `timeline.js` have explicit event dates, source
 ## Evolution
 
 Suggested next steps: persistent server-side timeseries, corroboration grouping for independent publisher chains, ACLED-authenticated event integration, manually curated treaty milestones, an explainable calibrated event model evaluated with historical ground truth and expert review.
+
+
+## PAX 2.0 — Evidence Monitor (November 2026)
+
+The original numerical 0–100 Peace Proximity Index was retired. It was an uncalibrated ratio of keyword-tagged headlines and should not be interpreted as a peace probability. The new Evidence Monitor has qualitative headline-coverage states: diplomatic coverage, escalation coverage, mixed coverage, or insufficient reporting. Grouping similar titles reduces but does not eliminate duplicate news signals. No state constitutes a verified political or military event.
+
+**Sources:** A server-side API merges Google News broad + newswire-constrained queries, BBC World RSS, The Guardian World RSS, Al Jazeera RSS, DW RSS and GDELT DOC. It reports each feed's HTTP availability, raw item counts and the publishers of the filtered articles. News discovery services might return duplicates, irrelevant reports, unreliable metadata or stale items. The exact selection fluctuates with public API availability. A source may be accessible yet yield zero relevant items.
+
+**Source Intelligence:** `intelligence.js` builds editorial clusters of similar headlines (Jaccard token similarity and time window), shows multiple publisher links per cluster and distinguishes source diversity from independent verification. A manually authored diplomatic *question list* is for inquiry, **not** attributed positions of any side. This is not an automated truth checker.
+
+**Conflict Economics:** `/api/markets` downloads public historical observations from Federal Reserve Bank of St. Louis FRED for Brent, WTI, Henry Hub natural gas, EUR/USD and global wheat (subject to availability). Latest source date is shown, together with recent within-series change and sparklines. Prices are *not* automatically attributed to any conflict and are not necessarily real-time. Provider failures show unavailable instead of fabricated figures.
+
+**Push status:** Background push when the browser is closed is not available: it needs a protected push-subscription service, web push credentials, a service worker, and controls against spoofed or low-confidence alerts. The current browser notifications are opt-in and page-open only.
+
+Future work: editorial event verification with primary documents and source-of-source attribution, persistent versioned evidence timelines, calibrated quantitative research with backtests, user-managed notification subscriptions, and robust historical conflict-linked market event studies.
