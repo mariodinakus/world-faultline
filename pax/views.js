@@ -175,8 +175,8 @@ function paxRenderGame(){
    vT("Αντίθετη κίνηση: μετά από κλιμάκωση της πλευράς «"+other+"», η πλευρά «"+who+"» τείνει να χαμηλώνει τόνους.","Counter-movement: after "+other+" escalates, "+who+" tends to de-escalate.");
  };
  const coef=r=>r?'β = '+vFmt(r.beta[1],2)+' · t = '+vFmt(r.t[1],1)+' · n = '+r.n:'—';
- const cellName={CC:vT("Και οι δύο κάτω από τον μέσο όρο τους","Both below their norm"),CD:vT("Α ήπια · Β κλιμακώνει","A calm · B escalates"),DC:vT("Α κλιμακώνει · Β ήπια","A escalates · B calm"),DD:vT("Και οι δύο κλιμακώνουν","Both escalate")};
- const cellBox=k=>'<div class="pax-g-cell'+(k===top?" top":"")+'"><strong>'+pct(k)+'%</strong><span>'+cell[k]+' '+vT("ημέρες","days")+'</span><small>'+cellName[k]+'</small></div>';
+ const cellName={CC:vT("Και οι δύο κάτω από τον μέσο όρο τους","Both below their norm"),CD:vT(A+" ήπια · "+B+" κλιμακώνει",A+" calm · "+B+" escalates"),DC:vT(A+" κλιμακώνει · "+B+" ήπια",A+" escalates · "+B+" calm"),DD:vT("Και οι δύο κλιμακώνουν","Both escalate")};
+ const cellBox=k=>'<div class="pax-g-cell'+(k===top?" top":"")+'"><strong>'+pct(k)+'%</strong><span>'+cell[k]+' '+vT("ημέρες","days")+'</span><small>'+esc(cellName[k])+'</small></div>';
  const roundShare=v=>Math.round(v*100)+"%";
  root.innerHTML=
  '<div class="pax-g-head"><div><span class="pax-desk-overline">'+vT("ΠΑΡΑΤΗΡΟΥΜΕΝΕΣ ΚΙΝΗΣΕΙΣ · GDELT 2.0","OBSERVED MOVES · GDELT 2.0")+'</span><h3><i class="ka"></i>'+esc(A)+' <span>↔</span> <i class="kb"></i>'+esc(B)+'</h3></div>'+
