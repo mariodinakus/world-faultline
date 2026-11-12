@@ -128,3 +128,22 @@ Run it manually from GitHub → Actions → *PAX daily data* → *Run workflow* 
 **Observed game (Παίγνιο tab).** For each dyad: 7-day rolling share of conflictual events in each direction; an empirical 2×2 where a side "escalates" on days above its own median conflict share; and a reciprocity regression `A_t = α + β·B_{t−1} + γ·A_{t−1}` (OLS, |t| ≥ 2 reported as a pattern). This measures temporal association in press-coded events, not causation or intent. The hypothetical Nash lab stays below it, clearly labelled as assumptions.
 
 **New sources.** `/api/greek` (Google News Greece, Greek-language headlines per conflict, shown next to the international feed) and `/api/relief` (ReliefWeb/UN OCHA reports; needs an approved appname in the `RELIEFWEB_APPNAME` Vercel environment variable).
+
+## PAX Peace Signals and relevance fixes (12 November 2026)
+
+The conflict **Signal** tab now includes a three-axis *Peace Signals* panel:
+diplomacy/proposals, reported agreements/implementation, and escalation/obstacles.
+All counts are source-linked seven-day **clusters of published headlines**, not
+verified events, treaty compliance, or peace probabilities. The newest curated,
+dated milestone is shown separately and labelled as archival; the process and
+empirical-game views remain one click away.
+
+The shared-news filter now requires both named sides for Iran–Israel and U.S.–Iran
+dossiers; Gaza coverage needs a Gaza/Palestine-specific reference. The alert
+centre also de-duplicates the same publisher headline across dossiers and
+relabels prior Gaza reports incorrectly shown as Iran–Israel alerts. Existing
+browser consent and page-open-only notification limits are unchanged.
+
+This does **not** provide a continuously independently verified agreement
+implementation ledger, nor cross-conflict matched historical peace probabilities.
+Those require a separately curated, dated evidence base and verification process.

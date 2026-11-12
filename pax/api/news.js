@@ -98,12 +98,24 @@ async function get(url){
  });
 }
 function google(query){return "https://news.google.com/rss/search?q="+encodeURIComponent(query+" when:7d")+"&hl=en-US&gl=US&ceid=US:en"}
+// Conflict-specific guardrails: a shared RSS story mentioning Israel is not
+// automatically about Gaza or the bilateral Iran–Israel confrontation.
+// A conservative false-negative is preferable to a misleading dossier label.
+function paxTitleMatchesDossier(title,region){
+ const t=String(title||"").toLowerCase();
+ const iran=/\b(iran(?:ian)?|tehran|khamenei|pezeshkian)\b/i.test(t);
+ const israel=/\b(israel(?:i)?|tel aviv|netanyahu|idf)\b/i.test(t);
+ if(region==="iranisrael")return iran&&israel;
+ if(region==="usiran")return iran&&/\b(us|u\.s\.|united states|american|america|washington|white house|trump|vance|pentagon)\b/i.test(t);
+ if(region==="gaza")return /\b(gaza|palestin\w*|hamas|west bank|rafah|nasser hospital)\b/i.test(t);
+ return RELEVANCE[region].test(t);
+}
 function unique(all,region){
  const now=Date.now(),phase=Date.parse(CONFLICT_START[region]+"T00:00:00Z"),cutoff=Math.max(now-7*86400000,phase),seen=new Set();
  return all.filter(a=>{
  const t=Date.parse(a.publishedAt);if(!a.title||!a.url||!Number.isFinite(t)||t<cutoff||t>now+3600000)return false;
  const canonical=a.title.toLocaleLowerCase().replace(/[\p{P}\p{S}]/gu," ").replace(/\s+/g," ").trim();
- if(!RELEVANCE[region].test(canonical))return false;
+ if(!paxTitleMatchesDossier(a.title,region))return false;
  const key=canonical.slice(0,180)+"|"+a.source.toLowerCase();
  if(seen.has(key))return false;seen.add(key);return true
  }).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)).slice(0,55)
