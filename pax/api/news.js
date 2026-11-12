@@ -106,7 +106,7 @@ function paxTitleMatchesDossier(title,region){
  const iran=/\b(iran(?:ian)?|tehran|khamenei|pezeshkian)\b/i.test(t);
  const israel=/\b(israel(?:i)?|tel aviv|netanyahu|idf)\b/i.test(t);
  if(region==="iranisrael")return iran&&israel;
- if(region==="usiran")return iran&&/\b(us|u\\.s\\.|united states|american|america|washington|white house|trump|vance|pentagon)\b/i.test(t);
+ if(region==="usiran")return iran&&/\b(us|u\.s\.|united states|american|america|washington|white house|trump|vance|pentagon)\b/i.test(t);
  if(region==="gaza")return /\b(gaza|palestin\w*|hamas|west bank|rafah|nasser hospital)\b/i.test(t);
  return RELEVANCE[region].test(t);
 }
