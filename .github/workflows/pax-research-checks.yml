@@ -20,3 +20,4 @@ jobs:
           persist-credentials: false
       - run: node --version
       - run: node pax/tests/research.test.cjs
+      - run: node pax/tests/peace-economy.test.cjs
