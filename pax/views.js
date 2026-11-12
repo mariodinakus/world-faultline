@@ -232,8 +232,9 @@ async function paxRenderGreek(){
   PAX_VIEW.greek[id]=gr;if(state.selected!==id)return}
  const intl=(regionRow(id).articles||[]).slice(0,12),greek=(gr.articles||[]).slice(0,12);
  const typeOf=t=>classify(t);
- const grDip=greek.filter(a=>/συνομιλ|διαπραγμ|ειρήν|εκεχειρ|συμφων|διπλωμ|απεσταλμ|σύνοδ/i.test(a.title)).length;
- const grEsc=greek.filter(a=>/επίθεσ|πλήγμ|βομβ|νεκρ|σκοτ|κλιμάκ|drone|πύραυλ|μάχ|συγκρούσ/i.test(a.title)).length;
+ const plain=t=>String(t).normalize("NFD").replace(/\p{M}/gu,"").toLowerCase();
+ const grDip=greek.filter(a=>/συνομιλ|διαπραγμ|ειρην|εκεχειρ|συμφων|διπλωμ|απεσταλμ|συνοδ|συναντησ/.test(plain(a.title))).length;
+ const grEsc=greek.filter(a=>/επιθεσ|πληγμ|βομβ|νεκρ|σκοτω|κλιμακ|drone|πυραυλ|μαχ|συγκρουσ|καταρρι|επιδρομ/.test(plain(a.title))).length;
  const inDip=intl.filter(a=>["talks","proposal","ceasefire","implemented"].includes(typeOf(a.title))).length,inEsc=intl.filter(a=>typeOf(a.title)==="setback").length;
  const col=(title,list,dip,escn,note)=>'<div class="pax-greek-col"><div class="pax-greek-head"><h4>'+title+'</h4><span>'+list.length+' '+vT("τίτλοι","headlines")+' · '+vT("διπλωματία","diplomacy")+' '+dip+' · '+vT("ένταση","escalation")+' '+escn+'</span></div>'+
   (list.length?list.map(a=>'<a class="pax-greek-item" href="'+esc(validLink(a.url))+'" target="_blank" rel="noopener noreferrer"><b>'+esc(a.title)+'</b><small>'+esc(a.source||"")+' · '+esc(timeLocal(a.publishedAt))+'</small></a>').join(""):'<p class="pax-muted">'+note+'</p>')+'</div>';
