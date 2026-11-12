@@ -5,12 +5,12 @@ const PAX_DATA_BASE="https://raw.githubusercontent.com/mariodinakus/world-faultl
 const PAX_VIEW={view:"today",sub:"signal",data:{gdelt:null,headlines:null,ucdp:null},loaded:false,relief:{},greek:{}};
 const PAX_VIEW_SECTIONS={
  today:["overview",".stats-band","briefing",".section-main"],
- conflict:["paxConflictBar","detail","timeline","process","negotiationRoom","timeMachine","gameReal","strategy","relief"],
+ conflict:["paxConflictBar","detail","peaceSignals","timeline","process","negotiationRoom","timeMachine","gameReal","strategy","relief"],
  feed:["paxConflictBar","greekPress","narrative","dispatch","intelligence"],
  tools:["dataStatus","methodology"]
 };
 const PAX_SUBS=[
- ["signal",["detail"],"Σήμα","Signal"],
+ ["signal",["detail","peaceSignals"],"Σήμα","Signal"],
  ["timeline",["timeline"],"Χρονολόγιο","Timeline"],
  ["process",["process"],"Διαδικασία","Process"],
  ["room",["negotiationRoom"],"Διαπραγμάτευση","Bargaining"],
