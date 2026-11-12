@@ -5,7 +5,7 @@ let PAX_LANGUAGE="el";
 try{PAX_LANGUAGE=localStorage.getItem(PAX_LANG_KEY)==="en"?"en":"el"}catch{}
 function paxLang(){return PAX_LANGUAGE}
 const PAX_EN_TEXT=new Map([
- ["Επισκόπηση","Overview"],["Μεθοδολογία","Methodology"],["ΑΝΑΝΕΩΣΗ","REFRESH"],["↻ ΑΝΑΝΕΩΣΗ","↻ REFRESH"],
+ ["Επισκόπηση","Overview"],["Δελτίο","Daily brief"],["Τεκμήρια","Evidence"],["Διαδικασία","Peace process"],["Διαπραγμάτευση","Dealbreakers"],["Χρονομηχανή","Time machine"],["Παίγνια","Game theory"],["Ροή","Live wire"],["Πηγές","Sources"],["Μεθοδολογία","Methodology"],["ΑΝΑΝΕΩΣΗ","REFRESH"],["↻ ΑΝΑΝΕΩΣΗ","↻ REFRESH"],
  ["Άνοιγμα ειδοποιήσεων","Open alerts"],["Κλείσιμο ειδοποιήσεων","Close alerts"],
  ["Στοιχεία κάλυψης","Coverage statistics"],["Πόλεμος, διπλωματία και διαπραγματεύσεις. Όχι άλλη μία ροή τίτλων — αλλά ένας χάρτης του τι αλλάζει, γιατί αλλάζει και τι πραγματικά τεκμηριώνεται.","War, diplomacy and negotiation. Not just another stream of headlines — a map of what is changing, why it matters and what the evidence actually supports."],
  ["ΔΕΣ ΤΟ PEACE MONITOR","EXPLORE THE EVIDENCE MONITOR"],["ΠΩΣ ΥΠΟΛΟΓΙΖΕΤΑΙ ↗","OUR METHODOLOGY ↗"],
@@ -212,7 +212,7 @@ function paxTranslateTree(root){
  }
  document.documentElement.lang=PAX_LANGUAGE;
  const button=document.getElementById("languageSwitch");
- if(button){button.textContent=PAX_LANGUAGE==="el"?"EN":"ΕΛ";button.setAttribute("aria-label",PAX_LANGUAGE==="el"?"Switch to English":"Αλλαγή στα ελληνικά");button.setAttribute("title",PAX_LANGUAGE==="el"?"English version":"Ελληνική έκδοση")}
+ if(button){const label=PAX_LANGUAGE==="el"?"EN":"ΕΛ";if(button.textContent!==label)button.textContent=label; /* unconditional writes re-trigger the observer and freeze English mode */button.setAttribute("aria-label",PAX_LANGUAGE==="el"?"Switch to English":"Αλλαγή στα ελληνικά");button.setAttribute("title",PAX_LANGUAGE==="el"?"English version":"Ελληνική έκδοση")}
 }
 function paxSetLanguage(next){
  if(next!=="el"&&next!=="en")return;

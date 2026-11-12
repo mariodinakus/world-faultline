@@ -88,7 +88,7 @@ function paxRoomRender(){
  $("paxRoomSelect").value=state.selected;
  $("paxRoomIssueCount").textContent=issues.length+(en?" OPEN RESEARCH ISSUES":" ΑΝΟΙΧΤΑ ΕΡΕΥΝΗΤΙΚΑ ΘΕΜΑΤΑ");
  $("paxRoomIssues").innerHTML=issues.map((x,i)=>'<button type="button" class="pax-room-issue'+(i===PAX_ROOM.issue?" active":"")+'" data-room-issue="'+i+'" aria-pressed="'+(i===PAX_ROOM.issue)+'"><span>'+
-  esc(en?x[2]:x[1])+'</span><small>'+recordLabel(paxRoomEvidence(x).length,en)+'</small></button>').join("");
+  esc(en?x[2]:x[1])+'</span><small>'+recordLabel(paxRoomEvidence(x).length+(PAX_ROOM_POSITIONS[state.selected]||[]).filter(r=>r.issue===i).length,en)+'</small></button>').join("");
  $("paxRoomIssueTitle").textContent=en?issue[2]:issue[1];
  $("paxRoomQuestion").textContent=en?issue[4]:issue[3];
  $("paxRoomTabs").querySelectorAll("[data-room-tab]").forEach(button=>{
@@ -142,7 +142,7 @@ function paxRoomRender(){
   $("strategy")?.scrollIntoView({behavior:"smooth",block:"start"});
  });
 }
-function recordLabel(n,en){return n+(en?" archive links":" πηγές αρχείου")}
+function recordLabel(n,en){return n+(en?(n===1?" source record":" source records"):(n===1?" τεκμηριωμένη πηγή":" τεκμηριωμένες πηγές"))}
 function paxRoomInit(){
  const root=$("negotiationRoom");if(!root)return;
  const picker=$("paxRoomSelect");

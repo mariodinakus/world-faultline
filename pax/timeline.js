@@ -75,7 +75,7 @@ function paxRenderTimeline(){
  document.getElementById("timelineList").innerHTML=all.length?all.map(x=>
   '<article class="timeline-event"><div class="timeline-event-time">'+esc(PAX_EVENT_DATE(x))+
   '<small>'+(x.datePrecision==="month"?(paxLang()==="en"?"MONTH / APPROX.":"ΜΗΝΑΣ / ΕΝΔΕΙΚΤΙΚΗ ΗΜΕΡΟΜΗΝΙΑ"):(x.verified?"CURATED RECORD":"LIVE NEWS"))+'</small></div>'+
-  '<div class="timeline-event-body"><h4>'+esc(x.title)+'</h4><p>'+esc(x.detail)+'</p>'+
+  '<div class="timeline-event-body"><h4>'+esc(x.title)+'</h4>'+(x.verified?'<p>'+esc(x.detail)+'</p>':'')+
   '<a target="_blank" rel="noopener noreferrer" href="'+esc(validLink(x.url))+'">ΠΗΓΗ: '+esc(x.source||"Δημοσίευμα")+' ↗</a></div>'+
   '<div class="timeline-event-status"><span class="marker '+(x.verified?"positive":"press")+'">'+esc(PAX_LABELS[x.type]||"ΑΝΑΦΟΡΑ")+'</span><small>'+(x.verified?"Καταγεγραμμένο με πηγή":"Αυτόματος τίτλος · μη διασταυρωμένος")+'</small></div></article>').join("")
  :'<div class="timeline-noevents">Δεν υπάρχουν καταγεγραμμένα γεγονότα σε αυτό το χρονικό διάστημα. Δοκίμασε μεγαλύτερη περίοδο ή άλλη σύγκρουση.</div>';

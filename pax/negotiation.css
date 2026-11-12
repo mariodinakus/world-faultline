@@ -5,7 +5,7 @@
  display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 26px;background:#171d1f;color:#f8f7f2
 }
 .pax-room-header h3,.pax-machine-banner h3,.pax-narrative-header h3{
- font-family:"Archivo Black","DM Sans",sans-serif;font-weight:400;font-size:clamp(21px,3.5vw,39px);
+ font-family:var(--display);font-weight:800;font-synthesis:none;font-size:clamp(21px,3.5vw,39px);
  letter-spacing:-.065em;line-height:1.12;margin:8px 0 10px
 }
 .pax-room-header small{font-size:10px;font-weight:800;color:#f1cb36;letter-spacing:.07em}
@@ -35,7 +35,7 @@
 .pax-room-actors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
 .pax-room-actor{background:#f7f7f2;border:1px solid #dbddd6;padding:18px;min-width:0}
 .pax-room-actor>span,.pax-room-analysis-label{font-size:9px;font-weight:800;letter-spacing:.08em;color:#777d74}
-.pax-room-actor h4{font-family:"Archivo Black",sans-serif;font-size:clamp(16px,2vw,22px);
+.pax-room-actor h4{font-family:var(--display);font-weight:800;font-synthesis:none;font-size:clamp(16px,2vw,22px);
  font-weight:400;letter-spacing:-.04em;margin:9px 0 12px;line-height:1.2}
 .pax-room-actor p,.pax-room-muted{font-size:12px;color:#676c65;line-height:1.75;margin:11px 0}
 .pax-room-maincopy{font-family:Georgia,serif;font-size:clamp(18px,2.3vw,24px);line-height:1.52;margin:14px 0}
@@ -47,7 +47,7 @@
 .pax-room-evidence>small{display:block;margin-top:15px;font-size:10px;color:#787d75;line-height:1.7}
 .pax-room-tree{display:grid;gap:10px}
 .pax-room-tree article{display:flex;gap:15px;padding:16px;border:1px solid #d7d8cd;background:#faf9f5}
-.pax-room-tree article>span{color:#bd9824;font-family:"Archivo Black",sans-serif;font-size:25px;line-height:1}
+.pax-room-tree article>span{color:#bd9824;font-family:var(--display);font-weight:800;font-synthesis:none;font-size:25px;line-height:1}
 .pax-room-tree h4{font-size:13px;font-weight:800;margin:0 0 8px}
 .pax-room-tree p{font-size:12px;line-height:1.6;color:#656a63;margin:0}
 .pax-room-model-link{background:#171d1f;color:#f1cb36;border:1px solid #171d1f;

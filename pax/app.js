@@ -45,12 +45,15 @@ function analyse(row){
  const enough=unique.length>=3&&publishers.size>=2;
  let label="ΜΗ ΔΙΑΘΕΣΙΜΟ",status="insufficient";
  if(enough){
-  if((counts.ceasefire+counts.implemented)>0&&negative>0){label="ΜΕΙΚΤΑ ΣΗΜΑΤΑ";status="mixed"}
-  else if((counts.ceasefire+counts.implemented)>0){label="ΑΝΑΦΟΡΕΣ ΣΥΜΦΩΝΙΑΣ";status="agreement"}
-  else if(positives>0&&negative>0){label="ΠΑΡΑΛΛΗΛΕΣ ΕΞΕΛΙΞΕΙΣ";status="mixed"}
-  else if(positives>0){label="ΔΙΠΛΩΜΑΤΙΚΗ ΚΙΝΗΣΗ";status="talks"}
-  else if(negative>0){label="ΑΝΑΦΟΡΕΣ ΕΝΤΑΣΗΣ";status="setback"}
-  else{label="ΧΩΡΙΣ ΣΑΦΕΣ ΣΗΜΑ";status="unknown"}
+  // Balance of classified coverage, not presence: with dozens of headlines almost every
+  // conflict has at least one of each, which previously made every region "parallel".
+  const agreements=counts.ceasefire+counts.implemented,signal=positives+negative,share=signal?positives/signal:0;
+  if(signal<3){label="ΧΩΡΙΣ ΣΑΦΕΣ ΣΗΜΑ";status="unknown"}
+  else if(agreements>=2&&share>=0.6){label="ΑΝΑΦΟΡΕΣ ΣΥΜΦΩΝΙΑΣ";status="agreement"}
+  else if(share>=0.65){label="ΔΙΠΛΩΜΑΤΙΚΗ ΚΙΝΗΣΗ";status="talks"}
+  else if(share<=0.35){label="ΑΝΑΦΟΡΕΣ ΕΝΤΑΣΗΣ";status="setback"}
+  else if(agreements>0){label="ΜΕΙΚΤΑ ΣΗΜΑΤΑ";status="mixed"}
+  else{label="ΠΑΡΑΛΛΗΛΕΣ ΕΞΕΛΙΞΕΙΣ";status="mixed"}
  }
  return {counts,positives,negative,score:null,enough,sources:publishers.size,articles:originals.length,events:unique.length,groups,label,status};
 }
