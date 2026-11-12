@@ -98,3 +98,4 @@ i.ka,i.kb{display:inline-block;width:12px;height:12px;border-radius:2px;backgrou
  .pax-bars{grid-template-columns:repeat(6,minmax(0,1fr));height:auto}.pax-bars>div:nth-child(-n+6){display:none}.pax-bars>div{height:120px}
 }
 @media(max-width:740px){.pax-views .top-nav{max-width:none;width:100%;justify-content:space-between;overflow-x:auto}.pax-views .view-btn{padding:10px 6px;font-size:11px}}
+.pax-g-sync{display:flex;gap:12px;align-items:flex-start;margin-top:12px;padding:12px;background:var(--soft)}.pax-g-sync strong{font:800 26px/1 var(--display);font-synthesis:none}.pax-g-sync span{font-size:12px;line-height:1.5;color:#3d403d}
