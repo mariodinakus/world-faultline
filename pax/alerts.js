@@ -9,6 +9,22 @@ try{const saved=JSON.parse(localStorage.getItem(PAX_ALERT_OPTIONS_KEY)||"null");
 function paxAlertsSave(){try{localStorage.setItem(PAX_ALERT_KEY,JSON.stringify({known:PAX_WATCH.known.slice(-550),items:PAX_WATCH.items.slice(0,75),initialized:PAX_WATCH.initialized}))}catch{}}
 function paxPrefsSave(){try{localStorage.setItem(PAX_ALERT_OPTIONS_KEY,JSON.stringify(PAX_WATCH.settings))}catch{}}
 function paxSimpleKey(a,r){return r+"|"+String(a.title||"").toLocaleLowerCase().replace(/\s+/g," ").replace(/[^\p{L}\p{N} ]/gu,"").trim()+"|"+String(a.publishedAt||"").slice(0,10)}
+// Keep old browser alert histories accurate when a broad publisher RSS item
+// was filed under two different conflicts. This is a headline rule, not verification.
+function paxAlertRegion(a){
+ const t=String(a.title||"").toLowerCase();
+ if(a.region==="iranisrael"&&/\b(gaza|palestin\w*|hamas|rafah|west bank|nasser hospital)\b/.test(t)
+    &&!/\b(iran|iranian|tehran)\b/.test(t))return "gaza";
+ return a.region;
+}
+function paxAlertIdentity(a){
+ const title=String(a.title||"").toLowerCase().normalize("NFKC").replace(/[^\p{L}\p{N}]+/gu," ").trim();
+ const source=String(a.source||"").toLowerCase().trim();
+ const day=String(a.publishedAt||"").slice(0,10);
+ return source+"|"+title+"|"+day;
+}
+PAX_WATCH.items=PAX_WATCH.items.map(a=>({...a,region:paxAlertRegion(a)}))
+ .filter((a,i,list)=>list.findIndex(b=>paxAlertIdentity(b)===paxAlertIdentity(a))===i);
 function paxAlertType(a){
  const t=String(a.title||"").toLowerCase();
  // A declared agreement and a reported breakdown are distinct headline types, not verified events.
@@ -33,7 +49,7 @@ function paxAlertLabel(type){
   breakdown:en?"REPORTED BREAKDOWN":"ΑΝΑΦΟΡΑ ΑΔΙΕΞΟΔΟΥ"}[type]||(en?"REPORT":"ΑΝΑΦΟΡΑ");
 }
 function paxAlertsIngest(){
- const now=Date.now(),isFirst=!PAX_WATCH.initialized,seen=new Set(PAX_WATCH.known);
+ const now=Date.now(),isFirst=!PAX_WATCH.initialized,seen=new Set(PAX_WATCH.known),identities=new Set(PAX_WATCH.items.map(paxAlertIdentity));
  const fresh=[];
  for(const region of REGIONS){
    for(const article of state.rows[region.id]?.articles||[]){
@@ -41,15 +57,16 @@ function paxAlertsIngest(){
      const date=Date.parse(article.publishedAt);
      if(!Number.isFinite(date)||date<now-PAX_ALERT_MAX_AGE||date>now+3600000)continue;
      const type=paxAlertType(article);if(!type)continue;
-     const key=paxSimpleKey(article,region.id);
-     if(seen.has(key))continue;
-     seen.add(key);
-     const item={id:key,region:region.id,type,title:article.title,source:article.source||"Άγνωστη πηγή",url:article.url,publishedAt:article.publishedAt,firstObservedAt:new Date().toISOString(),read:isFirst||!paxAlertMatches({type,region:region.id})};
+     const key=paxSimpleKey(article,region.id),identity=paxAlertIdentity(article);
+     if(seen.has(key)||identities.has(identity))continue;
+     seen.add(key);identities.add(identity);
+     const item={id:key,region:paxAlertRegion({...article,region:region.id}),type,title:article.title,source:article.source||"Άγνωστη πηγή",url:article.url,publishedAt:article.publishedAt,firstObservedAt:new Date().toISOString(),read:isFirst||!paxAlertMatches({type,region:region.id})};
      fresh.push(item);
    }
  }
  PAX_WATCH.known=Array.from(seen).slice(-550);
  PAX_WATCH.items=fresh.concat(PAX_WATCH.items).filter((x,i,arr)=>arr.findIndex(z=>z.id===x.id)===i)
+  .filter((x,i,arr)=>arr.findIndex(y=>paxAlertIdentity(y)===paxAlertIdentity(x))===i)
   .filter(x=>Date.parse(x.publishedAt)>now-PAX_ALERT_MAX_AGE).sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt)).slice(0,75);
  PAX_WATCH.initialized=true;paxAlertsSave();paxAlertsRender();
  if(!isFirst&&fresh.length&&PAX_WATCH.permission==="granted"&&typeof Notification!=="undefined"){
