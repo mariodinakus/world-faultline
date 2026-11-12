@@ -147,3 +147,47 @@ browser consent and page-open-only notification limits are unchanged.
 This does **not** provide a continuously independently verified agreement
 implementation ledger, nor cross-conflict matched historical peace probabilities.
 Those require a separately curated, dated evidence base and verification process.
+
+## PAX 3.1 — Evidence-audited implementation and historical process comparisons (12 Nov 2026)
+
+The **Process** tab now includes an **Implementation Tracker** sourced from
+`research/implementation-ledger.json`. It separates each agreement's text
+from subsequent historical observations and interruptions. Every evidence
+record has an event/observation date, source name, HTTPS document and statement.
+Current compliance is **not** inferred, and a signature or a news headline
+does **not** qualify as verified implementation. The UI derives labels from
+the *last registered dated evidence*, not from today's conditions.
+
+Initial coverage: four carefully sourced historical agreement episodes —
+Black Sea Grain Initiative (Ukraine), January 2025 Gaza ceasefire, May 2023
+Jeddah Declaration (Sudan), 2022 Yemen truce — with 11 individually tracked
+commitments. Five other live dossiers explicitly show a research gap rather
+than unsourced compliance statuses. In particular, none of these records
+claims to establish the status of agreements in November 2026.
+
+The **Method & data** view includes **Historical Process Lab**, backed by
+`research/comparative-cases.json`. Eight historical cases are available:
+Bosnia/Dayton 1995, Northern Ireland/Belfast 1998, Colombia/FARC 2016,
+Ethiopia/Tigray 2022, Black Sea Grain 2022, Gaza 2025, Sudan/Jeddah 2023,
+and Yemen 2022. A and B can be selected or swapped; a matrix compares
+explicitly source-coded provisions and a dated event list calculates days
+relative to each case's anchor. The numbers are descriptive **date offsets**,
+not cross-case peace probability, causal effects, or a speed-to-peace score.
+`not_classified` means there was insufficient coding evidence, **not**
+that a provision was absent. Different case types are not commensurable
+outcomes.
+
+Both datasets are versioned, static JSON under `pax/research/`, intentionally
+loaded **only when a relevant tab is opened**. They do not invoke another
+provider or require secrets. Editing or adding a record requires:
+
+1. Original primary or institutional source URL and source publication date.
+2. Separate agreement text from a *subsequently observed action*.
+3. Dated evidence for every observed outcome or interruption.
+4. Bilingual concise summary; acknowledge incomplete or contested evidence.
+5. No unverified present-day statuses, synthetic percentages or inferred facts.
+6. Run `node pax/tests/research.test.cjs`, which also checks the routing.
+
+GitHub Actions workflow `pax-research-checks.yml` runs these tests on
+PAX-related PRs and pushes to main. A passing static test does not independently
+verify external events; evidence reviews remain a human research task.

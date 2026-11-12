@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "curatedAt": "2026-11-12",
+  "phase": "historical_source_ledger",
+  "assessmentNote": "Documented historical evidence only. No up-to-date compliance verification is inferred.",
+  "agreements": [
+    {
+      "id": "ukr-grain",
+      "region": "ukraine",
+      "signed": "2022-07-22",
+      "title": {
+        "el": "Πρωτοβουλία Σιτηρών Μαύρης Θάλασσας",
+        "en": "Black Sea Grain Initiative"
+      },
+      "scope": {
+        "el": "Περιορισμένη συμφωνία εξαγωγών — όχι γενική εκεχειρία",
+        "en": "Limited export arrangement — not a general ceasefire"
+      },
+      "source": {
+        "name": "United Nations",
+        "url": "https://www.un.org/black-sea-grain-initiative"
+      },
+      "commitments": [
+        {
+          "id": "jcc",
+          "el": "Κοινό κέντρο συντονισμού & επιθεωρήσεις",
+          "en": "Joint coordination & ship inspections",
+          "promiseSource": "https://www.un.org/black-sea-grain-initiative",
+          "observations": [
+            {
+              "date": "2022-08-03",
+              "kind": "observed",
+              "el": "Το Κοινό Κέντρο Συντονισμού πραγματοποίησε έλεγχο του πρώτου πλοίου.",
+              "en": "The Joint Coordination Centre inspected the first vessel.",
+              "source": "UN in Ukraine",
+              "url": "https://ukraine.un.org/en/193210-inspection-first-commercial-vessel-under-black-sea-grain-initiative-completed"
+            }
+          ]
+        },
+        {
+          "id": "shipments",
+          "el": "Διέλευση πλοίων και εξαγωγές",
+          "en": "Merchant shipping and exports",
+          "promiseSource": "https://www.un.org/black-sea-grain-initiative",
+          "observations": [
+            {
+              "date": "2022-08-03",
+              "kind": "observed",
+              "el": "Πρώτη επιθεώρηση και λειτουργία θαλάσσιου διαδρόμου.",
+              "en": "First ship inspection and operation of the maritime corridor.",
+              "source": "UN in Ukraine",
+              "url": "https://ukraine.un.org/en/193210-inspection-first-commercial-vessel-under-black-sea-grain-initiative-completed"
+            },
+            {
+              "date": "2023-07-17",
+              "kind": "interrupted",
+              "el": "Ο ΟΗΕ κατέγραψε τη λήξη της πρωτοβουλίας χωρίς νέα ανανέωση.",
+              "en": "The UN recorded the initiative's expiry without renewal.",
+              "source": "UN Sustainable Development Group",
+              "url": "https://unsdg.un.org/latest/stories/un-chief-regrets-russia%E2%80%99s-decision-withdraw-grain-deal"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gaza-2025",
+      "region": "gaza",
+      "signed": "2025-01-15",
+      "title": {
+        "el": "Εκεχειρία Ιανουαρίου 2025",
+        "en": "January 2025 ceasefire"
+      },
+      "scope": {
+        "el": "Ιστορικό επεισόδιο — δεν περιγράφει την κατάσταση του Νοεμβρίου 2026",
+        "en": "Historical episode — not a description of November 2026"
+      },
+      "source": {
+        "name": "UN OCHA",
+        "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+      },
+      "commitments": [
+        {
+          "id": "ceasefire",
+          "el": "Έναρξη και διατήρηση εκεχειρίας",
+          "en": "Ceasefire entry into force and continuation",
+          "promiseSource": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip",
+          "observations": [
+            {
+              "date": "2025-01-19",
+              "kind": "observed",
+              "el": "Η OCHA κατέγραψε την έναρξη ισχύος στις 11:15.",
+              "en": "OCHA recorded the ceasefire taking effect at 11:15.",
+              "source": "UN OCHA",
+              "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+            },
+            {
+              "date": "2025-03-18",
+              "kind": "interrupted",
+              "el": "Η ΕΕ κατέγραψε την κατάρρευση της εκεχειρίας και επανέναρξη αεροπορικών επιθέσεων.",
+              "en": "The EU documented the breakdown of the ceasefire and renewed airstrikes.",
+              "source": "European External Action Service",
+              "url": "https://www.eeas.europa.eu/delegations/palestine-occupied-palestinian-territory-west-bank-and-gaza-strip/joint-statement-high-representative-kallas-and-commissioners-%C5%A1uica-and-lahbib-breakdown-ceasefire_en"
+            }
+          ]
+        },
+        {
+          "id": "humanitarian",
+          "el": "Αύξηση ανθρωπιστικής πρόσβασης",
+          "en": "Expansion of humanitarian access",
+          "promiseSource": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip",
+          "observations": [
+            {
+              "date": "2025-01-22",
+              "kind": "observed",
+              "el": "Η OCHA ανέφερε αυξημένες διανομές βοήθειας μετά την έναρξη της εκεχειρίας· δεν τεκμηριώνει πλήρη εφαρμογή.",
+              "en": "OCHA reported increased distributions after the ceasefire began; not evidence of full compliance.",
+              "source": "UN OCHA situation update #257",
+              "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+            }
+          ]
+        },
+        {
+          "id": "release",
+          "el": "Ανταλλαγή ομήρων και κρατουμένων",
+          "en": "Hostage and detainee exchange",
+          "promiseSource": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip",
+          "observations": [
+            {
+              "date": "2025-01-19",
+              "kind": "observed",
+              "el": "Η OCHA, επικαλούμενη την ICRC, κατέγραψε απελευθέρωση τριών ομήρων και 90 Παλαιστίνιων κρατουμένων στις 19 Ιανουαρίου. Δεν τεκμηριώνει την ολοκλήρωση όλων των ανταλλαγών.",
+              "en": "OCHA, citing the ICRC, recorded the release of three hostages and 90 Palestinian detainees on 19 January. This does not establish completion of all exchanges.",
+              "source": "UN OCHA / ICRC",
+              "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sudan-jeddah",
+      "region": "sudan",
+      "signed": "2023-05-11",
+      "title": {
+        "el": "Δέσμευση Τζέντας για προστασία αμάχων",
+        "en": "Jeddah Declaration on civilian protection"
+      },
+      "scope": {
+        "el": "Δήλωση δεσμεύσεων και μεταγενέστερη βραχυχρόνια εκεχειρία, όχι μόνιμη ειρηνευτική συμφωνία",
+        "en": "Declaration and later short-term ceasefire, not a permanent peace settlement"
+      },
+      "source": {
+        "name": "US Department of State",
+        "url": "https://2021-2025.state.gov/jeddah-declaration-of-commitment-to-protect-the-civilians-of-sudan/"
+      },
+      "commitments": [
+        {
+          "id": "civilians",
+          "el": "Προστασία αμάχων, νοσοκομείων και ανθρωπιστικών φορέων",
+          "en": "Civilian, hospital and aid-worker protection",
+          "promiseSource": "https://2021-2025.state.gov/jeddah-declaration-of-commitment-to-protect-the-civilians-of-sudan/",
+          "observations": [
+            {
+              "date": "2023-05-11",
+              "kind": "pledged",
+              "el": "Υπογράφηκε η δήλωση δεσμεύσεων. Αυτό δεν επαληθεύει την εφαρμογή στο πεδίο.",
+              "en": "Declaration signed; this does not verify field implementation.",
+              "source": "US Department of State",
+              "url": "https://2021-2025.state.gov/jeddah-declaration-of-commitment-to-protect-the-civilians-of-sudan/"
+            }
+          ]
+        },
+        {
+          "id": "humanitarian",
+          "el": "Ασφαλής ανθρωπιστική πρόσβαση",
+          "en": "Safe humanitarian access",
+          "promiseSource": "https://2021-2025.state.gov/jeddah-declaration-of-commitment-to-protect-the-civilians-of-sudan/",
+          "observations": [
+            {
+              "date": "2023-05-11",
+              "kind": "pledged",
+              "el": "Περιλαμβάνεται ως δέσμευση στη δήλωση, χωρίς τεκμηριωμένο αποτέλεσμα στο παρόν αρχείο.",
+              "en": "Included as a pledge; no independently documented outcome in this ledger.",
+              "source": "US Department of State",
+              "url": "https://2021-2025.state.gov/jeddah-declaration-of-commitment-to-protect-the-civilians-of-sudan/"
+            }
+          ]
+        },
+        {
+          "id": "short-truce",
+          "el": "Επταήμερη βραχυχρόνια εκεχειρία",
+          "en": "Seven-day short-term ceasefire",
+          "promiseSource": "https://2021-2025.state.gov/agreement-on-a-short-term-ceasefire-and-humanitarian-arrangements-in-sudan/",
+          "observations": [
+            {
+              "date": "2023-05-20",
+              "kind": "pledged",
+              "el": "Υπογράφηκε συμφωνία εκεχειρίας επτά ημερών με προβλεπόμενη έναρξη ύστερα από 48 ώρες.",
+              "en": "Seven-day ceasefire agreed, scheduled to take effect after 48 hours.",
+              "source": "US Department of State",
+              "url": "https://2021-2025.state.gov/agreement-on-a-short-term-ceasefire-and-humanitarian-arrangements-in-sudan/"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yemen-truce",
+      "region": "yemen",
+      "signed": "2022-04-02",
+      "title": {
+        "el": "Εκεχειρία Υεμένης 2022",
+        "en": "Yemen 2022 truce"
+      },
+      "scope": {
+        "el": "Εκεχειρία συγκεκριμένου χρονικού ορίζοντα, όχι οριστική ειρήνη",
+        "en": "Time-limited truce, not a final peace settlement"
+      },
+      "source": {
+        "name": "United Nations Special Envoy for Yemen",
+        "url": "https://www.un.org/sg/en/content/sg/notes-correspondents/2022-04-01/note-correspondents-press-statement-the-un-special-envoy-for-yemen-hans-grundberg-two-month-truce"
+      },
+      "commitments": [
+        {
+          "id": "halt",
+          "el": "Παύση επιθετικών στρατιωτικών επιχειρήσεων",
+          "en": "Cessation of offensive military operations",
+          "promiseSource": "https://www.un.org/sg/en/content/sg/notes-correspondents/2022-04-01/note-correspondents-press-statement-the-un-special-envoy-for-yemen-hans-grundberg-two-month-truce",
+          "observations": [
+            {
+              "date": "2022-04-02",
+              "kind": "observed",
+              "el": "Έναρξη ισχύος της εκεχειρίας σύμφωνα με την εκ των υστέρων αποτίμηση του ΟΗΕ.",
+              "en": "The truce began, as confirmed by the UN's retrospective assessment.",
+              "source": "United Nations",
+              "url": "https://www.un.org/sg/en/content/sg/statements/2022-09-30/statement-the-secretary-general-the-nationwide-truce-yemen"
+            },
+            {
+              "date": "2022-09-30",
+              "kind": "observed",
+              "el": "Ο ΓΓ ΟΗΕ περιέγραψε μείωση της βίας και ανανέωση της εκεχειρίας δύο φορές· δεν τεκμηριώνει διαρκή ειρήνη.",
+              "en": "The UN described reduced violence and two renewals; not evidence of lasting peace.",
+              "source": "UN Secretary-General",
+              "url": "https://www.un.org/sg/en/content/sg/statements/2022-09-30/statement-the-secretary-general-the-nationwide-truce-yemen"
+            }
+          ]
+        },
+        {
+          "id": "fuel-flights",
+          "el": "Πλοία καυσίμων και εμπορικές πτήσεις",
+          "en": "Fuel shipments and commercial flights",
+          "promiseSource": "https://www.un.org/sg/en/content/sg/notes-correspondents/2022-04-01/note-correspondents-press-statement-the-un-special-envoy-for-yemen-hans-grundberg-two-month-truce",
+          "observations": [
+            {
+              "date": "2022-09-30",
+              "kind": "observed",
+              "el": "Ο ΟΗΕ κατέγραψε αυξημένες παραδόσεις καυσίμων και επανέναρξη διεθνών πτήσεων.",
+              "en": "The UN recorded increased fuel deliveries and resumed international flights.",
+              "source": "UN Secretary-General",
+              "url": "https://www.un.org/sg/en/content/sg/statements/2022-09-30/statement-the-secretary-general-the-nationwide-truce-yemen"
+            }
+          ]
+        },
+        {
+          "id": "roads",
+          "el": "Διαπραγματεύσεις για άνοιγμα δρόμων στην Ταΐζ",
+          "en": "Talks on reopening roads in Taiz",
+          "promiseSource": "https://www.un.org/sg/en/content/sg/notes-correspondents/2022-04-01/note-correspondents-press-statement-the-un-special-envoy-for-yemen-hans-grundberg-two-month-truce",
+          "observations": [
+            {
+              "date": "2022-09-30",
+              "kind": "limitation",
+              "el": "Ο ΟΗΕ ανέφερε ότι χρειαζόταν ακόμη συμφωνία για το άνοιγμα δρόμων.",
+              "en": "The UN stated that agreement on reopening roads was still needed.",
+              "source": "UN Secretary-General",
+              "url": "https://www.un.org/sg/en/content/sg/statements/2022-09-30/statement-the-secretary-general-the-nationwide-truce-yemen"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

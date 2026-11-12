@@ -5,14 +5,14 @@ const PAX_DATA_BASE="https://raw.githubusercontent.com/mariodinakus/world-faultl
 const PAX_VIEW={view:"today",sub:"signal",data:{gdelt:null,headlines:null,ucdp:null},loaded:false,relief:{},greek:{}};
 const PAX_VIEW_SECTIONS={
  today:["overview",".stats-band","briefing",".section-main"],
- conflict:["paxConflictBar","detail","peaceSignals","timeline","process","negotiationRoom","timeMachine","gameReal","strategy","relief"],
+ conflict:["paxConflictBar","detail","peaceSignals","timeline","process",".pax-study-implementation-section","negotiationRoom","timeMachine","gameReal","strategy","relief"],
  feed:["paxConflictBar","greekPress","narrative","dispatch","intelligence"],
- tools:["dataStatus","methodology"]
+ tools:["dataStatus",".pax-study-comparison-section","methodology"]
 };
 const PAX_SUBS=[
  ["signal",["detail","peaceSignals"],"Σήμα","Signal"],
  ["timeline",["timeline"],"Χρονολόγιο","Timeline"],
- ["process",["process"],"Διαδικασία","Process"],
+ ["process",["process",".pax-study-implementation-section"],"Διαδικασία","Process"],
  ["room",["negotiationRoom"],"Διαπραγμάτευση","Bargaining"],
  ["machine",["timeMachine"],"Χρονομηχανή","Time machine"],
  ["game",["gameReal","strategy"],"Παίγνιο","Game"],
