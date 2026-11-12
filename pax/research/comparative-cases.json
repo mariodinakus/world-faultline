@@ -1,0 +1,421 @@
+{
+  "schemaVersion": 1,
+  "curatedAt": "2026-11-12",
+  "method": "Historical process architecture and documented event dates, not probability, causal effects or current status",
+  "features": {
+    "cessation": {
+      "el": "Παύση εχθροπραξιών",
+      "en": "Cessation provisions"
+    },
+    "monitoring": {
+      "el": "Εξωτερική επιτήρηση",
+      "en": "External monitoring"
+    },
+    "humanitarian": {
+      "el": "Ανθρωπιστικές διατάξεις",
+      "en": "Humanitarian provisions"
+    },
+    "institutional": {
+      "el": "Πολιτικοί/θεσμικοί όροι",
+      "en": "Political/institutional provisions"
+    },
+    "disarmament": {
+      "el": "Αφοπλισμός ή αφοπλιστική επιβεβαίωση",
+      "en": "Disarmament / verified laying down of arms"
+    }
+  },
+  "cases": [
+    {
+      "id": "bosnia",
+      "family": "comprehensive",
+      "region": null,
+      "title": {
+        "el": "Βοσνία · Ντέιτον (1995)",
+        "en": "Bosnia · Dayton (1995)"
+      },
+      "anchor": "1995-12-14",
+      "reference": {
+        "name": "Office of the High Representative",
+        "url": "https://www.ohr.int/dayton-peace-agreement/?lang=en"
+      },
+      "summary": {
+        "el": "Συνολική συμφωνία με χωριστά στρατιωτικά και πολιτικά παραρτήματα.",
+        "en": "Comprehensive settlement with separate military and political annexes."
+      },
+      "features": {
+        "cessation": "documented",
+        "monitoring": "documented",
+        "humanitarian": "documented",
+        "institutional": "documented",
+        "disarmament": "not_classified"
+      },
+      "events": [
+        {
+          "date": "1995-11-21",
+          "kind": "proposal",
+          "el": "Μονογραφήθηκε στο Ντέιτον.",
+          "en": "Initialled at Dayton.",
+          "source": "OHR",
+          "url": "https://www.ohr.int/dayton-peace-agreement/?lang=en"
+        },
+        {
+          "date": "1995-12-14",
+          "kind": "agreement",
+          "el": "Υπογραφή στο Παρίσι.",
+          "en": "Signed in Paris.",
+          "source": "OHR",
+          "url": "https://www.ohr.int/dayton-peace-agreement/?lang=en"
+        }
+      ],
+      "caution": {
+        "el": "Η ύπαρξη μηχανισμών επιβολής στη συνθήκη δεν είναι ποσοτική μέτρηση της σημερινής ειρήνης.",
+        "en": "Treaty enforcement provisions are not a quantitative measure of peace today."
+      }
+    },
+    {
+      "id": "nireland",
+      "family": "comprehensive",
+      "region": null,
+      "title": {
+        "el": "Βόρεια Ιρλανδία · Συμφωνία Μπέλφαστ (1998)",
+        "en": "Northern Ireland · Belfast Agreement (1998)"
+      },
+      "anchor": "1998-04-10",
+      "reference": {
+        "name": "UK Northern Ireland Office",
+        "url": "https://www.gov.uk/government/publications/the-belfast-agreement?app=true"
+      },
+      "summary": {
+        "el": "Συμφωνία θεσμικής κατανομής εξουσίας και συνταγματικού διακανονισμού.",
+        "en": "Power-sharing and constitutional settlement."
+      },
+      "features": {
+        "cessation": "not_classified",
+        "monitoring": "not_classified",
+        "humanitarian": "not_classified",
+        "institutional": "documented",
+        "disarmament": "not_classified"
+      },
+      "events": [
+        {
+          "date": "1998-04-10",
+          "kind": "agreement",
+          "el": "Υπογραφή Συμφωνίας Μπέλφαστ/Μεγάλης Παρασκευής.",
+          "en": "Belfast/Good Friday Agreement signed.",
+          "source": "UK Northern Ireland Office",
+          "url": "https://www.gov.uk/government/publications/the-belfast-agreement?app=true"
+        }
+      ],
+      "caution": {
+        "el": "Δεν υπολογίζεται «ταχύτητα ειρήνης» από μία μεμονωμένη ημερομηνία.",
+        "en": "One date cannot establish a speed-to-peace metric."
+      }
+    },
+    {
+      "id": "colombia",
+      "family": "comprehensive",
+      "region": null,
+      "title": {
+        "el": "Κολομβία · Κυβέρνηση–FARC (2016)",
+        "en": "Colombia · Government–FARC (2016)"
+      },
+      "anchor": "2016-11-24",
+      "reference": {
+        "name": "Government of Colombia",
+        "url": "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=79893"
+      },
+      "summary": {
+        "el": "Συνολική συμφωνία με ρήτρες παρακολούθησης, επανένταξης και εγγυήσεων ασφάλειας.",
+        "en": "Comprehensive agreement covering verification, reintegration and security guarantees."
+      },
+      "features": {
+        "cessation": "documented",
+        "monitoring": "documented",
+        "humanitarian": "not_classified",
+        "institutional": "documented",
+        "disarmament": "documented"
+      },
+      "events": [
+        {
+          "date": "2016-11-24",
+          "kind": "agreement",
+          "el": "Υπογραφή τελικής συμφωνίας.",
+          "en": "Final peace agreement signed.",
+          "source": "Government of Colombia",
+          "url": "https://www.funcionpublica.gov.co/eva/gestornormativo/norma.php?i=79893"
+        },
+        {
+          "date": "2017-07-10",
+          "kind": "observed",
+          "el": "Το Συμβούλιο Ασφαλείας δημιούργησε αποστολή επαλήθευσης της επόμενης φάσης.",
+          "en": "The Security Council established the follow-on verification mission.",
+          "source": "UN DPPA",
+          "url": "https://dppa.un.org/en/factsheet/un-verification-mission-in-colombia"
+        }
+      ],
+      "caution": {
+        "el": "Η σύσταση αποστολής δεν σημαίνει ότι κάθε όρος εκπληρώθηκε.",
+        "en": "Establishing a mission does not establish that all commitments were fulfilled."
+      }
+    },
+    {
+      "id": "tigray",
+      "family": "cessation",
+      "region": null,
+      "title": {
+        "el": "Αιθιοπία/Τιγκράι · Πρετόρια (2022)",
+        "en": "Ethiopia/Tigray · Pretoria (2022)"
+      },
+      "anchor": "2022-11-02",
+      "reference": {
+        "name": "African Union",
+        "url": "https://server.peaceau.org/en/article/cessation-of-hostilities-agreement-between-the-government-of-the-federal-democratic-republic-of-ethiopia-and-the-tigray-peoples-liberation-front-tplf"
+      },
+      "summary": {
+        "el": "Συμφωνία παύσης εχθροπραξιών με ανθρωπιστικές και υπηρεσιακές δεσμεύσεις.",
+        "en": "Cessation of hostilities agreement with humanitarian and service-restoration commitments."
+      },
+      "features": {
+        "cessation": "documented",
+        "monitoring": "not_classified",
+        "humanitarian": "documented",
+        "institutional": "not_classified",
+        "disarmament": "not_classified"
+      },
+      "events": [
+        {
+          "date": "2022-10-25",
+          "kind": "talks",
+          "el": "Έναρξη συνομιλιών υπό την Αφρικανική Ένωση.",
+          "en": "AU-led talks opened.",
+          "source": "African Union",
+          "url": "https://server.peaceau.org/en/article/cessation-of-hostilities-agreement-between-the-government-of-the-federal-democratic-republic-of-ethiopia-and-the-tigray-peoples-liberation-front-tplf"
+        },
+        {
+          "date": "2022-11-02",
+          "kind": "agreement",
+          "el": "Ολοκλήρωση συμφωνίας παύσης εχθροπραξιών.",
+          "en": "Cessation agreement concluded.",
+          "source": "African Union",
+          "url": "https://server.peaceau.org/en/article/cessation-of-hostilities-agreement-between-the-government-of-the-federal-democratic-republic-of-ethiopia-and-the-tigray-peoples-liberation-front-tplf"
+        }
+      ],
+      "caution": {
+        "el": "Εδώ συγκρίνεται το περιεχόμενο συμφωνίας, όχι ανεξάρτητα ελεγμένη εφαρμογή.",
+        "en": "This compares agreement provisions, not independently verified implementation."
+      }
+    },
+    {
+      "id": "ukr-grain",
+      "family": "limited",
+      "region": "ukraine",
+      "title": {
+        "el": "Ουκρανία · Σιτηρά (2022)",
+        "en": "Ukraine · Black Sea Grain (2022)"
+      },
+      "anchor": "2022-07-22",
+      "reference": {
+        "name": "United Nations",
+        "url": "https://www.un.org/black-sea-grain-initiative"
+      },
+      "summary": {
+        "el": "Περιορισμένη συμφωνία εξαγωγών — όχι γενική εκεχειρία",
+        "en": "Limited export arrangement — not a general ceasefire"
+      },
+      "features": {
+        "cessation": "outside_scope",
+        "monitoring": "documented",
+        "humanitarian": "documented",
+        "institutional": "outside_scope",
+        "disarmament": "outside_scope"
+      },
+      "events": [
+        {
+          "date": "2022-07-22",
+          "kind": "agreement",
+          "el": "Έναρξη καταγεγραμμένου επεισοδίου: Πρωτοβουλία Σιτηρών Μαύρης Θάλασσας.",
+          "en": "Start of documented episode: Black Sea Grain Initiative.",
+          "source": "United Nations",
+          "url": "https://www.un.org/black-sea-grain-initiative"
+        },
+        {
+          "date": "2022-08-03",
+          "kind": "observed",
+          "el": "Το Κοινό Κέντρο Συντονισμού πραγματοποίησε έλεγχο του πρώτου πλοίου.",
+          "en": "The Joint Coordination Centre inspected the first vessel.",
+          "source": "UN in Ukraine",
+          "url": "https://ukraine.un.org/en/193210-inspection-first-commercial-vessel-under-black-sea-grain-initiative-completed"
+        },
+        {
+          "date": "2023-07-17",
+          "kind": "interrupted",
+          "el": "Ο ΟΗΕ κατέγραψε τη λήξη της πρωτοβουλίας χωρίς νέα ανανέωση.",
+          "en": "The UN recorded the initiative's expiry without renewal.",
+          "source": "UN Sustainable Development Group",
+          "url": "https://unsdg.un.org/latest/stories/un-chief-regrets-russia%E2%80%99s-decision-withdraw-grain-deal"
+        }
+      ],
+      "caution": {
+        "el": "Συγκρίνεται η δομή και η χρονολογία της συγκεκριμένης συμφωνίας, όχι η συνολική πορεία του πολέμου.",
+        "en": "This compares the particular agreement's structure and chronology, not the overall course of the war."
+      }
+    },
+    {
+      "id": "gaza-2025",
+      "family": "cessation",
+      "region": "gaza",
+      "title": {
+        "el": "Γάζα · Εκεχειρία (2025)",
+        "en": "Gaza · Ceasefire (2025)"
+      },
+      "anchor": "2025-01-15",
+      "reference": {
+        "name": "UN OCHA",
+        "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+      },
+      "summary": {
+        "el": "Ιστορικό επεισόδιο — δεν περιγράφει την κατάσταση του Νοεμβρίου 2026",
+        "en": "Historical episode — not a description of November 2026"
+      },
+      "features": {
+        "cessation": "documented",
+        "monitoring": "not_classified",
+        "humanitarian": "documented",
+        "institutional": "not_classified",
+        "disarmament": "not_classified"
+      },
+      "events": [
+        {
+          "date": "2025-01-15",
+          "kind": "agreement",
+          "el": "Έναρξη καταγεγραμμένου επεισοδίου: Εκεχειρία Ιανουαρίου 2025.",
+          "en": "Start of documented episode: January 2025 ceasefire.",
+          "source": "UN OCHA",
+          "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+        },
+        {
+          "date": "2025-01-19",
+          "kind": "observed",
+          "el": "Η OCHA κατέγραψε την έναρξη ισχύος στις 11:15.",
+          "en": "OCHA recorded the ceasefire taking effect at 11:15.",
+          "source": "UN OCHA",
+          "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+        },
+        {
+          "date": "2025-01-23",
+          "kind": "observed",
+          "el": "Η OCHA ανέφερε αυξημένες διανομές βοήθειας μετά την έναρξη της εκεχειρίας· δεν τεκμηριώνει πλήρη εφαρμογή.",
+          "en": "OCHA reported increased distributions after the ceasefire began; not evidence of full compliance.",
+          "source": "UN OCHA situation update #257",
+          "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+        },
+        {
+          "date": "2025-03-18",
+          "kind": "interrupted",
+          "el": "Η ΕΕ κατέγραψε την κατάρρευση της εκεχειρίας και επανέναρξη αεροπορικών επιθέσεων.",
+          "en": "The EU documented the breakdown of the ceasefire and renewed airstrikes.",
+          "source": "European External Action Service",
+          "url": "https://www.eeas.europa.eu/delegations/palestine-occupied-palestinian-territory-west-bank-and-gaza-strip/joint-statement-high-representative-kallas-and-commissioners-%C5%A1uica-and-lahbib-breakdown-ceasefire_en"
+        }
+      ],
+      "caution": {
+        "el": "Συγκρίνεται η δομή και η χρονολογία της συγκεκριμένης συμφωνίας, όχι η συνολική πορεία του πολέμου.",
+        "en": "This compares the particular agreement's structure and chronology, not the overall course of the war."
+      }
+    },
+    {
+      "id": "sudan-jeddah",
+      "family": "humanitarian",
+      "region": "sudan",
+      "title": {
+        "el": "Σουδάν · Τζέντα (2023)",
+        "en": "Sudan · Jeddah (2023)"
+      },
+      "anchor": "2023-05-11",
+      "reference": {
+        "name": "US Department of State",
+        "url": "https://2021-2025.state.gov/jeddah-declaration-of-commitment-to-protect-the-civilians-of-sudan/"
+      },
+      "summary": {
+        "el": "Δήλωση δεσμεύσεων και μεταγενέστερη βραχυχρόνια εκεχειρία, όχι μόνιμη ειρηνευτική συμφωνία",
+        "en": "Declaration and later short-term ceasefire, not a permanent peace settlement"
+      },
+      "features": {
+        "cessation": "documented",
+        "monitoring": "planned_not_verified",
+        "humanitarian": "documented",
+        "institutional": "not_classified",
+        "disarmament": "not_classified"
+      },
+      "events": [
+        {
+          "date": "2023-05-11",
+          "kind": "agreement",
+          "el": "Έναρξη καταγεγραμμένου επεισοδίου: Δέσμευση Τζέντας για προστασία αμάχων.",
+          "en": "Start of documented episode: Jeddah Declaration on civilian protection.",
+          "source": "US Department of State",
+          "url": "https://2021-2025.state.gov/jeddah-declaration-of-commitment-to-protect-the-civilians-of-sudan/"
+        }
+      ],
+      "caution": {
+        "el": "Συγκρίνεται η δομή και η χρονολογία της συγκεκριμένης συμφωνίας, όχι η συνολική πορεία του πολέμου.",
+        "en": "This compares the particular agreement's structure and chronology, not the overall course of the war."
+      }
+    },
+    {
+      "id": "yemen-truce",
+      "family": "cessation",
+      "region": "yemen",
+      "title": {
+        "el": "Υεμένη · Εκεχειρία (2022)",
+        "en": "Yemen · Truce (2022)"
+      },
+      "anchor": "2022-04-02",
+      "reference": {
+        "name": "United Nations Special Envoy for Yemen",
+        "url": "https://www.un.org/sg/en/content/sg/notes-correspondents/2022-04-01/note-correspondents-press-statement-the-un-special-envoy-for-yemen-hans-grundberg-two-month-truce"
+      },
+      "summary": {
+        "el": "Εκεχειρία συγκεκριμένου χρονικού ορίζοντα, όχι οριστική ειρήνη",
+        "en": "Time-limited truce, not a final peace settlement"
+      },
+      "features": {
+        "cessation": "documented",
+        "monitoring": "not_classified",
+        "humanitarian": "documented",
+        "institutional": "not_classified",
+        "disarmament": "not_classified"
+      },
+      "events": [
+        {
+          "date": "2022-04-02",
+          "kind": "agreement",
+          "el": "Έναρξη καταγεγραμμένου επεισοδίου: Εκεχειρία Υεμένης 2022.",
+          "en": "Start of documented episode: Yemen 2022 truce.",
+          "source": "United Nations Special Envoy for Yemen",
+          "url": "https://www.un.org/sg/en/content/sg/notes-correspondents/2022-04-01/note-correspondents-press-statement-the-un-special-envoy-for-yemen-hans-grundberg-two-month-truce"
+        },
+        {
+          "date": "2022-04-02",
+          "kind": "observed",
+          "el": "Έναρξη ισχύος της εκεχειρίας σύμφωνα με την εκ των υστέρων αποτίμηση του ΟΗΕ.",
+          "en": "The truce began, as confirmed by the UN's retrospective assessment.",
+          "source": "United Nations",
+          "url": "https://www.un.org/sg/en/content/sg/statements/2022-09-30/statement-the-secretary-general-the-nationwide-truce-yemen"
+        },
+        {
+          "date": "2022-09-30",
+          "kind": "observed",
+          "el": "Ο ΓΓ ΟΗΕ περιέγραψε μείωση της βίας και ανανέωση της εκεχειρίας δύο φορές· δεν τεκμηριώνει διαρκή ειρήνη.",
+          "en": "The UN described reduced violence and two renewals; not evidence of lasting peace.",
+          "source": "UN Secretary-General",
+          "url": "https://www.un.org/sg/en/content/sg/statements/2022-09-30/statement-the-secretary-general-the-nationwide-truce-yemen"
+        }
+      ],
+      "caution": {
+        "el": "Συγκρίνεται η δομή και η χρονολογία της συγκεκριμένης συμφωνίας, όχι η συνολική πορεία του πολέμου.",
+        "en": "This compares the particular agreement's structure and chronology, not the overall course of the war."
+      }
+    }
+  ]
+}
