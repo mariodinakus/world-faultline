@@ -114,3 +114,17 @@ The static-first site adds three sections and requires **no new backend dependen
 The `PAX_ROOM_POSITIONS` structured ledger deliberately contains only a limited number of sourced historical actor positions: among them June 2024 Ukrainian and Russian territorial/security statements, September 2025 Israeli government conditions, May 2023 SAF/RSF Jeddah commitments, the 2022 Yemen truce and March 2025 Syrian authorities/SDF integration agreement. These are **dated archival records**, not statements of any actor's current November 2026 policy. Keep each claim's publication date, attribution and original link when updating.
 
 Internationalization: the Greek/English switch covers the new static UI and all three components' dynamic copy. The new tools consume existing in-memory source-linked data without new remote requests, and Narrative Divergence uses IntersectionObserver to defer processing until visible. The PAX Fast static UI remains preferred at `https://pax-intelligence-fast.onrender.com/`; the Render API stays separate. Changes are scoped to `pax/` in `mariodinakus/world-faultline` and do not change its root app, the Vercel project or DNS.
+
+## PAX 3 — Four views, real-data game theory (November 2026)
+
+**Structure.** The single long page is split into four hash-routed views (`views.js`): *Σήμερα* (`#/today`), *Συγκρούσεις* (`#/conflict/<id>/<tab>` with tabs Σήμα · Χρονολόγιο · Διαδικασία · Διαπραγμάτευση · Χρονομηχανή · Παίγνιο · Ανθρωπιστικά), *Ροή & Πηγές* (`#/feed/<id>`) and *Μέθοδος & δεδομένα* (`#/tools`). One sticky conflict selector replaces the five per-section dropdowns.
+
+**Daily data pipeline.** `.github/workflows/pax-data.yml` runs `pax/scripts/collect.mjs` once a day and commits JSON to the `pax-data` branch (served from raw.githubusercontent.com; Vercel builds are disabled on that branch):
+- `gdelt.json` — GDELT 2.0 Event exports aggregated per conflict dyad, per direction and day: event counts, mention-weighted Goldstein, cooperative (QuadClass 1–2) vs conflictual (3–4) events. Sudan and Myanmar are excluded because GDELT rarely assigns a country to rebel/paramilitary actors, so sides cannot be separated.
+- `headlines.json` — a daily snapshot of PAX's own headline classification, building a real history instead of browser-only localStorage.
+- `ucdp.json` — UCDP GED candidate fatalities per month, only when the `UCDP_TOKEN` repository secret is set.
+Run it manually from GitHub → Actions → *PAX daily data* → *Run workflow* (default backfill 90 days).
+
+**Observed game (Παίγνιο tab).** For each dyad: 7-day rolling share of conflictual events in each direction; an empirical 2×2 where a side "escalates" on days above its own median conflict share; and a reciprocity regression `A_t = α + β·B_{t−1} + γ·A_{t−1}` (OLS, |t| ≥ 2 reported as a pattern). This measures temporal association in press-coded events, not causation or intent. The hypothetical Nash lab stays below it, clearly labelled as assumptions.
+
+**New sources.** `/api/greek` (Google News Greece, Greek-language headlines per conflict, shown next to the international feed) and `/api/relief` (ReliefWeb/UN OCHA reports; needs an approved appname in the `RELIEFWEB_APPNAME` Vercel environment variable).

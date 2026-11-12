@@ -18,7 +18,7 @@ function wrapResponse(raw){
  };
  return obj;
 }
-const handlers={'/api/news':require('./api/news.js'),'/api/markets':require('./api/markets.js')};
+const handlers={'/api/news':require('./api/news.js'),'/api/markets':require('./api/markets.js'),'/api/greek':require('./api/greek.js'),'/api/relief':require('./api/relief.js')};
 const server=http.createServer(async(req,res)=>{
  res.setHeader('X-Content-Type-Options','nosniff');
  res.setHeader('Referrer-Policy','strict-origin-when-cross-origin');

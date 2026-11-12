@@ -139,7 +139,7 @@ function paxRoomRender(){
  $("paxRoomBody").innerHTML=body+evidence;
  $("paxRoomOpenGame")?.addEventListener("click",()=>{
   const details=$("paxGameDetails");if(details)details.open=true;
-  $("strategy")?.scrollIntoView({behavior:"smooth",block:"start"});
+  if(typeof paxGo==="function")paxGo("conflict",null,"game");else $("strategy")?.scrollIntoView({behavior:"smooth",block:"start"});
  });
 }
 function recordLabel(n,en){return n+(en?(n===1?" source record":" source records"):(n===1?" τεκμηριωμένη πηγή":" τεκμηριωμένες πηγές"))}
