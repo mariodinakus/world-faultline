@@ -37,7 +37,7 @@ function entries(xml){return xml.match(/<(?:item|entry)(?:\s[^>]*)?>[\s\S]*?<\/(
 function safeUrl(s){try{const u=new URL(s);return u.protocol==="https:"?u.href:null}catch{return null}}
 function date(s){const t=Date.parse(s);return Number.isFinite(t)?new Date(t).toISOString():null}
 function publisher(source){
- const s=String(source||"Unknown").trim(),t=s.toLowerCase();
+ const s=String(source||"Unknown").trim().split(/\s+[-–|]\s+/)[0].trim()||"Unknown",t=s.toLowerCase();
  if(/reuters/.test(t))return "Reuters";if(/associated press|ap news/.test(t))return "AP News";
  if(/bbc/.test(t))return "BBC News";if(/guardian/.test(t))return "The Guardian";
  if(/al jazeera/.test(t))return "Al Jazeera";if(/deutsche welle|^dw\b|dw.com/.test(t))return "DW";
@@ -45,13 +45,21 @@ function publisher(source){
  if(/politico/.test(t))return "POLITICO";
  return s.slice(0,60)
 }
+function cleanTitle(title,names){
+ let t=String(title||"").trim();
+ for(const n of names.filter(Boolean))if(t.endsWith(" - "+n))t=t.slice(0,-n.length-3).trim();
+ const m=t.match(/\s+[-–|]\s+([^-–|]{2,48})$/);
+ if(m){const tail=m[1].trim().toLowerCase(),key=String(names[1]||"").toLowerCase().split(/\s+/)[0];
+  if(/\.[a-z]{2,4}$/.test(tail)||(key&&tail.includes(key))||/^(europe|world|middle east|ukraine|gaza) live$/.test(tail))t=t.slice(0,m.index).trim()}
+ return t;
+}
 function parseRSS(xml,feed,via){
  return entries(xml).map(item=>{
- const title=tag(item,"title"),source=publisher(feed?.publisher||tag(item,"source"));
+ const raw=tag(item,"source"),source=publisher(feed?.publisher||raw),title=cleanTitle(tag(item,"title"),[raw,source]);
  const link=item.match(/<link\b[^>]*href=["']([^"']+)["']/i);
  const url=safeUrl(tag(item,"link")||link?.[1]);
  const publishedAt=date(tag(item,"pubDate")||tag(item,"published")||tag(item,"updated")||tag(item,"date"));
- return {title:title.endsWith(" - "+source)?title.slice(0,-source.length-3):title,url,source,publishedAt,via};
+ return {title,url,source,publishedAt,via};
  }).filter(a=>a.title&&a.url&&a.publishedAt)
 }
 function parseGDELT(data){return (data.articles||[]).map(a=>{
