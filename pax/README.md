@@ -191,3 +191,50 @@ provider or require secrets. Editing or adding a record requires:
 GitHub Actions workflow `pax-research-checks.yml` runs these tests on
 PAX-related PRs and pushes to main. A passing static test does not independently
 verify external events; evidence reviews remain a human research task.
+
+## PAX 3.2 — Peace Path + War Economy (12 Nov 2026)
+
+### Peace Path (Signal tab)
+
+The five gates — documented contacts, proposals, signed agreements, observed
+implementation, and independent sustained violence reduction — are **separate
+requirements**, never summed into a percentage or treated as an election-style
+success ranking. Entries are matched to the selectively curated peace-process
+ledger and retain their source dates. There is no automatically verified
+longitudinal violence series yet; the last gate therefore **always remains
+unverified**. A later curated setback and aged records are explicitly flagged.
+This is not a real-time ceasefire compliance assessment.
+
+### War Economy (new conflict sub-tab)
+
+The per-conflict watchlists are *analytical exposure themes*, **not causal
+estimates** of war impacts. Global commodity price charts and 12 latest
+monthly values come from the **World Bank Commodity Price Data (Pink Sheet)**,
+with native units, current US dollar nominal prices, source URL and last
+published period. Each chart can show all observed months since January
+2000, 15 years or 5 years. Before/after values reference the PAX selected
+conflict **phase**, which can be much later than the origin of a dispute.
+An event line and the start of a price change cannot prove causal effect.
+
+The **World Bank WDI v2** API directly provides annual observations per
+selected country: real GDP growth (NY.GDP.MKTP.KD.ZG), CPI inflation
+(FP.CPI.TOTL.ZG) and GDP per capita (NY.GDP.PCAP.CD). Data can be missing,
+revised, estimated, or blocked by browser connectivity; the app will show
+missing data instead of fabricated values. Territorial aggregates (e.g. PSE)
+are *not interchangeable* with the Gaza-only economy.
+
+Raw primary commodity spreadsheet: https://www.worldbank.org/en/research/commodity-markets
+
+The script `pax/scripts/sync_economy_prices.py` retrieves the official
+*Monthly Prices* workbook, validates dates, units, non-null numeric records,
+the number of monthly observations and unambiguous column headers, then
+writes `pax/data/economy-prices.json`. On source failure it exits with an
+error **without creating fake price observations**. The GitHub workflow
+`pax-economy-prices.yml` runs on the first push, on manual request and
+monthly, committing only data changes to main. The loader is lazy on the
+Economy tab and gracefully reports unavailable JSON if the workflow has not
+succeeded yet. No API keys are used. Source data are historical and may
+be revised at the next World Bank release.
+
+Tests: `node pax/tests/research.test.cjs` and
+`node pax/tests/peace-economy.test.cjs`.
