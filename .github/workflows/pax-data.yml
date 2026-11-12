@@ -1,0 +1,54 @@
+name: PAX daily data
+
+on:
+  schedule:
+    - cron: "17 4 * * *"   # daily, 06:17 Athens (winter)
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: "Days of GDELT history to (re)collect"
+        default: "90"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pax-data
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: src
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Open the pax-data branch
+        run: |
+          git clone --depth 1 --branch pax-data "https://github.com/${GITHUB_REPOSITORY}.git" out || {
+            mkdir out && cd out && git init -b pax-data
+          }
+      - name: Collect GDELT, headline history and UCDP
+        working-directory: out
+        env:
+          PAX_OUT: data
+          PAX_BACKFILL_DAYS: ${{ github.event.inputs.backfill || '7' }}
+          UCDP_TOKEN: ${{ secrets.UCDP_TOKEN }}
+        run: node ../src/pax/scripts/collect.mjs
+      - name: Publish to pax-data
+        working-directory: out
+        run: |
+          # This branch only holds JSON; never let Vercel build it.
+          mkdir -p pax
+          echo '{"git":{"deploymentEnabled":false}}' > vercel.json
+          cp vercel.json pax/vercel.json
+          printf '# PAX data\nGenerated daily by .github/workflows/pax-data.yml on main. Do not edit by hand.\n' > README.md
+          git config user.name "pax-data-bot"
+          git config user.email "pax-data-bot@users.noreply.github.com"
+          git add -A
+          git commit -m "PAX data $(date -u +%Y-%m-%dT%H:%MZ)" || { echo "No changes"; exit 0; }
+          git push "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" HEAD:pax-data
