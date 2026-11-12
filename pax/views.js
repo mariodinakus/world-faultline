@@ -5,18 +5,19 @@ const PAX_DATA_BASE="https://raw.githubusercontent.com/mariodinakus/world-faultl
 const PAX_VIEW={view:"today",sub:"signal",data:{gdelt:null,headlines:null,ucdp:null},loaded:false,relief:{},greek:{}};
 const PAX_VIEW_SECTIONS={
  today:["overview",".stats-band","briefing",".section-main"],
- conflict:["paxConflictBar","detail","peaceSignals","timeline","process",".pax-study-implementation-section","negotiationRoom","timeMachine","gameReal","strategy","relief"],
+ conflict:["paxConflictBar","detail","peaceSignals",".pax-path-section","timeline","process",".pax-study-implementation-section","negotiationRoom","timeMachine","gameReal","strategy","relief",".pax-economy-section"],
  feed:["paxConflictBar","greekPress","narrative","dispatch","intelligence"],
  tools:["dataStatus",".pax-study-comparison-section","methodology"]
 };
 const PAX_SUBS=[
- ["signal",["detail","peaceSignals"],"Σήμα","Signal"],
+ ["signal",["detail","peaceSignals",".pax-path-section"],"Σήμα","Signal"],
  ["timeline",["timeline"],"Χρονολόγιο","Timeline"],
  ["process",["process",".pax-study-implementation-section"],"Διαδικασία","Process"],
  ["room",["negotiationRoom"],"Διαπραγμάτευση","Bargaining"],
  ["machine",["timeMachine"],"Χρονομηχανή","Time machine"],
  ["game",["gameReal","strategy"],"Παίγνιο","Game"],
- ["relief",["relief"],"Ανθρωπιστικά","Humanitarian"]
+ ["relief",["relief"],"Ανθρωπιστικά","Humanitarian"],
+ ["economy",[".pax-economy-section"],"Οικονομία","Economy"]
 ];
 const PAX_VIEW_LABELS={today:["Σήμερα","Today"],conflict:["Συγκρούσεις","Conflicts"],feed:["Ροή & Πηγές","Feed & sources"],tools:["Μέθοδος & δεδομένα","Method & data"]};
 const vEn=()=>paxLang()==="en";
