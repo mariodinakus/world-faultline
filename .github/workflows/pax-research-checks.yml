@@ -1,0 +1,22 @@
+name: PAX research checks
+on:
+  pull_request:
+    paths:
+      - "pax/**"
+      - ".github/workflows/pax-research-checks.yml"
+  push:
+    branches: [main]
+    paths:
+      - "pax/**"
+      - ".github/workflows/pax-research-checks.yml"
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - run: node --version
+      - run: node pax/tests/research.test.cjs
