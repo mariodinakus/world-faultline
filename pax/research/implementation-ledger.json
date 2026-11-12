@@ -111,7 +111,7 @@
           "promiseSource": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip",
           "observations": [
             {
-              "date": "2025-01-23",
+              "date": "2025-01-22",
               "kind": "observed",
               "el": "Η OCHA ανέφερε αυξημένες διανομές βοήθειας μετά την έναρξη της εκεχειρίας· δεν τεκμηριώνει πλήρη εφαρμογή.",
               "en": "OCHA reported increased distributions after the ceasefire began; not evidence of full compliance.",
@@ -125,7 +125,16 @@
           "el": "Ανταλλαγή ομήρων και κρατουμένων",
           "en": "Hostage and detainee exchange",
           "promiseSource": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip",
-          "observations": []
+          "observations": [
+            {
+              "date": "2025-01-19",
+              "kind": "observed",
+              "el": "Η OCHA, επικαλούμενη την ICRC, κατέγραψε απελευθέρωση τριών ομήρων και 90 Παλαιστίνιων κρατουμένων στις 19 Ιανουαρίου. Δεν τεκμηριώνει την ολοκλήρωση όλων των ανταλλαγών.",
+              "en": "OCHA, citing the ICRC, recorded the release of three hostages and 90 Palestinian detainees on 19 January. This does not establish completion of all exchanges.",
+              "source": "UN OCHA / ICRC",
+              "url": "https://www.ochaopt.org/content/humanitarian-situation-update-257-gaza-strip"
+            }
+          ]
         }
       ]
     },
