@@ -7,10 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Commissioner:wght@400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="extras.css"><link rel="stylesheet" href="intelligence.css"><link rel="stylesheet" href="bilingual.css"><link rel="stylesheet" href="desk.css"><link rel="stylesheet" href="negotiation.css"><link rel="stylesheet" href="views.css"><link rel="stylesheet" href="peace-signals.css"><link rel="stylesheet" href="research.css">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="extras.css"><link rel="stylesheet" href="intelligence.css"><link rel="stylesheet" href="bilingual.css"><link rel="stylesheet" href="desk.css"><link rel="stylesheet" href="negotiation.css"><link rel="stylesheet" href="views.css"><link rel="stylesheet" href="peace-signals.css"><link rel="stylesheet" href="research.css"><link rel="stylesheet" href="war-economy.css">
 
 
-<script defer src="history.js"></script><script defer src="i18n.js"></script><script defer src="app.js"></script><script defer src="timeline.js"></script><script defer src="alerts.js"></script><script defer src="intelligence.js"></script><script defer src="briefing.js"></script><script defer src="peace-process.js"></script><script defer src="game-theory.js"></script><script defer src="negotiation-room.js"></script><script defer src="time-machine.js"></script><script defer src="narrative.js"></script><script defer src="views.js"></script><script defer src="peace-signals.js"></script><script defer src="research.js"></script>
+<script defer src="history.js"></script><script defer src="i18n.js"></script><script defer src="app.js"></script><script defer src="timeline.js"></script><script defer src="alerts.js"></script><script defer src="intelligence.js"></script><script defer src="briefing.js"></script><script defer src="peace-process.js"></script><script defer src="game-theory.js"></script><script defer src="negotiation-room.js"></script><script defer src="time-machine.js"></script><script defer src="narrative.js"></script><script defer src="views.js"></script><script defer src="peace-signals.js"></script><script defer src="research.js"></script><script defer src="peace-path.js"></script><script defer src="war-economy.js"></script>
 </head><body>
 <div id="paxStartupNotice" class="pax-startup-notice" role="status" aria-live="polite" hidden>
  <span class="pax-spinner" aria-hidden="true"></span>
@@ -71,6 +71,7 @@
 </div>
 </section>
 <section class="shell pax-signals-section" id="peaceSignals" aria-label="Peace Signals"></section>
+<section class="shell pax-desk-section pax-path-section"><div class="pax-desk-panel" id="paxPeacePath" aria-live="polite"></div></section>
 <section class="shell timeline-section" id="timeline">
 <div class="section-heading"><div><span class="kicker">DIPLOMACY ARCHIVE</span><h2>NEGOTIATION <span>TIMELINE.</span></h2></div><p>Τεκμηριωμένα ιστορικά ορόσημα μαζί με πρόσφατες αναφορές. Επίλεξε περιοχή και σύγκρινε περιόδους χωρίς τεχνητές «πιθανότητες».</p></div>
 <div class="timeline-panel">
@@ -191,6 +192,7 @@
 <div class="section-heading"><div><span class="kicker">PAX / HUMANITARIAN RECORD</span><h2>BEYOND THE <span>HEADLINES.</span></h2></div><p>Επίσημες ανθρωπιστικές αναφορές του ΟΗΕ (OCHA/ReliefWeb) και οργανώσεων για τη χώρα της σύγκρουσης.</p></div>
 <div class="pax-desk-panel"><div class="pax-g-bar"><span class="pax-desk-overline">RELIEFWEB / UN OCHA</span><strong id="paxReliefRegion">—</strong></div><div id="paxReliefList" class="pax-relief"></div></div>
 </section>
+<section class="shell pax-desk-section pax-economy-section"><div class="pax-desk-panel" id="paxWarEconomy" aria-live="polite"></div></section>
 <section class="shell pax-desk-section" id="dataStatus">
 <div class="section-heading"><div><span class="kicker">PAX / DATA PIPELINE</span><h2>WHERE THE <span>DATA COMES FROM.</span></h2></div><p>Κάθε πηγή, πότε ενημερώθηκε και τι χρειάζεται για να λειτουργήσει. Ό,τι λείπει εμφανίζεται ως κενό — ποτέ ως επινοημένος αριθμός.</p></div>
 <div class="pax-desk-panel" id="paxDataStatus"></div>
