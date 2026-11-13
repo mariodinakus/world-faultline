@@ -4,7 +4,8 @@
 const PAX_DATA_BASE="https://raw.githubusercontent.com/mariodinakus/world-faultline/pax-data/data/";
 const PAX_VIEW={view:"today",sub:"signal",data:{gdelt:null,headlines:null,ucdp:null},loaded:false,relief:{},greek:{}};
 const PAX_VIEW_SECTIONS={
- today:["overview",".stats-band","briefing",".section-main"],
+ today:["overview","paxPeaceIndexHome",".stats-band","briefing",".section-main"],
+ peace:["paxConflictBar",".pax-path-section"],
  conflict:["paxConflictBar","detail","peaceSignals",".pax-path-section","timeline","process",".pax-study-implementation-section","negotiationRoom","timeMachine","gameReal","strategy","relief",".pax-economy-section"],
  feed:["paxConflictBar","greekPress","narrative","dispatch","intelligence"],
  tools:["dataStatus",".pax-study-comparison-section","methodology"]
@@ -19,7 +20,7 @@ const PAX_SUBS=[
  ["relief",["relief"],"Ανθρωπιστικά","Humanitarian"],
  ["economy",[".pax-economy-section"],"Οικονομία","Economy"]
 ];
-const PAX_VIEW_LABELS={today:["Σήμερα","Today"],conflict:["Συγκρούσεις","Conflicts"],feed:["Ροή & Πηγές","Feed & sources"],tools:["Μέθοδος & δεδομένα","Method & data"]};
+const PAX_VIEW_LABELS={today:["Σήμερα","Today"],peace:["Δείκτης Ειρήνης","Peace Index"],conflict:["Συγκρούσεις","Conflicts"],feed:["Ροή & Πηγές","Feed & sources"],tools:["Μέθοδος & δεδομένα","Method & data"]};
 const vEn=()=>paxLang()==="en";
 const vT=(el,en)=>vEn()?en:el;
 function vNode(sel){return sel[0]==="."?document.querySelector(sel):document.getElementById(sel)}
@@ -30,13 +31,13 @@ function paxParseHash(){
  const parts=location.hash.replace(/^#\/?/,"").split("/").filter(Boolean);
  const view=PAX_VIEW_SECTIONS[parts[0]]?parts[0]:"today";
  let region=null,sub=null;
- if(view==="conflict"||view==="feed"){region=REGIONS.some(r=>r.id===parts[1])?parts[1]:null;sub=PAX_SUBS.some(s=>s[0]===parts[2])?parts[2]:null}
+ if(view==="conflict"||view==="feed"||view==="peace"){region=REGIONS.some(r=>r.id===parts[1])?parts[1]:null;sub=PAX_SUBS.some(s=>s[0]===parts[2])?parts[2]:null}
  return {view,region,sub};
 }
 function paxGo(view,region,sub,push=true){
  PAX_VIEW.view=view;if(sub)PAX_VIEW.sub=sub;
  if(region&&region!==state.selected)paxSetSelectedQuiet(region);
- const hash="#/"+view+(view==="conflict"||view==="feed"?"/"+state.selected+(view==="conflict"?"/"+PAX_VIEW.sub:""):"");
+ const hash="#/"+view+(view==="conflict"||view==="feed"||view==="peace"?"/"+state.selected+(view==="conflict"?"/"+PAX_VIEW.sub:""):"");
  if(push&&location.hash!==hash)history.pushState(null,"",hash);
  paxApplyView();
  window.scrollTo(0,0);
@@ -292,7 +293,7 @@ function paxViewsInit(){
  if(location.hash.length>1&&!location.hash.startsWith("#/"))paxRouteToElement(decodeURIComponent(location.hash.slice(1)));
  window.addEventListener("hashchange",()=>{if(location.hash.length>1&&!location.hash.startsWith("#/")){paxRouteToElement(location.hash.slice(1));return}const q=paxParseHash();if(q.region&&q.region!==state.selected)paxSetSelectedQuiet(q.region);if(q.sub)PAX_VIEW.sub=q.sub;PAX_VIEW.view=q.view;paxApplyView();window.scrollTo(0,0)});
  window.addEventListener("popstate",()=>{const q=paxParseHash();if(q.region&&q.region!==state.selected)paxSetSelectedQuiet(q.region);if(q.sub)PAX_VIEW.sub=q.sub;PAX_VIEW.view=q.view;paxApplyView()});
- document.addEventListener("pax:selection",()=>{if(PAX_VIEW.view==="conflict"||PAX_VIEW.view==="feed"){paxRenderBar();if(PAX_VIEW.sub==="game")paxRenderGame();if(PAX_VIEW.sub==="relief")paxRenderRelief();if(PAX_VIEW.view==="feed")paxRenderGreek()}});
+ document.addEventListener("pax:selection",()=>{if(PAX_VIEW.view==="conflict"||PAX_VIEW.view==="feed"||PAX_VIEW.view==="peace"){paxRenderBar();if(PAX_VIEW.sub==="game")paxRenderGame();if(PAX_VIEW.sub==="relief")paxRenderRelief();if(PAX_VIEW.view==="feed")paxRenderGreek()}});
  document.addEventListener("pax:data",()=>{paxRenderBar();if(PAX_VIEW.view==="feed")paxRenderGreek();if(PAX_VIEW.view==="tools")paxRenderStatus()});
  document.addEventListener("pax:language",()=>{paxBuildNav();paxApplyView();document.querySelectorAll(".pax-spark-wrap").forEach(n=>n.remove());paxDecorateRadar()});
  new MutationObserver(()=>paxDecorateRadar()).observe($("radarList"),{childList:true});
