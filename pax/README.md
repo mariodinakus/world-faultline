@@ -238,3 +238,34 @@ be revised at the next World Bank release.
 
 Tests: `node pax/tests/research.test.cjs` and
 `node pax/tests/peace-economy.test.cjs`.
+
+
+## PAX 3.2.1 — visible Peace Index navigation
+
+The Peace Index is now a **first-class top navigation entry** (`#/peace/ukraine`)
+and a large visible panel directly below the Today hero. The Today panel provides
+links to all nine conflicts, with a ring showing the count of evidence-backed
+historical process milestone categories (0–4 out of 5), an observation timestamp
+and a warning when the newest curated entry is over 90 days old.
+
+**Interpretation:** The 0–5 numeral is an *archive coverage count* — **NOT an
+estimated probability of peace, a confidence score, a forecast, an assessment of
+a signed agreement's current validity, or a claim of independent verification of
+a sustained decline in fatalities**. A signed limited-scope food-export arrangement
+can appear in the archive without any general ceasefire. The fifth category
+(sustained violence decline) remains unverified until an independent longitudinal
+fatalities series is implemented. Unobserved does not equal absent, and historical
+records may be stale. More records can reflect better reporting rather than
+greater progress; the cross-conflict mini-cards are a **navigation aid**, not a
+comparable country ranking.
+
+Routes:
+- Today (homepage): `#/` → prominent Peace Index overview.
+- Peace Index: `#/peace/<conflict-id>` → one conflict's full five-stage ledger.
+- Conflict → Signal: the same stage ledger remains available.
+- Conflict → Process: original dated source records and implementation evidence.
+
+The homepage and detail panels reuse the same `paxPathSummary()` data function.
+When the backend has no verifiable data, blank/old evidence is explicitly
+indicated instead of replacing it with an invented number.
+Regression: `node pax/tests/peace-index-navigation.test.cjs`.
