@@ -1,5 +1,9 @@
 # WORLD FAULTLINE · Global Systems Observatory
 
+> **Workspace status:** Core development — PAX (module under `pax/`).
+>
+> **Active projects:** [NBA Atlas](https://github.com/mariodinakus/sideline-sports) · [AXON](https://github.com/mariodinakus/axon) · [MONO](https://github.com/mariodinakus/monokairos) · [PAX](https://github.com/mariodinakus/world-faultline/tree/main/pax) · [EFIMERIA ONE](https://github.com/mariodinakus/efimeria-one) · [AOTH](https://github.com/mariodinakus/aoth).
+
 ## v1.3 — Recession Lab and cinematic redesign
 - **Recession Lab** (`#lab`) has 9 scenario presets built on today's live data: status quo with Hormuz effectively closed since 28 Feb 2026, Hormuz reopens, Gulf escalation at $150, a $200 oil shock, a Russia–NATO clash, a Taiwan blockade, a US–China war, a conventional World War III and an AI/equity bust. Six sliders let you build your own scenario.
 - **How a shock is passed through:**
