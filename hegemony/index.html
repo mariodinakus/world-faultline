@@ -45,6 +45,11 @@ select,.seg button{font:inherit}select{padding:9px 12px;border:1px solid var(--l
 @media(max-width:820px){.app{grid-template-columns:1fr}aside{position:fixed;bottom:0;top:auto;left:0;right:0;height:auto;flex-direction:row;padding:6px 6px calc(6px + env(safe-area-inset-bottom));z-index:20;overflow-x:auto;gap:2px}.brand,.foot{display:none}nav{display:flex;gap:2px;width:100%}nav button{flex-direction:column;gap:2px;padding:7px 6px;font-size:11px;text-align:center;justify-content:center;flex:1;min-width:62px}main{padding:18px 14px 96px}
  .g3,.g2,.g4{grid-template-columns:1fr}.row{grid-template-columns:1fr 1fr;gap:8px 12px}.row .lab{grid-column:1/-1}.score .big{font-size:38px}.mobhead{display:flex!important}}
 .mobhead{display:none;align-items:center;justify-content:space-between;margin-bottom:14px}.mobhead b{letter-spacing:.06em}.mobhead button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 11px;font-weight:600}
+
+.sl{display:grid;grid-template-columns:130px 1fr 44px;gap:10px;align-items:center;margin:9px 0;font-size:14px;font-weight:600}.sl input{width:100%;accent-color:var(--brand)}.sl b{text-align:right;font-variant-numeric:tabular-nums}
+.rk{display:grid;grid-template-columns:26px 120px 1fr 44px;gap:10px;align-items:center;padding:6px 0;font-size:14px}.rk .n{color:var(--mute);text-align:right;font-variant-numeric:tabular-nums}.rk em{font-style:normal;font-weight:700;text-align:right}
+.hl{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.02em;line-height:1.2}.hl small{display:block;font-size:13px;font-weight:500;color:var(--mute);letter-spacing:0;margin-top:6px}
+.presets{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}.presets button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.presets button:hover{border-color:var(--brand);color:var(--brand)}
 </style></head><body>
 <div class="app">
 <aside><div class="brand"><svg width="38" height="38" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#1f4fd8"/><circle cx="32" cy="32" r="21" fill="none" stroke="#fff" stroke-width="2.4"/><path d="M11 32h42M32 11v42M16 21c10 7 22 7 32 0M16 43c10-7 22-7 32 0" stroke="#fff" stroke-width="1.5" fill="none" opacity=".75"/><path d="M32 16l6 16-6 16-6-16z" fill="#fff"/></svg><div><b>HEGEMONY</b><small>GLOBAL POWER INTELLIGENCE</small></div></div>
@@ -52,6 +57,12 @@ select,.seg button{font:inherit}select{padding:9px 12px;border:1px solid var(--l
 <main>
 <div class="mobhead"><b>HEGEMONY</b><button id="refresh2">↻</button></div>
 
+<section class="view" id="v-lab"><h1>Εργαστήριο Ισχύος</h1><p class="lead">Η «ισχύς» δεν έχει μία ορισμό. Όρισε εσύ πόσο μετράει η οικονομία, ο στρατός, ο πληθυσμός, το εμπόριο και η βιομηχανία, και δες ποιος κερδίζει.</p>
+<div class="grid g2"><div class="card"><h2>Τα βάρη σου</h2><div class="sub">Σύρε τα sliders — το ranking ενημερώνεται αμέσως</div><div class="presets" id="presets"></div><div id="sliders"></div>
+<div class="tools" style="margin:12px 0 0"><div class="seg" id="scale"><button data-s="lin" class="on">Γραμμική</button><button data-s="log">Λογαριθμική</button></div></div><div class="note">Κάθε δείκτης κανονικοποιείται 0–100 σε σχέση με τον ηγέτη του δείγματος των 31 χώρων. Η λογαριθμική κλίμακα δίνει περισσότερο βάρος στις μικρότερες δυνάμεις.</div></div>
+<div class="card"><h2>Ranking</h2><div class="sub" id="rkmeta"></div><div id="rank" class="load">Φόρτωση…</div></div></div>
+<div class="card" style="margin-top:16px"><h2>Η κούρσα: πότε ξεπερνά ο ένας τον άλλον;</h2><div class="sub">Απλή προέκταση του μέσου ετήσιου ρυθμού των τελευταίων ετών. Δεν είναι πρόβλεψη.</div>
+<div class="tools"><select id="xa"></select><span style="color:var(--mute)">ξεπερνά</span><select id="xb"></select><select id="xm"></select></div><div class="hl" id="xhead"></div><div id="xchart" style="margin-top:14px"></div></div></section>
 <section class="view" id="v-overview"><h1>Ποιος έχει πραγματικά την ισχύ;</h1><p class="lead">Σύγκριση ΗΠΑ, Κίνας και Ρωσίας με ανοιχτά δεδομένα (Παγκόσμια Τράπεζα, UCDP, FRED/EIA). Κάθε κάρτα δείχνει το μερίδιο της χώρας ανάμεσα στις τρεις, όχι κάποιον «επίσημο» δείκτη.</p>
 <div class="grid g3" id="scores"></div>
 <div class="grid g2" style="margin-top:16px"><div class="card"><h2>Μερίδιο ανά δείκτη</h2><div class="sub">Ποσοστό του συνόλου των τριών δυνάμεων</div><div id="shares" class="load">Φόρτωση…</div></div>
@@ -90,9 +101,9 @@ const nm=c=>NAMES[c]||countries[c]||c;
 const getJson=async(u,t=45000)=>{const r=await fetch(u,{signal:AbortSignal.timeout(t)});if(!r.ok)throw Error('HTTP '+r.status);return r.json()};
 
 /* nav */
-const VIEWS=[['overview','Επισκόπηση','◎'],['compare','Σύγκριση','⇄'],['map','Χάρτης','🗺'],['trends','Τάση','📈'],['conflicts','Συγκρούσεις','⚑'],['markets','Αγορές','⛽']];
+const VIEWS=[['lab','Εργαστήριο','⚗'],['overview','Επισκόπηση','◎'],['compare','Σύγκριση','⇄'],['map','Χάρτης','🗺'],['trends','Τάση','📈'],['conflicts','Συγκρούσεις','⚑'],['markets','Αγορές','⛽']];
 const inited={};
-function show(v){if(!VIEWS.some(x=>x[0]===v))v='overview';VIEWS.forEach(x=>$('v-'+x[0]).classList.toggle('on',x[0]===v));$('nav').innerHTML=VIEWS.map(x=>`<button class="${x[0]===v?'on':''}" data-v="${x[0]}"><span class="i">${x[2]}</span>${x[1]}</button>`).join('');history.replaceState(null,'','#'+v);scrollTo(0,0);if(!inited[v]){inited[v]=1;({map:drawMap,trends:initTrends,compare:initCompare,conflicts:drawConflicts,markets:initMarkets}[v]||(()=>{}))()}}
+function show(v){if(!VIEWS.some(x=>x[0]===v))v='lab';VIEWS.forEach(x=>$('v-'+x[0]).classList.toggle('on',x[0]===v));$('nav').innerHTML=VIEWS.map(x=>`<button class="${x[0]===v?'on':''}" data-v="${x[0]}"><span class="i">${x[2]}</span>${x[1]}</button>`).join('');history.replaceState(null,'','#'+v);scrollTo(0,0);if(!inited[v]){inited[v]=1;({lab:initLab,map:drawMap,trends:initTrends,compare:initCompare,conflicts:drawConflicts,markets:initMarkets}[v]||(()=>{}))()}}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)show(b.dataset.v)});
 
 /* overview */
@@ -188,6 +199,51 @@ async function initMarkets(){
  $('nt').onchange=loadNews;loadNews()}
 let ns=0;async function loadNews(){const s=++ns;$('news').innerHTML='<div class="load">Ανάκτηση…</div>';try{const d=await getJson('/api/data?type=news&days=7&topic='+encodeURIComponent($('nt').value));if(s!==ns)return;$('nsrc').textContent=d.source+' · τελευταίες 7 ημέρες';$('news').innerHTML=(d.articles||[]).slice(0,10).map(a=>`<article><a href="${safeUrl(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a><small>${esc(a.domain)} · ${esc(a.seendate||'')}</small></article>`).join('')||'<div class="load">Δεν υπάρχουν ειδήσεις.</div>'}catch{if(s===ns)$('news').innerHTML='<div class="err">Η πηγή ειδήσεων δεν ανταποκρίθηκε.</div>'}}
 
+
+/* power lab */
+const LABM=[['gdp','Οικονομία (ΑΕΠ)'],['military','Στρατός (δαπάνες)'],['population','Πληθυσμός'],['exports','Εμπόριο (εξαγωγές)'],['manufacturing','Βιομηχανία']];
+const PRESETS={'Ισορροπημένη':[20,20,20,20,20],'Οικονομική':[40,5,10,25,20],'Στρατιωτική':[10,60,10,10,10],'Δημογραφική':[15,10,60,5,10],'Βιομηχανική':[15,5,10,25,45]};
+let W=[20,20,20,20,20],SC='lin';
+function allCodes(){return [...new Set((DS.gdp?.rows||[]).map(r=>r.code))].filter(c=>c.length===3&&c!=='WLD')}
+function initLab(){
+ $('presets').innerHTML=Object.keys(PRESETS).map(k=>`<button data-p="${k}">${k}</button>`).join('');
+ $('sliders').innerHTML=LABM.map((m,i)=>`<div class="sl"><span>${m[1]}</span><input type="range" min="0" max="100" value="${W[i]}" data-w="${i}"><b id="wv${i}">${W[i]}</b></div>`).join('');
+ const codes=allCodes().sort((a,b)=>nm(a).localeCompare(nm(b))),opt=sel=>codes.map(c=>`<option value="${c}"${c===sel?' selected':''}>${esc(nm(c))}</option>`).join('');
+ $('xa').innerHTML=opt('CHN');$('xb').innerHTML=opt('USA');$('xm').innerHTML=['gdp','exports','manufacturing','military','population'].map(k=>`<option value="${k}">${M[k][0]}</option>`).join('');
+ $('xa').onchange=$('xb').onchange=$('xm').onchange=drawRace;drawLab();drawRace()}
+document.addEventListener('input',e=>{const r=e.target.closest('[data-w]');if(r){W[+r.dataset.w]=+r.value;$('wv'+r.dataset.w).textContent=r.value;drawLab()}});
+document.addEventListener('click',e=>{const p=e.target.closest('[data-p]');if(p){W=[...PRESETS[p.dataset.p]];W.forEach((v,i)=>{const el=document.querySelector(`[data-w="${i}"]`);el.value=v;$('wv'+i).textContent=v});drawLab()}const s=e.target.closest('[data-s]');if(s){SC=s.dataset.s;document.querySelectorAll('#scale button').forEach(b=>b.classList.toggle('on',b===s));drawLab()}});
+function labScores(){
+ const codes=allCodes(),sum=W.reduce((a,b)=>a+b,0)||1,out={};
+ const norm=LABM.map(m=>{const vals=codes.map(c=>latest(m[0],c)?.v).filter(v=>v>0),mx=Math.max(...vals,1),mn=Math.min(...vals,mx);return v=>{if(!(v>0))return 0;return SC==='log'?(mx===mn?1:(Math.log(v)-Math.log(mn))/(Math.log(mx)-Math.log(mn))):v/mx}});
+ codes.forEach(c=>{let t=0,have=0;LABM.forEach((m,i)=>{const r=latest(m[0],c);if(r){have++;t+=W[i]*norm[i](r.v)}});out[c]=have?t/sum*100:0});
+ return out}
+function drawLab(){
+ const sc=labScores(),rows=Object.entries(sc).sort((a,b)=>b[1]-a[1]).slice(0,15),mx=rows[0]?.[1]||1;
+ $('rkmeta').textContent='Top 15 από 31 χώρες · σκορ 0–100';
+ $('rank').innerHTML=rows.map((r,i)=>`<div class="rk"><span class="n">${i+1}</span><span>${esc(nm(r[0]))}</span><div class="bar"><i style="width:${r[1]/mx*100}%;background:${colorOf(r[0])}"></i></div><em>${r[1].toFixed(0)}</em></div>`).join('')||'<div class="load">Δεν υπάρχουν δεδομένα.</div>'}
+function drawRace(){
+ const a=$('xa').value,b=$('xb').value,k=$('xm').value;if(a===b){$('xhead').textContent='Διάλεξε δύο διαφορετικές χώρες.';$('xchart').innerHTML='';return}
+ const ser=c=>(DS[k]?.rows||[]).filter(r=>r.code===c&&Number(r.value)>0).sort((x,y)=>x.year-y.year);
+ const sa=ser(a),sb=ser(b);if(sa.length<4||sb.length<4){$('xhead').textContent='Λίγα δεδομένα για αυτό το ζευγάρι.';$('xchart').innerHTML='';return}
+ const cagr=s=>{const t=s.slice(-10),f=t[0],l=t[t.length-1],n=l.year-f.year;return n>0?Math.pow(Number(l.value)/Number(f.value),1/n)-1:0};
+ const ga=cagr(sa),gb=cagr(sb),la=sa[sa.length-1],lb=sb[sb.length-1],y0=Math.max(la.year,lb.year),va=Number(la.value),vb=Number(lb.value);
+ let msg,sub=`${esc(nm(a))}: ${(ga*100).toFixed(1)}%/έτος · ${esc(nm(b))}: ${(gb*100).toFixed(1)}%/έτος (μέσος ρυθμός τελευταίων ετών)`;
+ const A=esc(nm(a)),B=esc(nm(b));let cross=null;
+ if(va>=vb)msg=`Η ${A} είναι ήδη μπροστά σε ${M[k][0]}`;
+ else if(ga>gb){const yrs=Math.log(vb/va)/(Math.log(1+ga)-Math.log(1+gb));cross=y0+yrs;msg=yrs>60?`Με αυτούς τους ρυθμούς, πάνω από 60 χρόνια`:`Με αυτούς τους ρυθμούς: περίπου το ${Math.round(cross)}`}
+ else msg=`Με τον τρέχοντα ρυθμό η ${A} δεν προλαβαίνει`;
+ $('xhead').innerHTML=`${msg}<small>${sub}</small>`;
+ const end=Math.min(2075,Math.max(y0+25,cross?Math.ceil(cross)+8:y0+25)),lo=Math.min(sa[0].year,sb[0].year);
+ const pr=(v,g,y)=>v*Math.pow(1+g,y-y0);
+ const all=[...sa,...sb].map(r=>Number(r.value));const peak=Math.max(...all,pr(va,ga,end),pr(vb,gb,end)),Wd=900,H=320,x=y=>70+(y-lo)/(end-lo)*(Wd-90),yy=v=>H-36-v/peak*(H-60);
+ const line=(s,c,g,v,dash)=>`<polyline fill="none" stroke="${c}" stroke-width="2.6" points="${s.map(r=>x(r.year)+','+yy(Number(r.value))).join(' ')}"/><polyline fill="none" stroke="${c}" stroke-width="2.2" stroke-dasharray="6 5" points="${[y0,end].map(y=>x(y)+','+yy(pr(v,g,y))).join(' ')}"/>`;
+ const grid=[0,.5,1].map(n=>`<line x1="70" x2="${Wd-20}" y1="${yy(n*peak)}" y2="${yy(n*peak)}" stroke="#e2e7ef"/><text x="62" y="${yy(n*peak)+4}" text-anchor="end" font-size="11" fill="#5d6b82">${fmt(k,n*peak)}</text>`).join('');
+ const ticks=[lo,Math.round((lo+end)/2),end].map(y=>`<text x="${x(y)}" y="${H-12}" text-anchor="middle" font-size="12" fill="#5d6b82">${y}</text>`).join('');
+ const mark=cross&&cross<=end?`<line x1="${x(cross)}" x2="${x(cross)}" y1="20" y2="${H-36}" stroke="#0f1b2d" stroke-dasharray="3 4"/><text x="${x(cross)}" y="14" text-anchor="middle" font-size="12" font-weight="700" fill="#0f1b2d">${Math.round(cross)}</text>`:'';
+ const ca=colorOf(a),cb=colorOf(b)===ca?'#e08a00':colorOf(b);
+ $('xchart').innerHTML=`<svg viewBox="0 0 ${Wd} ${H}" style="width:100%;height:auto">${grid}${line(sa,ca,ga,va)}${line(sb,cb,gb,vb)}${mark}${ticks}</svg><div class="legend"><span><i style="background:${ca}"></i>${A}</span><span><i style="background:${cb}"></i>${B}</span><span>Διακεκομμένη = προέκταση</span></div>`}
+
 /* load */
 async function load(){
  $('asof').textContent='Ανάκτηση…';const keys=Object.keys(M);
@@ -195,7 +251,7 @@ async function load(){
  keys.forEach((k,i)=>{if(res[i].status==='fulfilled')DS[k]=res[i].value});WAR=res[keys.length].status==='fulfilled'?res[keys.length].value:null;
  Object.values(DS).forEach(d=>(d.rows||[]).forEach(r=>{if(r.name)NAMES[r.code]=r.name}));NAMES.USA='ΗΠΑ';NAMES.CHN='Κίνα';NAMES.RUS='Ρωσία';
  const ok=res.filter(x=>x.status==='fulfilled').length;$('asof').textContent=`${ok}/${res.length} πηγές · ${new Date().toLocaleTimeString('el-GR')}`;
- drawOverview();drawLive();Object.keys(inited).forEach(v=>{inited[v]=0});const cur=location.hash.slice(1)||'overview';show(cur)}
+ drawOverview();drawLive();Object.keys(inited).forEach(v=>{inited[v]=0});const cur=location.hash.slice(1)||'lab';show(cur)}
 $('refresh').onclick=$('refresh2').onclick=load;
-show(location.hash.slice(1)||'overview');load();
+show(location.hash.slice(1)||'lab');load();
 </script></body></html>
