@@ -151,7 +151,7 @@ footer{padding:80px 0 50px;color:var(--mute);font-size:13px;text-align:center}
 
 <section class="s reveal" id="markets"><span class="eyebrow"><i></i>Markets & news</span><h2 class="t">Ενέργεια και <span class="grad">ειδήσεις</span></h2><p class="lead">Στρατηγικές τιμές και ροή ειδήσεων.</p>
 <div class="grid g4" id="mk"><div class="load">Φόρτωση…</div></div>
-<div class="card news" style="margin-top:16px"><div class="tools" style="margin:0 0 6px"><h3 style="margin-right:auto">Ειδήσεις</h3><select id="nt"><option value="power">Γεωπολιτική</option><option value="conflict">Συγκρούσεις</option><option value="trade">Εμπόριο</option><option value="society">Κοινωνία</option></select></div><div class="sub" id="nsrc"></div><div id="news" class="load">Φόρτωση…</div></div></section>
+<div class="card news" id="newsec" style="margin-top:16px"><div class="tools" style="margin:0 0 6px"><h3 style="margin-right:auto">Ειδήσεις</h3><select id="nt"><option value="power">Γεωπολιτική</option><option value="ukraine">Ουκρανία – Ρωσία</option><option value="iran">Ιράν & Ορμούζ</option><option value="taiwan">Ταϊβάν & Ινδοειρηνικός</option><option value="conflict">Συγκρούσεις</option><option value="defense">Άμυνα</option><option value="energy">Ενέργεια</option><option value="trade">Εμπόριο</option><option value="technology">Τεχνολογία & chips</option><option value="society">Κοινωνία</option></select></div><div class="sub" id="nsrc"></div><div id="news" class="load">Φόρτωση…</div></div></section>
 <footer>HEGEMONY · Παγκόσμια Τράπεζα, UCDP, FRED/EIA, GDELT · <span id="asof"></span></footer>
 </main>
 <div class="veil" id="veil"></div><aside class="dr" id="dr"></aside>
@@ -177,7 +177,7 @@ const allCodes=()=>[...new Set((DS.gdp?.rows||[]).map(r=>r.code))].filter(c=>c.l
 const codeOpts=sel=>allCodes().sort((a,b)=>nm(a).localeCompare(nm(b))).map(c=>`<option value="${c}"${c===sel?' selected':''}>${esc(nm(c))}</option>`).join('');
 
 /* nav + reveal */
-const SECS=[['globe','Globe'],['why','Γιατί'],['goals','Στόχοι'],['history','Ιστορία'],['risk','Κίνδυνος'],['lab','Lab'],['duel','Duel'],['map','Atlas'],['race','Race'],['trends','Trends'],['war','Conflicts'],['markets','Markets']];
+const SECS=[['globe','Globe'],['why','Γιατί'],['goals','Στόχοι'],['history','Ιστορία'],['risk','Κίνδυνος'],['lab','Lab'],['duel','Duel'],['map','Atlas'],['race','Race'],['trends','Trends'],['war','Conflicts'],['newsec','Ειδήσεις'],['markets','Markets']];
 $('links').innerHTML=SECS.map(s=>`<a class="l" href="#${s[0]}" data-s="${s[0]}">${s[1]}</a>`).join('');
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));
 const spy=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)document.querySelectorAll('.nav a.l').forEach(a=>a.classList.toggle('on',a.dataset.s===e.target.id))}),{rootMargin:'-40% 0px -55% 0px'});SECS.forEach(s=>spy.observe($(s[0])));
@@ -318,7 +318,7 @@ function drawMarkets(){if(!MK){$('mk').innerHTML='<div class="err">Η πηγή �
   const p=(s.points||[]).filter(r=>Number.isFinite(r.value)),a=Math.min(...p.map(r=>r.value)),b=Math.max(...p.map(r=>r.value)),ln=p.map((r,i)=>(i/Math.max(1,p.length-1)*180).toFixed(1)+','+(44-(r.value-a)/Math.max(.001,b-a)*38).toFixed(1)).join(' ');
   const ch=okCh(s.change)?`<small class="${s.change>=0?'up':'dn'}">${s.change>=0?'▲':'▼'} ${(Math.abs(s.change)*100).toFixed(1)}%</small>`:'';
   return `<div class="card mk hv"><small><a href="${safeUrl(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a></small><b>${s.value.toFixed(2)}</b>${ch}<small>${esc(s.unit)} · ${esc(s.date)}</small><svg viewBox="0 0 180 50" style="width:100%;margin-top:8px"><polyline points="${ln}" fill="none" stroke="var(--c)" stroke-width="2"/></svg></div>`}).join('')||'<div class="load">Δεν υπάρχουν τιμές.</div>'}
-let ns=0;async function loadNews(){const s=++ns;$('news').innerHTML='<div class="load">Ανάκτηση…</div>';try{const d=await getJson('/api/data?type=news&days=7&topic='+encodeURIComponent($('nt').value));if(s!==ns)return;$('nsrc').textContent=d.source+' · τελευταίες 7 ημέρες';$('news').innerHTML=(d.articles||[]).slice(0,10).map(a=>`<article><a href="${safeUrl(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a><small>${esc(a.domain)} · ${esc(a.seendate||'')}</small></article>`).join('')||'<div class="load">Δεν υπάρχουν ειδήσεις.</div>'}catch{if(s===ns)$('news').innerHTML='<div class="err">Η πηγή ειδήσεων δεν ανταποκρίθηκε.</div>'}}
+let ns=0;async function loadNews(){const s=++ns;$('news').innerHTML='<div class="load">Ανάκτηση…</div>';try{const d=await getJson('/api/data?type=news&days=7&topic='+encodeURIComponent($('nt').value));if(s!==ns)return;$('nsrc').textContent=d.source+' · τελευταίες 7 ημέρες';$('news').innerHTML=(d.articles||[]).slice(0,20).map(a=>`<article><a href="${safeUrl(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a><small>${esc(a.domain)} · ${esc(a.seendate||'')}</small></article>`).join('')||'<div class="load">Δεν υπάρχουν ειδήσεις.</div>'}catch{if(s===ns)$('news').innerHTML='<div class="err">Η πηγή ειδήσεων δεν ανταποκρίθηκε.</div>'}}
 $('nt').onchange=loadNews;
 
 
