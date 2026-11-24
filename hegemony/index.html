@@ -128,6 +128,7 @@ const M={gdp:['ΑΕΠ','usd'],ppp:['ΑΕΠ (ΙΑΔ)','usd'],growth:['Ανάπτ�
 const SHARE=['gdp','military','population','exports','manufacturing'];
 const PAL=['#35e0c2','#ffb454','#ff6bb5','#7ee787','#4fd1ff','#f7768e','#c3a6ff'];
 const C3={USA:'#4f8cff',CHN:'#ff5a5f',RUS:'#a78bfa'};
+const okCh=c=>Number.isFinite(c)&&Math.abs(c)<0.5;
 const compact=n=>Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:2}).format(n);
 const fmt=(k,v)=>v==null||!Number.isFinite(v)?'—':M[k][1]==='usd'?'$'+compact(v):M[k][1]==='pct'?v.toFixed(1)+'%':compact(v);
 let DS={},WAR=null,NAMES={},MK=null;
@@ -156,7 +157,7 @@ function drawHero(){const{P,comp}=compositeShares(),lead=Object.entries(comp).so
  document.querySelectorAll('[data-n]').forEach(e=>countUp(e,+e.dataset.n))}
 
 /* ticker */
-function drawTicker(){const it=[];(MK?.series||[]).filter(s=>Number.isFinite(s.value)).forEach(s=>{const ch=Number.isFinite(s.change)?`<span class="${s.change>=0?'up':'dn'}">${s.change>=0?'▲':'▼'}${(Math.abs(s.change)*100).toFixed(1)}%</span>`:'';it.push(`<span class="tk">${esc(s.name)}<b>${s.value.toFixed(2)}</b>${ch}</span>`)});
+function drawTicker(){const it=[];(MK?.series||[]).filter(s=>Number.isFinite(s.value)).forEach(s=>{const ch=okCh(s.change)?`<span class="${s.change>=0?'up':'dn'}">${s.change>=0?'▲':'▼'}${(Math.abs(s.change)*100).toFixed(1)}%</span>`:'';it.push(`<span class="tk">${esc(s.name)}<b>${s.value.toFixed(2)}</b>${ch}</span>`)});
  if(WAR)it.push(`<span class="tk">UCDP ${esc(WAR.month)}<b>${WAR.events.toLocaleString('el-GR')}</b>συμβάντα · ${WAR.countries.length} χώρες</span>`);
  const L=(WAR?.conflicts||[]).slice(0,4).map(x=>`<span class="tk">⚑<b>${esc(x.name)}</b>${x.events}</span>`);const h=it.concat(L).join('');$('tick').innerHTML=(h||'<span class="tk">Δεν υπάρχουν ζωντανά δεδομένα</span>').repeat(2)}
 
@@ -277,7 +278,7 @@ function drawWar(){if(!WAR){$('clist').innerHTML=$('ccountry').innerHTML='<div c
 function drawMarkets(){if(!MK){$('mk').innerHTML='<div class="err">Η πηγή τιμών δεν ανταποκρίθηκε.</div>';return}
  $('mk').innerHTML=(MK.series||[]).map(s=>{if(s.error||!Number.isFinite(s.value))return `<div class="card mk"><small>${esc(s.name)}</small><b>—</b><small>Μη διαθέσιμο</small></div>`;
   const p=(s.points||[]).filter(r=>Number.isFinite(r.value)),a=Math.min(...p.map(r=>r.value)),b=Math.max(...p.map(r=>r.value)),ln=p.map((r,i)=>(i/Math.max(1,p.length-1)*180).toFixed(1)+','+(44-(r.value-a)/Math.max(.001,b-a)*38).toFixed(1)).join(' ');
-  const ch=Number.isFinite(s.change)?`<small class="${s.change>=0?'up':'dn'}">${s.change>=0?'▲':'▼'} ${(Math.abs(s.change)*100).toFixed(1)}%</small>`:'';
+  const ch=okCh(s.change)?`<small class="${s.change>=0?'up':'dn'}">${s.change>=0?'▲':'▼'} ${(Math.abs(s.change)*100).toFixed(1)}%</small>`:'';
   return `<div class="card mk hv"><small><a href="${safeUrl(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a></small><b>${s.value.toFixed(2)}</b>${ch}<small>${esc(s.unit)} · ${esc(s.date)}</small><svg viewBox="0 0 180 50" style="width:100%;margin-top:8px"><polyline points="${ln}" fill="none" stroke="var(--c)" stroke-width="2"/></svg></div>`}).join('')||'<div class="load">Δεν υπάρχουν τιμές.</div>'}
 let ns=0;async function loadNews(){const s=++ns;$('news').innerHTML='<div class="load">Ανάκτηση…</div>';try{const d=await getJson('/api/data?type=news&days=7&topic='+encodeURIComponent($('nt').value));if(s!==ns)return;$('nsrc').textContent=d.source+' · τελευταίες 7 ημέρες';$('news').innerHTML=(d.articles||[]).slice(0,10).map(a=>`<article><a href="${safeUrl(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a><small>${esc(a.domain)} · ${esc(a.seendate||'')}</small></article>`).join('')||'<div class="load">Δεν υπάρχουν ειδήσεις.</div>'}catch{if(s===ns)$('news').innerHTML='<div class="err">Η πηγή ειδήσεων δεν ανταποκρίθηκε.</div>'}}
 $('nt').onchange=loadNews;
