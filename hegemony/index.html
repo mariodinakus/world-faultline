@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="el" data-theme="dark"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HEGEMONY — Global Power Intelligence</title>
-<meta name="theme-color" content="#070b14">
+<meta name="theme-color" content="#070b14"><link rel="icon" href="/logo.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -80,8 +80,14 @@ footer{padding:80px 0 50px;color:var(--mute);font-size:13px;text-align:center}
 @media(max-width:960px){.g3,.g4{grid-template-columns:1fr 1fr}.g12,.g21,.g2{grid-template-columns:1fr}}
 @media(max-width:640px){.g3,.g4{grid-template-columns:1fr}.logo span{display:none}.nav{top:10px;padding:6px}.ticker{margin-top:70px}.row{grid-template-columns:1fr 1fr}.row .lab{grid-column:1/-1}.sl{grid-template-columns:1fr 1fr 32px}.sl span{grid-column:1/-1}.rk{grid-template-columns:24px 100px 1fr 34px}}
 @media(prefers-reduced-motion:reduce){.track{animation:none}.reveal{opacity:1;transform:none}}
+
+.globebox{position:relative;border-radius:28px;border:1px solid var(--bd);background:radial-gradient(circle at 50% 48%,rgba(91,140,255,.14),transparent 62%),var(--s1);overflow:hidden}
+#gl{display:block;width:100%;height:min(78vh,700px);touch-action:pan-y;cursor:grab}#gl:active{cursor:grabbing}
+.gzoom{position:absolute;right:14px;top:14px;display:flex;flex-direction:column;gap:6px}.gzoom button{all:unset;cursor:pointer;width:36px;height:36px;border-radius:11px;background:var(--s1);border:1px solid var(--bd);display:grid;place-items:center;font-size:17px;backdrop-filter:blur(10px)}
+.ghint{position:absolute;left:18px;bottom:14px;font:500 12px "JetBrains Mono";color:var(--mute);pointer-events:none}
+.gleg{position:absolute;left:18px;top:16px;display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--mute);pointer-events:none}.gleg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
 </style></head><body>
-<header class="nav"><div class="logo"><svg width="26" height="26" viewBox="0 0 64 64"><defs><linearGradient id="lg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#5b8cff"/><stop offset="1" stop-color="#9b6bff"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#lg)"/><circle cx="32" cy="32" r="19" fill="none" stroke="#fff" stroke-width="3"/><path d="M32 14l7 18-7 18-7-18z" fill="#fff"/></svg><span>HEGEMONY</span></div>
+<header class="nav"><div class="logo"><img src="logo.svg" width="28" height="28" alt="HEGEMONY" style="border-radius:8px"><span>HEGEMONY</span></div>
 <nav class="links" id="links"></nav><button class="ib" id="sbtn" title="Αναζήτηση (/)"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button><button class="ib" id="thm" title="Θέμα">◐</button><button class="ib" id="refresh" title="Ανανέωση">↻</button></header>
 <div class="ticker"><div class="track" id="tick"><span class="tk">Φόρτωση ζωντανών δεδομένων…</span></div></div>
 
@@ -90,6 +96,10 @@ footer{padding:80px 0 50px;color:var(--mute);font-size:13px;text-align:center}
 <h1>Ποιος κρατά<br><span class="grad">τον κόσμο;</span></h1>
 <p class="lead">ΗΠΑ, Κίνα, Ρωσία και 28 ακόμη χώρες, με ζωντανά ανοιχτά δεδομένα. Βάλε τα δικά σου κριτήρια ισχύος, συγκρίνε χώρες, δες τον χάρτη και τις συγκρούσεις.</p>
 <div class="grid g3" id="scores"></div><div class="chips" id="chips"></div></section>
+
+<section class="s reveal" id="globe"><span class="eyebrow"><i></i>Influence globe</span><h2 class="t">Η <span class="grad">επιρροή</span> σε σφαίρα</h2><p class="lead">Σύρε για να γυρίσεις τη Γη. Τόξα από την πρωτεύουσα κάθε δύναμης προς συμμάχους, βάσεις και στόλους. Πάτα χώρα για προφίλ.</p>
+<div class="tools"><div class="seg" id="glayers"></div><select id="gpower"><option value="ALL">Όλες οι δυνάμεις</option><option value="USA">ΗΠΑ</option><option value="CHN">Κίνα</option><option value="RUS">Ρωσία</option></select><div class="seg"><button id="gspin" class="on">⟳ Περιστροφή</button></div></div>
+<div class="globebox"><canvas id="gl" aria-label="Παγκόσμια σφαίρα επιρροής"></canvas><div class="gleg" id="gleg"></div><div class="gzoom"><button data-gz="1.15" aria-label="Zoom in">+</button><button data-gz="0.87" aria-label="Zoom out">−</button></div><div class="ghint">drag · σύρε</div></div></section>
 
 <section class="s reveal" id="lab"><span class="eyebrow"><i></i>Power Lab</span><h2 class="t">Όρισε εσύ τι σημαίνει <span class="grad">ισχύς</span></h2><p class="lead">Σύρε τα βάρη. Το ranking των 31 χωρών ξαναϋπολογίζεται αμέσως.</p>
 <div class="grid g12"><div class="card"><h3>Τα βάρη σου</h3><div class="sub">Οικονομία, στρατός, πληθυσμός, εμπόριο, βιομηχανία</div><div class="presets" id="presets"></div><div id="sliders"></div><div class="tools" style="margin:14px 0 0"><div class="seg" id="scale"><button data-s="lin" class="on">Γραμμική</button><button data-s="log">Λογαριθμική</button></div></div><div class="note">Κανονικοποίηση 0–100 προς τον ηγέτη κάθε δείκτη. Η λογαριθμική δίνει βάρος στις μικρότερες δυνάμεις.</div></div>
@@ -140,11 +150,11 @@ const allCodes=()=>[...new Set((DS.gdp?.rows||[]).map(r=>r.code))].filter(c=>c.l
 const codeOpts=sel=>allCodes().sort((a,b)=>nm(a).localeCompare(nm(b))).map(c=>`<option value="${c}"${c===sel?' selected':''}>${esc(nm(c))}</option>`).join('');
 
 /* nav + reveal */
-const SECS=[['lab','Lab'],['duel','Duel'],['map','Atlas'],['race','Race'],['trends','Trends'],['war','Conflicts'],['markets','Markets']];
+const SECS=[['globe','Globe'],['lab','Lab'],['duel','Duel'],['map','Atlas'],['race','Race'],['trends','Trends'],['war','Conflicts'],['markets','Markets']];
 $('links').innerHTML=SECS.map(s=>`<a class="l" href="#${s[0]}" data-s="${s[0]}">${s[1]}</a>`).join('');
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.08});document.querySelectorAll('.reveal').forEach(x=>io.observe(x));
 const spy=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)document.querySelectorAll('.nav a.l').forEach(a=>a.classList.toggle('on',a.dataset.s===e.target.id))}),{rootMargin:'-40% 0px -55% 0px'});SECS.forEach(s=>spy.observe($(s[0])));
-$('thm').onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('hg-theme',d.dataset.theme)}catch{}drawMap();drawRadar()};
+$('thm').onclick=()=>{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('hg-theme',d.dataset.theme)}catch{}drawMap();drawRadar();globeCols()};
 try{const t=localStorage.getItem('hg-theme');if(t)document.documentElement.dataset.theme=t}catch{}
 
 /* count-up */
@@ -283,6 +293,84 @@ function drawMarkets(){if(!MK){$('mk').innerHTML='<div class="err">Η πηγή �
 let ns=0;async function loadNews(){const s=++ns;$('news').innerHTML='<div class="load">Ανάκτηση…</div>';try{const d=await getJson('/api/data?type=news&days=7&topic='+encodeURIComponent($('nt').value));if(s!==ns)return;$('nsrc').textContent=d.source+' · τελευταίες 7 ημέρες';$('news').innerHTML=(d.articles||[]).slice(0,10).map(a=>`<article><a href="${safeUrl(a.url)}" target="_blank" rel="noopener noreferrer">${esc(a.title)}</a><small>${esc(a.domain)} · ${esc(a.seendate||'')}</small></article>`).join('')||'<div class="load">Δεν υπάρχουν ειδήσεις.</div>'}catch{if(s===ns)$('news').innerHTML='<div class="err">Η πηγή ειδήσεων δεν ανταποκρίθηκε.</div>'}}
 $('nt').onchange=loadNews;
 
+
+/* ===== influence globe (canvas orthographic) ===== */
+const GB={rot:[30,22],zoom:1,spin:true,layer:'ties',cent:{},fill:{},arcs:[],hot:[],cols:{},idle:0,drag:null,visible:true,w:0,h:0,dpr:1,stars:[]};
+const CAP={USA:[-77,38.9],CHN:[116.4,39.9],RUS:[37.6,55.75]},DEG=Math.PI/180;
+const ringsOf=f=>f.geometry.type==='Polygon'?[f.geometry.coordinates]:f.geometry.type==='MultiPolygon'?f.geometry.coordinates:[];
+function globeCols(){const cs=getComputedStyle(document.documentElement),light=document.documentElement.dataset.theme==='light';GB.cols={land:cs.getPropertyValue('--land').trim()||'#1b2540',ink:cs.getPropertyValue('--ink').trim()||'#e9eef8',light};globeBuild()}
+function gProj(lon,lat,lift){const l=(lon-GB.rot[0])*DEG,p=lat*DEG,p0=GB.rot[1]*DEG,cp=Math.cos(p),k=lift||1;
+ return[cp*Math.sin(l)*k,(Math.cos(p0)*Math.sin(p)-Math.sin(p0)*cp*Math.cos(l))*k,Math.sin(p0)*Math.sin(p)+Math.cos(p0)*cp*Math.cos(l)>0]}
+const vec=(lon,lat)=>[Math.cos(lat*DEG)*Math.cos(lon*DEG),Math.cos(lat*DEG)*Math.sin(lon*DEG),Math.sin(lat*DEG)];
+function gcArc(a,b,n){const A=vec(a[0],a[1]),B=vec(b[0],b[1]),d=Math.max(-1,Math.min(1,A[0]*B[0]+A[1]*B[1]+A[2]*B[2])),w=Math.acos(d)||1e-6,out=[];
+ for(let i=0;i<=n;i++){const t=i/n,s1=Math.sin((1-t)*w)/Math.sin(w),s2=Math.sin(t*w)/Math.sin(w),x=s1*A[0]+s2*B[0],y=s1*A[1]+s2*B[1],z=s1*A[2]+s2*B[2];
+  out.push([Math.atan2(y,x)/DEG,Math.asin(Math.max(-1,Math.min(1,z)))/DEG,1+(.04+.2*w/Math.PI)*Math.sin(Math.PI*t)])}return out}
+function globeBuild(){
+ const pw=$('gpower')?.value||'ALL',L=GB.layer,hotNames=new Set((WAR?.conflicts||[]).map(x=>x.country));
+ const isHot=(id,name)=>hotNames.has(name)||[...hotNames].some(n=>n.startsWith(name+' ('))||(id==='COD'&&[...hotNames].some(n=>n.startsWith('DR Congo')));
+ GB.fill={};GB.hot=[];GB.arcs=[];
+ GEO.features.forEach(f=>{const id=f.id,name=f.properties.name||id;let fill=GB.cols.land||'#1b2540';
+  if(L==='ties'){const o=Object.keys(ties).find(c=>(pw==='ALL'||pw===c)&&(c===id||ties[c].includes(id)));if(o)fill=C3[o]+'cc'}
+  if(L==='conflicts'&&isHot(id,name)){fill='#ff5a5fcc';if(GB.cent[id])GB.hot.push(GB.cent[id])}
+  GB.fill[id]=fill});
+ let seed=0;const add=(c,to)=>{GB.arcs.push({pts:gcArc(CAP[c],to,44),col:C3[c],seed:(seed++*.137)%1})};
+ if(L==='ties')Object.keys(ties).filter(c=>pw==='ALL'||pw===c).forEach(c=>ties[c].forEach(id=>{if(GB.cent[id]&&id!==c)add(c,GB.cent[id])}));
+ if(L==='bases')sites.filter(x=>pw==='ALL'||pw===x[0]).forEach(x=>add(x[0],[x[2],x[3]]));
+ if(L==='naval')fleets.filter(x=>pw==='ALL'||pw===x[0]).forEach(x=>add(x[0],[x[2],x[3]]));
+ const leg={ties:'Συμμαχίες και θεσμικές σχέσεις',bases:'Στρατιωτική παρουσία (ενδεικτικά σημεία)',naval:'Περιοχές δραστηριότητας στόλων (όχι live AIS)',conflicts:'Χώρες με συμβάντα UCDP τον τελευταίο μήνα'}[L];
+ $('gleg').innerHTML=`<span style="color:var(--ink);font-weight:600">${leg}</span>`+(L==='conflicts'?'<span><i style="background:#ff5a5f"></i>Ενεργά συμβάντα</span>':Object.keys(countries).filter(c=>pw==='ALL'||pw===c).map(c=>`<span><i style="background:${C3[c]}"></i>${countries[c]}</span>`).join(''));
+ $('glayers').innerHTML=[['ties','Συμμαχίες'],['bases','Βάσεις'],['naval','Στόλοι'],['conflicts','Συγκρούσεις']].map(x=>`<button data-gl="${x[0]}" class="${x[0]===L?'on':''}">${x[1]}</button>`).join('')}
+function globeSize(){const cv=$('gl'),r=cv.getBoundingClientRect();GB.dpr=Math.min(2,window.devicePixelRatio||1);GB.w=r.width;GB.h=r.height;cv.width=r.width*GB.dpr;cv.height=r.height*GB.dpr}
+function globeInit(){const ov={RUS:[95,61],USA:[-98,39],FRA:[2.5,46.6],NOR:[9,61],CHL:[-71,-35],IDN:[115,-2],NZL:[172,-41],CAN:[-100,58],AUS:[134,-25]};
+ GEO.features.forEach(f=>{if(ov[f.id]){GB.cent[f.id]=ov[f.id];return}let best=null,bn=0;ringsOf(f).forEach(pl=>{if(pl[0].length>bn){bn=pl[0].length;best=pl[0]}});if(!best)return;let a=0,b=0;best.forEach(p=>{a+=p[0];b+=p[1]});GB.cent[f.id]=[a/best.length,b/best.length]});
+ for(let i=0;i<160;i++)GB.stars.push([Math.random(),Math.random(),Math.random()*1.3+.2,Math.random()]);
+ globeSize();new ResizeObserver(globeSize).observe($('gl'));globeCols();
+ new IntersectionObserver(e=>{GB.visible=e[0].isIntersecting}).observe($('gl'));
+ const cv=$('gl');let moved=0;
+ cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);GB.drag={x:e.clientX,y:e.clientY};moved=0;GB.idle=performance.now()});
+ cv.addEventListener('pointermove',e=>{if(!GB.drag)return;const dx=e.clientX-GB.drag.x,dy=e.clientY-GB.drag.y;moved+=Math.abs(dx)+Math.abs(dy);GB.drag={x:e.clientX,y:e.clientY};GB.rot[0]-=dx*.35/GB.zoom;GB.rot[1]=Math.max(-80,Math.min(80,GB.rot[1]+dy*.3/GB.zoom));GB.idle=performance.now()});
+ cv.addEventListener('pointerup',e=>{GB.drag=null;GB.idle=performance.now();if(moved<6){const r=cv.getBoundingClientRect(),id=gPick(e.clientX-r.left,e.clientY-r.top);if(id)openCountry(id)}});
+ document.addEventListener('click',e=>{const z=e.target.closest('[data-gz]');if(z)GB.zoom=Math.max(.7,Math.min(2.4,GB.zoom*(+z.dataset.gz)));const l=e.target.closest('[data-gl]');if(l){GB.layer=l.dataset.gl;globeBuild()}});
+ $('gpower').onchange=globeBuild;$('gspin').onclick=()=>{GB.spin=!GB.spin;$('gspin').classList.toggle('on',GB.spin)};
+ requestAnimationFrame(gFrame)}
+function gPick(sx,sy){const R=Math.min(GB.w,GB.h)/2*.86*GB.zoom,x=(sx-GB.w/2)/R,y=-(sy-GB.h/2)/R,rho=Math.hypot(x,y);if(rho>1)return null;
+ const c=Math.asin(rho),p0=GB.rot[1]*DEG,sc=Math.sin(c),cc=Math.cos(c);let lat,lon;
+ if(rho<1e-9){lat=GB.rot[1];lon=GB.rot[0]}else{lat=Math.asin(cc*Math.sin(p0)+y*sc*Math.cos(p0)/rho)/DEG;lon=GB.rot[0]+Math.atan2(x*sc,rho*Math.cos(p0)*cc-y*Math.sin(p0)*sc)/DEG}
+ lon=((lon+540)%360)-180;
+ for(const f of GEO.features){for(const pl of ringsOf(f)){const r=pl[0];let ins=false;for(let i=0,j=r.length-1;i<r.length;j=i++){const xi=r[i][0],yi=r[i][1],xj=r[j][0],yj=r[j][1];if(((yi>lat)!==(yj>lat))&&(lon<(xj-xi)*(lat-yi)/(yj-yi)+xi))ins=!ins}if(ins)return f.id}}return null}
+function gFrame(now){requestAnimationFrame(gFrame);if(!GB.visible||!GB.w)return;
+ if(GB.spin&&!GB.drag&&now-GB.idle>2500)GB.rot[0]+=.07;
+ const cv=$('gl'),ctx=cv.getContext('2d'),W=GB.w,H=GB.h,cx=W/2,cy=H/2,R=Math.min(W,H)/2*.86*GB.zoom,light=GB.cols.light;
+ ctx.setTransform(GB.dpr,0,0,GB.dpr,0,0);ctx.clearRect(0,0,W,H);
+ if(!light)GB.stars.forEach(s=>{ctx.globalAlpha=.25+.5*Math.abs(Math.sin(now*.0006+s[3]*6));ctx.fillStyle='#cfe0ff';ctx.fillRect(s[0]*W,s[1]*H,s[2],s[2])});ctx.globalAlpha=1;
+ const halo=ctx.createRadialGradient(cx,cy,R*.9,cx,cy,R*1.28);halo.addColorStop(0,light?'rgba(91,140,255,.22)':'rgba(91,140,255,.32)');halo.addColorStop(1,'rgba(91,140,255,0)');ctx.fillStyle=halo;ctx.beginPath();ctx.arc(cx,cy,R*1.28,0,7);ctx.fill();
+ const sea=ctx.createRadialGradient(cx-R*.3,cy-R*.35,R*.1,cx,cy,R);sea.addColorStop(0,light?'#eaf1ff':'#13224a');sea.addColorStop(1,light?'#c3d2f0':'#050913');ctx.fillStyle=sea;ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.fill();
+ ctx.save();ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.clip();
+ ctx.strokeStyle=light?'rgba(15,27,45,.08)':'rgba(255,255,255,.07)';ctx.lineWidth=1;
+ for(let lo=-180;lo<180;lo+=30){ctx.beginPath();let on=false;for(let la=-90;la<=90;la+=5){const q=gProj(lo,la);if(q[2]){const X=cx+q[0]*R,Y=cy-q[1]*R;on?ctx.lineTo(X,Y):ctx.moveTo(X,Y);on=true}else on=false}ctx.stroke()}
+ for(let la=-60;la<=60;la+=30){ctx.beginPath();let on=false;for(let lo=-180;lo<=180;lo+=5){const q=gProj(lo,la);if(q[2]){const X=cx+q[0]*R,Y=cy-q[1]*R;on?ctx.lineTo(X,Y):ctx.moveTo(X,Y);on=true}else on=false}ctx.stroke()}
+ ctx.lineWidth=.6;ctx.strokeStyle=light?'rgba(255,255,255,.9)':'rgba(5,9,19,.9)';
+ for(const f of GEO.features){const p0=GB.rot[1]*DEG;let any=false;ctx.beginPath();
+  for(const pl of ringsOf(f)){const r=pl[0];let ok=false;for(let i=0;i<r.length;i+=1){const q=gProj(r[i][0],r[i][1]);let X=q[0],Y=q[1];if(q[2])ok=true;else{const n=Math.hypot(X,Y)||1;X/=n;Y/=n}ctx.lineTo(cx+X*R,cy-Y*R);if(i===0)ctx.moveTo(cx+X*R,cy-Y*R)}if(ok)any=true;ctx.closePath()}
+  if(any){ctx.fillStyle=GB.fill[f.id]||GB.cols.land;ctx.fill();ctx.stroke()}}
+ ctx.restore();
+ /* arcs */
+ ctx.lineCap='round';
+ for(const a of GB.arcs){ctx.strokeStyle=a.col;ctx.globalAlpha=.55;ctx.lineWidth=1.5;ctx.beginPath();let on=false;
+  for(const pt of a.pts){const q=gProj(pt[0],pt[1],pt[2]);if(q[2]){const X=cx+q[0]*R,Y=cy-q[1]*R;on?ctx.lineTo(X,Y):ctx.moveTo(X,Y);on=true}else on=false}ctx.stroke();ctx.globalAlpha=1;
+  const t=((now*.00022+a.seed)%1),i=Math.min(a.pts.length-1,Math.floor(t*(a.pts.length-1))),pt=a.pts[i],q=gProj(pt[0],pt[1],pt[2]);
+  if(q[2]){const X=cx+q[0]*R,Y=cy-q[1]*R;ctx.fillStyle=a.col;ctx.shadowColor=a.col;ctx.shadowBlur=10;ctx.beginPath();ctx.arc(X,Y,2.6,0,7);ctx.fill();ctx.shadowBlur=0}}
+ /* capitals */
+ Object.keys(CAP).filter(c=>($('gpower').value==='ALL'||$('gpower').value===c)).forEach(c=>{const q=gProj(CAP[c][0],CAP[c][1]);if(!q[2])return;const X=cx+q[0]*R,Y=cy-q[1]*R,pu=(now*.002)%1;ctx.strokeStyle=C3[c];ctx.globalAlpha=1-pu;ctx.lineWidth=2;ctx.beginPath();ctx.arc(X,Y,6+pu*20,0,7);ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle=C3[c];ctx.strokeStyle=light?'#fff':'#060a15';ctx.lineWidth=2.5;ctx.beginPath();ctx.arc(X,Y,6,0,7);ctx.fill();ctx.stroke();
+  ctx.fillStyle=GB.cols.ink;ctx.font='700 12px "Space Grotesk",Inter,sans-serif';ctx.fillText(countries[c],X+11,Y+4)});
+ /* markers */
+ const pw=$('gpower').value;
+ if(GB.layer==='bases')sites.filter(x=>pw==='ALL'||pw===x[0]).forEach(x=>{const q=gProj(x[2],x[3]);if(!q[2])return;ctx.fillStyle=C3[x[0]];ctx.strokeStyle=light?'#fff':'#060a15';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx+q[0]*R,cy-q[1]*R,4.5,0,7);ctx.fill();ctx.stroke()});
+ if(GB.layer==='naval')fleets.filter(x=>pw==='ALL'||pw===x[0]).forEach(x=>{const q=gProj(x[2],x[3]);if(!q[2])return;const X=cx+q[0]*R,Y=cy-q[1]*R,pu=((now*.0012)+x[2]*.01)%1;ctx.strokeStyle=C3[x[0]];ctx.globalAlpha=1-pu;ctx.lineWidth=2;ctx.beginPath();ctx.arc(X,Y,6+pu*16,0,7);ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle=C3[x[0]];ctx.beginPath();ctx.arc(X,Y,4,0,7);ctx.fill()});
+ if(GB.layer==='conflicts')GB.hot.forEach((h,i)=>{const q=gProj(h[0],h[1]);if(!q[2])return;const X=cx+q[0]*R,Y=cy-q[1]*R,pu=((now*.0016)+i*.17)%1;ctx.strokeStyle='#ff5a5f';ctx.globalAlpha=1-pu;ctx.lineWidth=2;ctx.beginPath();ctx.arc(X,Y,3+pu*12,0,7);ctx.stroke();ctx.globalAlpha=1;ctx.fillStyle='#ff5a5f';ctx.beginPath();ctx.arc(X,Y,3,0,7);ctx.fill()});
+ /* rim */
+ const rim=ctx.createLinearGradient(cx-R,cy-R,cx+R,cy+R);rim.addColorStop(0,'rgba(143,176,255,.7)');rim.addColorStop(.6,'rgba(155,107,255,.35)');rim.addColorStop(1,'rgba(255,107,181,.5)');ctx.strokeStyle=rim;ctx.lineWidth=1.6;ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.stroke()}
+
 /* load */
 async function load(){const keys=Object.keys(M);$('asof').textContent='Ανάκτηση…';
  const res=await Promise.allSettled([...keys.map(k=>getJson('/api/data?type=macro&metric='+k)),getJson('/api/conflicts'),getJson('/api/strategic?kind=markets')]);
@@ -290,6 +378,6 @@ async function load(){const keys=Object.keys(M);$('asof').textContent='Ανάκ�
  Object.values(DS).forEach(d=>(d.rows||[]).forEach(r=>{if(r.name)NAMES[r.code]=r.name}));NAMES.USA='ΗΠΑ';NAMES.CHN='Κίνα';NAMES.RUS='Ρωσία';
  const ok=res.filter(x=>x.status==='fulfilled').length;$('asof').textContent=`${ok}/${res.length} πηγές · ${new Date().toLocaleTimeString('el-GR')}`;
  $('chips').innerHTML=`<span class="stat"><b>${ok}/${res.length}</b> πηγές ενεργές</span><span class="stat">31 χώρες</span><span class="stat">UCDP <b>${esc(WAR?.month||'—')}</b></span><span class="stat">Πάτα <b>/</b> για αναζήτηση χώρας</span>`;
- drawHero();drawTicker();initLab();initDuel();drawMap();initRace();initTrends();drawWar();drawMarkets();loadNews()}
-$('refresh').onclick=load;load();
+ globeBuild();drawHero();drawTicker();initLab();initDuel();drawMap();initRace();initTrends();drawWar();drawMarkets();loadNews()}
+$('refresh').onclick=load;globeInit();load();
 </script></body></html>
