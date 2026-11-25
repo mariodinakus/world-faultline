@@ -129,15 +129,15 @@ footer{padding:80px 0 50px;color:var(--mute);font-size:13px;text-align:center}
 <p class="lead">ΗΠΑ, Κίνα, Ρωσία και 28 ακόμη χώρες, με ζωντανά ανοιχτά δεδομένα. Βάλε τα δικά σου κριτήρια ισχύος, συγκρίνε χώρες, δες τον χάρτη και τις συγκρούσεις.</p>
 <div class="grid g3" id="scores"></div><div class="chips" id="chips"></div></section>
 
-<section class="s reveal" id="live"><span class="eyebrow"><i></i>Live · Ποιος νικάει</span><h2 class="t">Ο αγώνας ισχύος <span class="grad">σε πραγματικό χρόνο</span></h2><p class="lead">Δύο ματιές. Η <b>δομική</b> βαθμολογία συγκρίνει ΗΠΑ, Κίνα, Ρωσία και Ινδία σε <span id="lvn">23</span> μεταβλητές της Παγκόσμιας Τράπεζας και δείχνει ποιος κερδίζει έδαφος την τελευταία πενταετία. Η <b>ζωντανή</b> ροή διαβάζει ειδήσεις των τελευταίων 48 ωρών και καταγράφει τι κάνει κάθε δύναμη σε άλλες χώρες.</p>
+<section class="s reveal" id="live"><span class="eyebrow"><i></i>Live · Ποιος νικάει</span><h2 class="t">Ο αγώνας ισχύος <span class="grad">σε πραγματικό χρόνο</span></h2><p class="lead">ΗΠΑ, Κίνα, Ρωσία, Ινδία σε <span id="lvn">24</span> μεταβλητές + τι κάνουν τώρα σε άλλες χώρες.</p>
 <div class="lvbar"><span class="lvdot"></span><span id="lvstat">Σύνδεση…</span><span class="lvnext" id="lvnext"></span><button class="lvbtn" id="lvnow">↻ Ανανέωση τώρα</button></div>
 <div class="grid g4" id="lvscore"><div class="load">Υπολογισμός…</div></div>
-<div class="card" style="margin-top:16px"><div class="tools" style="margin:0 0 6px"><h3 style="margin-right:auto">Μεταβλητή προς μεταβλητή</h3><div class="seg" id="lvgrp"></div></div><div class="sub">Νικητής = πρώτος στην τελευταία κοινή χρονιά · βέλος = μεταβολή μεριδίου σε 5 χρόνια ανάμεσα στους τέσσερις · για χρέος, πληθωρισμό και ενεργειακή εξάρτηση κερδίζει το χαμηλότερο</div><div id="lvtab" class="load">Φόρτωση…</div></div>
-<h3 style="margin:34px 0 6px">Τι κάνουν οι δυνάμεις σε άλλες χώρες · τελευταίες 48 ώρες</h3>
+<div class="card" style="margin-top:16px"><div class="tools" style="margin:0 0 6px"><h3 style="margin-right:auto">Μεταβλητή προς μεταβλητή</h3><div class="seg" id="lvgrp"></div></div><div class="sub">▲▼ = κέρδος/απώλεια 5ετίας</div><div id="lvtab" class="load">Φόρτωση…</div></div>
+<h3 style="margin:34px 0 6px">Δράση σε άλλες χώρες · 48h</h3>
 <div class="grid g3" id="lvpow"><div class="load">Ανάγνωση ειδήσεων…</div></div>
-<div class="grid g12" style="margin-top:16px"><div class="card"><h3>Μάχη ανά χώρα</h3><div class="sub">Ποια δύναμη εμφανίζεται πιο συχνά σε κάθε χώρα-στόχο</div><div id="lvbattle" class="load">Φόρτωση…</div></div>
+<div class="grid g12" style="margin-top:16px"><div class="card"><h3>Μάχη ανά χώρα</h3><div id="lvbattle" class="load">Φόρτωση…</div></div>
 <div class="card"><div class="tools" style="margin:0 0 6px"><h3 style="margin-right:auto">Ροή δραστηριοτήτων</h3><div class="seg" id="lvpf"></div><select id="lvtf"><option value="">Όλοι οι τύποι</option><option value="military">Στρατιωτικά</option><option value="economic">Οικονομικά</option><option value="diplomatic">Διπλωματικά</option><option value="sanctions">Κυρώσεις & δασμοί</option></select></div><div id="lvfeed" class="lvfeed load">Φόρτωση…</div></div></div>
-<div class="note">Η ζωντανή ροή ταξινομεί αυτόματα τίτλους ειδήσεων με λέξεις-κλειδιά (Google News, εναλλακτικά GDELT). Μετρά <b>παρουσία στην ειδησεογραφία</b>, όχι πραγματική επιρροή, και μπορεί να κάνει λάθη στην ταξινόμηση. Η δομική βαθμολογία είναι απλή καταμέτρηση νικών και όχι επίσημος δείκτης.</div></section>
+<div class="note">Ειδήσεις 48h, αυτόματη ταξινόμηση.</div></section>
 
 
 <section class="s reveal" id="globe"><span class="eyebrow"><i></i>Influence globe</span><h2 class="t">Η <span class="grad">επιρροή</span> σε σφαίρα</h2><p class="lead">Σύρε για να γυρίσεις τη Γη. Τόξα από την πρωτεύουσα κάθε δύναμης προς συμμάχους, βάσεις και στόλους, ή χρωματισμός όλων των χωρών ανά εξαγωγές, εισαγωγές και επενδύσεις. Διάλεξε ήπειρο για να δεις τον Νο1. Πάτα χώρα για προφίλ.</p>
