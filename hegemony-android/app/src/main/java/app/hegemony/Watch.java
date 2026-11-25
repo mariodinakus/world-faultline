@@ -10,7 +10,7 @@ public class Watch extends Worker{
  void notify(int id,String t,String body,String anchor){Context c=getApplicationContext();channel(c);
   Intent i=new Intent(c,MainActivity.class).putExtra("url",SITE+anchor).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
   PendingIntent pi=PendingIntent.getActivity(c,id,i,PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_UPDATE_CURRENT);
-  Notification n=new Notification.Builder(c,"alerts").setSmallIcon(android.R.drawable.ic_dialog_alert).setContentTitle(t).setContentText(body).setStyle(new Notification.BigTextStyle().bigText(body)).setContentIntent(pi).setAutoCancel(true).build();
+  Notification n=new Notification.Builder(c,"alerts").setSmallIcon(R.drawable.ic_stat).setColor(0xFF5B8CFF).setContentTitle(t).setContentText(body).setStyle(new Notification.BigTextStyle().bigText(body)).setContentIntent(pi).setAutoCancel(true).build();
   try{c.getSystemService(NotificationManager.class).notify(id,n);}catch(SecurityException e){}}
  @NonNull @Override public Result doWork(){SharedPreferences p=getApplicationContext().getSharedPreferences("h",0);SharedPreferences.Editor e=p.edit();boolean first=!p.contains("init");
   try{JSONArray a=new JSONObject(get(SITE+"api/tension")).getJSONArray("pairs");
