@@ -23,6 +23,6 @@ public class Watch extends Worker{
      if(!first&&old>=0&&Math.abs(v-old)>=10)notify(1000+Math.abs(k.hashCode()%5000),"🎲 "+old+"% → "+v+"%",o.getString("title")+" · "+m.getString("q"),"#future");}}}catch(Exception x){}
   try{JSONArray ps=new JSONObject(get(SITE+"api/activity")).getJSONArray("powers");
    for(int i=0;i<ps.length();i++){JSONObject o=ps.getJSONObject(i);int conf=o.optInt("conf");String k="a_"+o.getString("power");int old=p.getInt(k,-1);e.putInt(k,conf);
-    if(!first&&old>=0&&conf-old>=8)notify(200+i,"⚔️ "+o.getString("power")+": απότομη άνοδος αντιπαράθεσης",old+" → "+conf+" συγκρουσιακές ειδήσεις σε 48h","#live");}}}catch(Exception x){}
+    if(!first&&old>=0&&conf-old>=8)notify(200+i,"⚔️ "+o.getString("power")+": απότομη άνοδος αντιπαράθεσης",old+" → "+conf+" συγκρουσιακές ειδήσεις σε 48h","#live");}}catch(Exception x){}
   e.putBoolean("init",true).apply();return Result.success();}
 }
