@@ -1,0 +1,31 @@
+{
+  "name": "hegemony-desktop",
+  "version": "1.0.0",
+  "description": "Global Intelligence Terminal",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test engine.test.cjs",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "gr.hegemony.desktop",
+    "productName": "HEGEMONY",
+    "files": [
+      "*.cjs",
+      "*.html"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
