@@ -1,0 +1,31 @@
+name: HEGEMONY Windows
+on:
+  push:
+    branches: [hegemony-desktop-v1]
+    paths: ['desktop/native/**', '.github/workflows/hegemony-windows.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop/native
+    steps:
+      - uses: actions/checkout@11bd71901bbe7d2e0990d0bb1bb6f3656c7e4c71
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm test
+      - run: npm run dist
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: HEGEMONY-Windows-Installer
+          path: desktop/native/dist/*.exe
+          if-no-files-found: error
