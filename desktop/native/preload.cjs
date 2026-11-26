@@ -1,0 +1,1 @@
+const {contextBridge,ipcRenderer}=require('electron');contextBridge.exposeInMainWorld('hegemony',{get:()=>ipcRenderer.invoke('get'),poll:()=>ipcRenderer.invoke('poll'),web:()=>ipcRenderer.invoke('web'),settings:s=>ipcRenderer.invoke('settings',s),onState:f=>ipcRenderer.on('state',(_,s)=>f(s))});
